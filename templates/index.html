@@ -78,6 +78,25 @@
             letter-spacing: 0.05em;
         }
         
+        .filter-section-title {
+            margin-bottom: 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .filter-section-title h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .filter-section-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
         .filters {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -246,6 +265,13 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 0.25rem;
+        }
+        
+        .item-name {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-style: italic;
+            margin-bottom: 0.15rem;
         }
         
         .item-type {
@@ -481,7 +507,20 @@
             <p class="subtitle">Stream Arena RPG - Browse items from adventurers across the realm</p>
         </div>
         
+        <!-- Filters Section -->
+        <div class="filter-section-title">
+            <h2>🔍 Filters</h2>
+            <p>All listings are loaded automatically - filter them instantly below</p>
+        </div>
+        
         <div class="filters">
+            <div class="filter-group">
+                <label>Item Name</label>
+                <select id="filterItemName">
+                    <option value="">Any Item</option>
+                </select>
+            </div>
+            
             <div class="filter-group">
                 <label>Slot</label>
                 <select id="filterSlot">
@@ -499,27 +538,11 @@
             
             <div class="filter-group">
                 <label>Class</label>
-                <select id="filterClass">
+                <select id="filterItemClass">
                     <option value="">Any Class</option>
-                    <option value="warrior">Warrior</option>
-                    <option value="mage">Mage</option>
-                    <option value="rogue">Rogue</option>
-                    <option value="priest">Priest</option>
                 </select>
             </div>
             
-            <div class="filter-group">
-                <label>Page</label>
-                <input type="number" id="pageInput" value="1" min="1">
-            </div>
-            
-            <div class="filter-group">
-                <label>&nbsp;</label>
-                <button class="btn" onclick="loadListings()">Search</button>
-            </div>
-        </div>
-        
-        <div class="filters" style="animation-delay: 0.3s;">
             <div class="filter-group">
                 <label>Username</label>
                 <input type="text" id="filterUsername" placeholder="Filter by username...">
@@ -534,7 +557,9 @@
                 <label>Max Power %</label>
                 <input type="number" id="filterMaxPower" placeholder="999" step="0.1">
             </div>
-            
+        </div>
+        
+        <div class="filters" style="animation-delay: 0.3s;">
             <div class="filter-group">
                 <label>Min Range</label>
                 <input type="number" id="filterMinRange" placeholder="Any" min="0">
@@ -546,12 +571,12 @@
             </div>
             
             <div class="filter-group">
-                <label>&nbsp;</label>
-                <button class="btn" onclick="applyClientFilters()" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">Apply Filters</button>
+                <label>Extra Property</label>
+                <select id="filterExtraProperty">
+                    <option value="">Any</option>
+                </select>
             </div>
-        </div>
-        
-        <div class="filters" style="animation-delay: 0.4s;">
+            
             <div class="filter-group">
                 <label>Max Platinum</label>
                 <input type="number" id="filterMaxPlatinum" placeholder="No limit" min="0">
@@ -569,26 +594,27 @@
             
             <div class="filter-group">
                 <label>&nbsp;</label>
-                <button class="btn" onclick="clearClientFilters()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">Clear Filters</button>
+                <button class="btn" onclick="applyFilters()" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">✨ Apply Filters</button>
+            </div>
+            
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="clearFilters()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🗑️ Clear Filters</button>
             </div>
         </div>
         
         <div class="stats-bar">
             <div class="stat">
                 <span class="stat-label">Status</span>
-                <span class="stat-value" id="statusText">Ready</span>
+                <span class="stat-value" id="statusText">Loading...</span>
             </div>
             <div class="stat">
-                <span class="stat-label">Current Page</span>
-                <span class="stat-value" id="currentPage">1</span>
+                <span class="stat-label">Total Listings</span>
+                <span class="stat-value" id="totalCount">0</span>
             </div>
             <div class="stat">
                 <span class="stat-label">Showing</span>
                 <span class="stat-value" id="showingCount">0</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">Total Loaded</span>
-                <span class="stat-value" id="totalCount">0</span>
             </div>
         </div>
         
@@ -597,12 +623,6 @@
                 <div class="spinner"></div>
                 <p>Loading market listings...</p>
             </div>
-        </div>
-        
-        <div class="pagination" id="pagination">
-            <button class="page-btn" onclick="previousPage()">← Previous</button>
-            <button class="page-btn active" id="currentPageBtn">1</button>
-            <button class="page-btn" onclick="nextPage()">Next →</button>
         </div>
     </div>
     
@@ -620,47 +640,280 @@
         
         let currentData = null;
         let allListings = []; // Store all loaded listings for client-side filtering
+        let gameItems = null; // Store game items data
         
-        async function loadListings() {
-            const listings = document.getElementById('listings');
-            const slot = document.getElementById('filterSlot').value;
-            const classFilter = document.getElementById('filterClass').value;
-            const page = document.getElementById('pageInput').value;
-            
-            document.getElementById('statusText').textContent = 'Loading';
-            listings.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading market listings...</p></div>';
+        // Load game items data on page load
+        async function loadGameItems() {
+            console.log('  → Fetching /api/items...');
             
             try {
-                const params = new URLSearchParams();
-                params.append('page', page);
-                if (slot) params.append('slot', slot);
-                if (classFilter) params.append('class', classFilter);
+                const response = await fetch('/api/items');
+                console.log('  → Response status:', response.status, response.statusText);
                 
-                const response = await fetch(`/api/listings?${params.toString()}`);
                 const data = await response.json();
+                console.log('  → Response data:', data);
                 
-                if (!response.ok || data.status === 'error') {
-                    throw new Error(data.message || 'Failed to load listings');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${data.message || 'Unknown error'}`);
                 }
                 
-                currentData = data;
-                allListings = data.listings || [];
+                if (data.status !== 'success') {
+                    throw new Error(`API returned status: ${data.status}`);
+                }
                 
-                // Apply client-side filters after loading
-                applyClientFilters();
+                if (!data.items || !Array.isArray(data.items)) {
+                    throw new Error('API response missing items array');
+                }
                 
-                document.getElementById('currentPage').textContent = page;
-                document.getElementById('currentPageBtn').textContent = page;
-                document.getElementById('totalCount').textContent = allListings.length;
-                document.getElementById('statusText').textContent = data.status || 'success';
+                gameItems = data.items;
+                console.log('  → Successfully loaded', gameItems.length, 'items');
+                
+                if (gameItems.length > 0) {
+                    console.log('  → Sample item:', JSON.stringify(gameItems[0], null, 2));
+                }
+                
+                return true;
                 
             } catch (error) {
-                listings.innerHTML = `<div class="error"><h3>Error Loading Data</h3><p>${error.message}</p></div>`;
-                document.getElementById('statusText').textContent = 'Error';
+                console.error('  ✗ ERROR loading game items:', error);
+                gameItems = null;
+                throw error;
             }
         }
         
-        function applyClientFilters() {
+        // Populate all filters from game items
+        function populateFilters() {
+            console.log('  → populateFilters called');
+            
+            if (!gameItems || gameItems.length === 0) {
+                console.error('  ✗ Cannot populate filters - gameItems is null or empty!');
+                return false;
+            }
+            
+            console.log('  → gameItems available:', gameItems.length, 'items');
+            
+            populateItemNameFilter();
+            populateItemClassFilter();
+            populateExtraPropertyFilter();
+            
+            return true;
+        }
+        
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Add real-time filtering on Enter key
+            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange', 
+             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') applyFilters();
+                    });
+                }
+            });
+            
+            // Add change listeners for select dropdowns
+            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', applyFilters);
+                }
+            });
+            
+            console.log('Event listeners setup complete');
+        }
+        
+        // Populate item name filter
+        function populateItemNameFilter() {
+            console.log('    → Populating Item Name filter...');
+            
+            const itemNameFilter = document.getElementById('filterItemName');
+            if (!itemNameFilter) {
+                console.error('    ✗ filterItemName element not found!');
+                return;
+            }
+            
+            itemNameFilter.innerHTML = '<option value="">Any Item</option>';
+            
+            // Group by slot and sort
+            const itemsBySlot = {};
+            gameItems.forEach(item => {
+                if (!itemsBySlot[item.slot]) {
+                    itemsBySlot[item.slot] = [];
+                }
+                itemsBySlot[item.slot].push(item);
+            });
+            
+            // Add optgroups by slot
+            let totalItems = 0;
+            Object.keys(itemsBySlot).sort().forEach(slot => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = formatSlotName(slot);
+                
+                itemsBySlot[slot].sort((a, b) => a.item_name.localeCompare(b.item_name)).forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = `${item.id}:${item.slot}`;
+                    option.textContent = item.item_name;
+                    optgroup.appendChild(option);
+                    totalItems++;
+                });
+                
+                itemNameFilter.appendChild(optgroup);
+            });
+            
+            console.log('    ✓ Item Name filter:', totalItems, 'items in', Object.keys(itemsBySlot).length, 'slots');
+        }
+        
+        // Populate item class filter
+        function populateItemClassFilter() {
+            console.log('    → Populating Class filter...');
+            
+            const itemClassFilter = document.getElementById('filterItemClass');
+            if (!itemClassFilter) {
+                console.error('    ✗ filterItemClass element not found!');
+                return;
+            }
+            
+            const classSet = new Set();
+            gameItems.forEach(item => {
+                if (item.classes) {
+                    try {
+                        const classes = JSON.parse(item.classes);
+                        classes.forEach(cls => classSet.add(cls));
+                    } catch (e) {
+                        console.error('    ✗ Error parsing classes:', item.id, e);
+                    }
+                }
+            });
+            
+            itemClassFilter.innerHTML = '<option value="">Any Class</option>';
+            
+            Array.from(classSet).sort().forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls;
+                option.textContent = cls === 'any' ? 'Any Class (Universal)' : cls.charAt(0).toUpperCase() + cls.slice(1);
+                itemClassFilter.appendChild(option);
+            });
+            
+            console.log('    ✓ Class filter:', classSet.size, 'classes -', Array.from(classSet).join(', '));
+        }
+        
+        // Populate extra property filter
+        function populateExtraPropertyFilter() {
+            console.log('    → Populating Extra Property filter...');
+            
+            const extraFilter = document.getElementById('filterExtraProperty');
+            if (!extraFilter) {
+                console.error('    ✗ filterExtraProperty element not found!');
+                return;
+            }
+            
+            const extraSet = new Set();
+            gameItems.forEach(item => {
+                if (item.extra) {
+                    item.extra.split(',').forEach(extra => {
+                        const trimmed = extra.trim();
+                        if (trimmed) extraSet.add(trimmed);
+                    });
+                }
+            });
+            
+            extraFilter.innerHTML = '<option value="">Any</option>';
+            
+            Array.from(extraSet).sort().forEach(extra => {
+                const option = document.createElement('option');
+                option.value = extra;
+                option.textContent = extra;
+                extraFilter.appendChild(option);
+            });
+            
+            console.log('    ✓ Extra Property filter:', extraSet.size, 'properties -', Array.from(extraSet).join(', '));
+        }
+        
+        // Populate all filters from game items
+        function populateFilters() {
+            console.log('  → populateFilters called');
+            
+            if (!gameItems || gameItems.length === 0) {
+                console.error('  ✗ Cannot populate filters - gameItems is null or empty!');
+                return false;
+            }
+            
+            console.log('  → gameItems available:', gameItems.length, 'items');
+            
+            populateItemNameFilter();
+            populateItemClassFilter();
+            populateExtraPropertyFilter();
+            
+            return true;
+        }
+        
+        async function loadAllListings() {
+            console.log('  → Starting to load all listings...');
+            
+            const listings = document.getElementById('listings');
+            document.getElementById('statusText').textContent = 'Loading';
+            listings.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading all market listings...</p></div>';
+            
+            allListings = [];
+            let page = 1;
+            let hasMore = true;
+            
+            try {
+                while (hasMore) {
+                    console.log(`  → Fetching page ${page}...`);
+                    document.getElementById('statusText').textContent = `Loading page ${page}...`;
+                    
+                    const params = new URLSearchParams();
+                    params.append('page', page);
+                    
+                    const response = await fetch(`/api/listings?${params.toString()}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`  → Page ${page} response:`, data.status, `(${data.listings?.length || 0} items)`);
+                    
+                    if (data.status === 'error') {
+                        throw new Error(data.message || 'API returned error status');
+                    }
+                    
+                    if (data.listings && data.listings.length > 0) {
+                        allListings = allListings.concat(data.listings);
+                        document.getElementById('totalCount').textContent = allListings.length;
+                    }
+                    
+                    // Check if there's a next page
+                    hasMore = data.next_page === true || data.next_page === 'true';
+                    console.log(`  → Page ${page} complete. Next page: ${hasMore}`);
+                    page++;
+                    
+                    // Safety limit to prevent infinite loops
+                    if (page > 100) {
+                        console.warn('  ⚠ Reached page limit of 100');
+                        break;
+                    }
+                }
+                
+                console.log('  ✓ All listings loaded:', allListings.length, 'total');
+                document.getElementById('statusText').textContent = 'Ready';
+                document.getElementById('totalCount').textContent = allListings.length;
+                
+                // Apply filters to show all listings
+                applyFilters();
+                
+            } catch (error) {
+                console.error('  ✗ ERROR loading listings:', error);
+                listings.innerHTML = `<div class="error"><h3>Error Loading Listings</h3><p>${error.message}</p></div>`;
+                document.getElementById('statusText').textContent = 'Error';
+                throw error; // Re-throw so the main initialization catches it
+            }
+        }
+        
+        function applyFilters() {
             if (!allListings || allListings.length === 0) {
                 return;
             }
@@ -674,11 +927,20 @@
             const maxPlatinum = parseInt(document.getElementById('filterMaxPlatinum').value);
             const maxGold = parseInt(document.getElementById('filterMaxGold').value);
             const maxGems = parseInt(document.getElementById('filterMaxGems').value);
+            const itemNameFilter = document.getElementById('filterItemName').value;
+            const slotFilter = document.getElementById('filterSlot').value;
+            const itemClassFilter = document.getElementById('filterItemClass').value.toLowerCase();
+            const extraPropertyFilter = document.getElementById('filterExtraProperty').value;
             
             // Filter the listings
             let filteredListings = allListings.filter(item => {
                 // Username filter
                 if (usernameFilter && !item.username.toLowerCase().includes(usernameFilter)) {
+                    return false;
+                }
+                
+                // Slot filter
+                if (slotFilter && item.slot !== slotFilter) {
                     return false;
                 }
                 
@@ -723,6 +985,55 @@
                     if (gemCost > maxGems) return false;
                 }
                 
+                // Item name filter
+                if (itemNameFilter) {
+                    const [filterId, filterSlot] = itemNameFilter.split(':');
+                    if (item.base_item_id !== filterId || item.slot !== filterSlot) {
+                        return false;
+                    }
+                }
+                
+                // Item class filter - items with "any" class can be worn by anyone
+                if (itemClassFilter && gameItems) {
+                    const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
+                    if (gameItem && gameItem.classes) {
+                        try {
+                            const classes = JSON.parse(gameItem.classes);
+                            // Show items that either match the selected class OR have "any" class
+                            if (!classes.includes(itemClassFilter) && !classes.includes('any')) {
+                                return false;
+                            }
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // Extra property filter
+                if (extraPropertyFilter) {
+                    let hasProperty = false;
+                    try {
+                        const extras = JSON.parse(item.extra || '{}');
+                        // Check if the extra property matches
+                        if (extras.extra === extraPropertyFilter) {
+                            hasProperty = true;
+                        }
+                    } catch (e) {}
+                    
+                    // Also check game item's extra field
+                    if (!hasProperty && gameItems) {
+                        const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
+                        if (gameItem && gameItem.extra) {
+                            const extraProps = gameItem.extra.split(',').map(e => e.trim());
+                            hasProperty = extraProps.includes(extraPropertyFilter);
+                        }
+                    }
+                    
+                    if (!hasProperty) {
+                        return false;
+                    }
+                }
+                
                 return true;
             });
             
@@ -733,7 +1044,7 @@
             renderListings({ listings: filteredListings });
         }
         
-        function clearClientFilters() {
+        function clearFilters() {
             document.getElementById('filterUsername').value = '';
             document.getElementById('filterMinPower').value = '';
             document.getElementById('filterMaxPower').value = '';
@@ -742,7 +1053,18 @@
             document.getElementById('filterMaxPlatinum').value = '';
             document.getElementById('filterMaxGold').value = '';
             document.getElementById('filterMaxGems').value = '';
-            applyClientFilters();
+            document.getElementById('filterItemName').value = '';
+            document.getElementById('filterSlot').value = '';
+            document.getElementById('filterItemClass').value = '';
+            document.getElementById('filterExtraProperty').value = '';
+            applyFilters();
+        }
+        
+        function getItemName(baseItemId, slot) {
+            if (!gameItems) return null;
+            
+            const item = gameItems.find(i => i.id === baseItemId && i.slot === slot);
+            return item ? item.item_name : null;
         }
         
         function renderListings(data) {
@@ -814,6 +1136,10 @@
                 
                 let powerPercent = (parseFloat(item.power) * 100).toFixed(1);
                 
+                // Get item name from game items data
+                const itemName = getItemName(item.base_item_id, item.slot);
+                const itemNameDisplay = itemName ? `<div class="item-name">${escapeHtml(itemName)}</div>` : '';
+                
                 // Format costs properly - can have multiple currencies
                 const platinum = parseInt(item.platinum_cost) || 0;
                 const gold = parseInt(item.gold_cost) || 0;
@@ -830,6 +1156,7 @@
                     <div class="card-id">#${item.id}</div>
                     <div class="card-user">
                         <div class="username">${escapeHtml(item.username)}</div>
+                        ${itemNameDisplay}
                         <div class="item-type">${escapeHtml(item.slot)}</div>
                     </div>
                     <div class="card-slot">
@@ -891,38 +1218,46 @@
             return div.innerHTML;
         }
         
-        function nextPage() {
-            const pageInput = document.getElementById('pageInput');
-            if (currentData && currentData.next_page !== 'false' && currentData.next_page !== false) {
-                pageInput.value = parseInt(pageInput.value) + 1;
-                loadListings();
-            }
-        }
-        
-        function previousPage() {
-            const pageInput = document.getElementById('pageInput');
-            if (parseInt(pageInput.value) > 1) {
-                pageInput.value = parseInt(pageInput.value) - 1;
-                loadListings();
-            }
-        }
         
         // Load on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadListings();
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('=== Page Initialization Started ===');
             
-            // Add real-time filtering on Enter key
-            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange', 
-             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
-                document.getElementById(id).addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') applyClientFilters();
-                });
-            });
-        });
-        
-        // Allow Enter key in inputs
-        document.getElementById('pageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadListings();
+            try {
+                // STEP 1: Load game items and WAIT for completion
+                console.log('STEP 1: Loading game items...');
+                await loadGameItems();
+                
+                if (!gameItems || gameItems.length === 0) {
+                    console.error('CRITICAL ERROR: Game items failed to load!');
+                    document.getElementById('statusText').textContent = 'Error: Game items failed to load';
+                    return;
+                }
+                
+                console.log('✓ STEP 1 COMPLETE: Game items loaded successfully');
+                console.log('  Total items:', gameItems.length);
+                
+                // STEP 2: Populate all filters
+                console.log('STEP 2: Populating filters...');
+                populateFilters();
+                console.log('✓ STEP 2 COMPLETE: Filters populated');
+                
+                // STEP 3: Setup event listeners
+                console.log('STEP 3: Setting up event listeners...');
+                setupEventListeners();
+                console.log('✓ STEP 3 COMPLETE: Event listeners ready');
+                
+                // STEP 4: Load all listings
+                console.log('STEP 4: Loading all market listings...');
+                await loadAllListings();
+                console.log('✓ STEP 4 COMPLETE: All listings loaded');
+                
+                console.log('=== Initialization Complete ===');
+                
+            } catch (error) {
+                console.error('FATAL ERROR during initialization:', error);
+                document.getElementById('statusText').textContent = 'Fatal Error';
+            }
         });
     </script>
 </body>
