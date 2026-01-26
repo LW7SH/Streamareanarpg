@@ -895,7 +895,14 @@
             
             // Add extra properties from game items
             gameItems.forEach(i => {
-                if (i.extra) i.extra.split(',').forEach(e => { const t = e.trim(); if (t) props.add(t); });
+                if (i.extra) i.extra.split(',').forEach(e => { 
+                    const t = e.trim(); 
+                    if (t) {
+                        // Normalize A_Speed to Attack Speed
+                        const normalized = t === 'A_Speed' ? 'Attack Speed' : t;
+                        props.add(normalized);
+                    }
+                });
             });
             
             const propFilter = document.getElementById('filterExtraProperty');
@@ -1034,8 +1041,11 @@
                 }
                 
                 if (f.extraProp) {
-                    const itemStats = getItemStatTypes(item);
-                    if (!itemStats.includes(f.extraProp)) return false;
+                    const itemStats = getItemStatTypes(item, true); // onlyActual=true for filtering
+                    // Case-insensitive comparison for extra property
+                    const normalizedFilterProp = f.extraProp.toLowerCase();
+                    const hasMatch = itemStats.some(stat => stat.toLowerCase() === normalizedFilterProp);
+                    if (!hasMatch) return false;
                 }
                 
                 return true;
@@ -1172,7 +1182,9 @@
         }
         
         // Get all stat types for an item (innate + extra)
-        function getItemStatTypes(item) {
+        // If onlyActual=true, only returns stats this specific listing has (for filtering)
+        // If onlyActual=false, returns all possible stats including base item extras (for display)
+        function getItemStatTypes(item, onlyActual = false) {
             const stats = new Set();
             
             // Add innate stat type for slots that HAVE fixed innate stats
@@ -1189,24 +1201,39 @@
                 stats.add(innateStats[item.slot]);
             }
             
-            // Add extra property from listing
+            // Add extra property from listing (this is what the item actually has)
+            let hasListingExtra = false;
             try {
                 const extra = JSON.parse(item.extra || '{}').extra;
-                if (extra) stats.add(extra);
+                if (extra && extra.trim()) {
+                    // Normalize A_Speed to Attack Speed
+                    const normalized = extra === 'A_Speed' ? 'Attack Speed' : extra;
+                    stats.add(normalized);
+                    hasListingExtra = true;
+                }
             } catch(e) {}
             
-            // Add extra properties from game items
-            if (gameItems) {
-                const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
-                if (gameItem?.extra) {
-                    gameItem.extra.split(',').forEach(e => {
-                        const trimmed = e.trim();
-                        if (trimmed) stats.add(trimmed);
-                    });
+            // Add extra properties from game items (all possible extras)
+            // BUT: for filtering purposes (onlyActual=true), skip this if the listing already has an extra
+            // This prevents rings from matching filters for stats they don't actually have
+            if (!onlyActual || !hasListingExtra) {
+                if (gameItems) {
+                    const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
+                    if (gameItem?.extra) {
+                        gameItem.extra.split(',').forEach(e => {
+                            const trimmed = e.trim();
+                            if (trimmed) {
+                                // Normalize A_Speed to Attack Speed
+                                const normalized = trimmed === 'A_Speed' ? 'Attack Speed' : trimmed;
+                                stats.add(normalized);
+                            }
+                        });
+                    }
                 }
             }
             
-            return Array.from(stats);
+            // Filter out any empty strings that might have been added
+            return Array.from(stats).filter(s => s && s.trim());
         }
         
         function getRange(item) {
