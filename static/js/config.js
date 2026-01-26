@@ -1,6 +1,6 @@
 // Configuration and Constants
 const CONFIG = {
-    PLATINUM_TO_GOLD: 1000,
+    PLATINUM_TO_GOLD: 1000000,
     
     slotIcons: {
         weapon: '⚔️',

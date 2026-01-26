@@ -9,7 +9,7 @@ const Marketplace = {
         const itemClass = document.getElementById('filterItemClass').value;
         const extraProp = document.getElementById('filterExtraProperty').value;
         const minPower = parseFloat(document.getElementById('filterMinPower').value) || 0;
-        const maxPower = parseFloat(document.getElementById('filterMaxPower').value) || 100;
+        const maxPower = parseFloat(document.getElementById('filterMaxPower').value) || 999;
         const minRange = parseFloat(document.getElementById('filterMinRange').value);
         const maxRange = parseFloat(document.getElementById('filterMaxRange').value);
         const maxPlat = parseFloat(document.getElementById('filterMaxPlatinum').value);
@@ -136,12 +136,20 @@ const Marketplace = {
                     const slotPriceClass = totalGold <= slotAnalysisData.minPrice * 1.1 ? 'comparison-good' : 
                                           totalGold >= slotAnalysisData.maxPrice * 0.9 ? 'comparison-bad' : 'comparison-neutral';
                     
+                    // Calculate cost per power point
+                    const itemCostPerPower = totalGold / powerFloat;
+                    const avgItemCostPerPower = analysisData.avgCostPerPower || (analysisData.avgPrice / analysisData.avgPower);
+                    const avgSlotCostPerPower = slotAnalysisData.avgCostPerPower || (slotAnalysisData.avgPrice / slotAnalysisData.avgPower);
+                    
                     comparisonHTML = `
                         <div class="comparison-tooltip">
                             <div style="font-weight: 700; margin-bottom: 0.75rem; color: var(--primary); font-size: 0.75rem; text-align: center;">📊 MARKET COMPARISON</div>
                             
                             <div style="background: var(--bg-elevated); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
-                                <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Same Item (${analysisData.count} listings)</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Same Item (${analysisData.count} listings)</div>
+                                    <div style="background: ${Utils.getTierFromPercentile(itemPowerPercent, analysisData.count).color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace;">${Utils.getTierFromPercentile(itemPowerPercent, analysisData.count).tier}</div>
+                                </div>
                                 <div class="comparison-row">
                                     <span class="comparison-label">Power</span>
                                     <div style="flex: 1; margin-left: 0.75rem;">
@@ -166,10 +174,19 @@ const Marketplace = {
                                         </div>
                                     </div>
                                 </div>
+                                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-dim);">Avg Cost/Power:</span>
+                                    <span style="font-family: 'Space Mono', monospace; font-weight: 600; color: ${itemCostPerPower < avgItemCostPerPower * 0.9 ? 'var(--success)' : itemCostPerPower > avgItemCostPerPower * 1.1 ? 'var(--danger)' : 'var(--text)'};">
+                                        ${Utils.formatGold(itemCostPerPower)}/% (Avg: ${Utils.formatGold(avgItemCostPerPower)}/%)
+                                    </span>
+                                </div>
                             </div>
                             
                             <div style="background: var(--bg-elevated); padding: 0.75rem; border-radius: 6px;">
-                                <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">All ${Utils.formatSlot(item.slot)} (${type})</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">All ${Utils.formatSlot(item.slot)} (${type})</div>
+                                    <div style="background: ${Utils.getTierFromPercentile(slotPowerPercent, slotAnalysisData.count).color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace;">${Utils.getTierFromPercentile(slotPowerPercent, slotAnalysisData.count).tier}</div>
+                                </div>
                                 <div class="comparison-row">
                                     <span class="comparison-label">Power</span>
                                     <div style="flex: 1; margin-left: 0.75rem;">
@@ -193,6 +210,12 @@ const Marketplace = {
                                             ${Utils.formatGold(slotAnalysisData.minPrice)} ← ${Utils.formatGold(totalGold)} → ${Utils.formatGold(slotAnalysisData.maxPrice)}
                                         </div>
                                     </div>
+                                </div>
+                                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-dim);">Avg Cost/Power:</span>
+                                    <span style="font-family: 'Space Mono', monospace; font-weight: 600; color: ${itemCostPerPower < avgSlotCostPerPower * 0.9 ? 'var(--success)' : itemCostPerPower > avgSlotCostPerPower * 1.1 ? 'var(--danger)' : 'var(--text)'};">
+                                        ${Utils.formatGold(itemCostPerPower)}/% (Avg: ${Utils.formatGold(avgSlotCostPerPower)}/%)
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -265,12 +288,20 @@ const Marketplace = {
                     const slotPriceClass = totalGold <= slotAnalysisData.minPrice * 1.1 ? 'comparison-good' : 
                                           totalGold >= slotAnalysisData.maxPrice * 0.9 ? 'comparison-bad' : 'comparison-neutral';
                     
+                    // Calculate cost per power point
+                    const itemCostPerPower = totalGold / powerFloat;
+                    const avgItemCostPerPower = analysisData.avgCostPerPower || (analysisData.avgPrice / analysisData.avgPower);
+                    const avgSlotCostPerPower = slotAnalysisData.avgCostPerPower || (slotAnalysisData.avgPrice / slotAnalysisData.avgPower);
+                    
                     comparisonHTML = `
                         <div class="comparison-tooltip">
                             <div style="font-weight: 700; margin-bottom: 0.75rem; color: var(--primary); font-size: 0.75rem; text-align: center;">📊 MARKET COMPARISON</div>
                             
                             <div style="background: var(--bg-elevated); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
-                                <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Same Item (${analysisData.count} listings)</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Same Item (${analysisData.count} listings)</div>
+                                    <div style="background: ${Utils.getTierFromPercentile(itemPowerPercent, analysisData.count).color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace;">${Utils.getTierFromPercentile(itemPowerPercent, analysisData.count).tier}</div>
+                                </div>
                                 <div class="comparison-row">
                                     <span class="comparison-label">Power</span>
                                     <div style="flex: 1; margin-left: 0.75rem;">
@@ -295,10 +326,19 @@ const Marketplace = {
                                         </div>
                                     </div>
                                 </div>
+                                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-dim);">Avg Cost/Power:</span>
+                                    <span style="font-family: 'Space Mono', monospace; font-weight: 600; color: ${itemCostPerPower < avgItemCostPerPower * 0.9 ? 'var(--success)' : itemCostPerPower > avgItemCostPerPower * 1.1 ? 'var(--danger)' : 'var(--text)'};">
+                                        ${Utils.formatGold(itemCostPerPower)}/% (Avg: ${Utils.formatGold(avgItemCostPerPower)}/%)
+                                    </span>
+                                </div>
                             </div>
                             
                             <div style="background: var(--bg-elevated); padding: 0.75rem; border-radius: 6px;">
-                                <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">All ${Utils.formatSlot(item.slot)} (${type})</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="font-weight: 600; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">All ${Utils.formatSlot(item.slot)} (${type})</div>
+                                    <div style="background: ${Utils.getTierFromPercentile(slotPowerPercent, slotAnalysisData.count).color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace;">${Utils.getTierFromPercentile(slotPowerPercent, slotAnalysisData.count).tier}</div>
+                                </div>
                                 <div class="comparison-row">
                                     <span class="comparison-label">Power</span>
                                     <div style="flex: 1; margin-left: 0.75rem;">
@@ -322,6 +362,12 @@ const Marketplace = {
                                             ${Utils.formatGold(slotAnalysisData.minPrice)} ← ${Utils.formatGold(totalGold)} → ${Utils.formatGold(slotAnalysisData.maxPrice)}
                                         </div>
                                     </div>
+                                </div>
+                                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-dim);">Avg Cost/Power:</span>
+                                    <span style="font-family: 'Space Mono', monospace; font-weight: 600; color: ${itemCostPerPower < avgSlotCostPerPower * 0.9 ? 'var(--success)' : itemCostPerPower > avgSlotCostPerPower * 1.1 ? 'var(--danger)' : 'var(--text)'};">
+                                        ${Utils.formatGold(itemCostPerPower)}/% (Avg: ${Utils.formatGold(avgSlotCostPerPower)}/%)
+                                    </span>
                                 </div>
                             </div>
                         </div>

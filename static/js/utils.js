@@ -196,6 +196,43 @@ const Utils = {
         return parts.join(' + ');
     },
     
+    getTierFromPercentile(percentile, sampleSize = 100) {
+        // Be more generous with tiers when sample size is small
+        // With fewer items, don't use extreme tiers (S/F) unless truly warranted
+        
+        if (sampleSize <= 2) {
+            // With 2 or fewer items, only use B/C tiers (no extremes)
+            if (percentile >= 50) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+            return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+        }
+        
+        if (sampleSize <= 5) {
+            // With 3-5 items, use A/B/C/D (no S or F)
+            if (percentile >= 80) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+            if (percentile >= 60) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+            if (percentile >= 40) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+            return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+        }
+        
+        if (sampleSize <= 10) {
+            // With 6-10 items, slightly more generous thresholds
+            if (percentile >= 85) return { tier: 'S', color: '#ffd700', label: 'S Tier - Elite' };
+            if (percentile >= 70) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+            if (percentile >= 45) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+            if (percentile >= 30) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+            if (percentile >= 15) return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+            return { tier: 'F', color: '#991b1b', label: 'F Tier - Poor' };
+        }
+        
+        // Standard tier system for larger sample sizes (11+)
+        if (percentile >= 90) return { tier: 'S', color: '#ffd700', label: 'S Tier - Elite' };
+        if (percentile >= 75) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+        if (percentile >= 50) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+        if (percentile >= 25) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+        if (percentile >= 10) return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+        return { tier: 'F', color: '#991b1b', label: 'F Tier - Poor' };
+    },
+    
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -233,27 +270,47 @@ const Utils = {
         
         if (slotListings.length === 0) return null;
         
-        // Calculate min/max power and price
+        console.log(`[Slot Analysis] ${slot} (${powerType}): Found ${slotListings.length} items`);
+        
+        // Calculate min/max/avg power and price
         let minPower = Infinity;
         let maxPower = -Infinity;
         let minPrice = Infinity;
         let maxPrice = -Infinity;
+        let totalPower = 0;
+        let totalPrice = 0;
         
         slotListings.forEach(listing => {
             const power = parseFloat(listing.power) * 100;
             const price = this.getTotalGoldValue(listing);
             
             if (power < minPower) minPower = power;
-            if (power > maxPower) maxPower = power;
+            if (power > maxPower) {
+                maxPower = power;
+                if (power > 105) {
+                    console.log(`[Warning] Unusually high power: ${power}% for item`, listing);
+                }
+            }
             if (price < minPrice) minPrice = price;
             if (price > maxPrice) maxPrice = price;
+            
+            totalPower += power;
+            totalPrice += price;
         });
+        
+        console.log(`[Slot Analysis] Power range: ${minPower.toFixed(1)}% - ${maxPower.toFixed(1)}%`);
+        
+        const avgPower = totalPower / slotListings.length;
+        const avgPrice = totalPrice / slotListings.length;
         
         return {
             minPower,
             maxPower,
             minPrice,
             maxPrice,
+            avgPower,
+            avgPrice,
+            avgCostPerPower: avgPrice / avgPower,
             count: slotListings.length
         };
     }
