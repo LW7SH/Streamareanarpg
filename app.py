@@ -13,7 +13,7 @@ def get_listings(page=1, slot=None, class_=None):
         raise RuntimeError("RPG_TOKEN environment variable not set")
 
     payload = {
-        "route": "get_listings",
+        "route": "get_game_items",
         "token": TOKEN,
         "page": int(page),
     }
@@ -25,6 +25,7 @@ def get_listings(page=1, slot=None, class_=None):
 
     r = requests.post(API_URL, json=payload, timeout=15)
     r.raise_for_status()
+    print(r.text)
     return r.json()
 
 

@@ -1,160 +1,929 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Listings Viewer</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
-    label { display: block; font-size: 12px; margin-bottom: 6px; color: #333; }
-    input, select { padding: 8px; min-width: 180px; }
-    button { padding: 9px 14px; cursor: pointer; }
-    table { border-collapse: collapse; width: 100%; margin-top: 18px; }
-    th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; }
-    th { background: #f5f5f5; text-align: left; }
-    .meta { margin-top: 12px; color: #444; font-size: 13px; }
-    .error { margin-top: 12px; color: #b00020; font-size: 13px; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Arena RPG Market</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Crimson+Text:wght@400;600&display=swap');
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #13131a;
+            --bg-card: #1a1a24;
+            --accent-gold: #d4af37;
+            --accent-amber: #ff9500;
+            --text-primary: #e8e6e3;
+            --text-secondary: #a8a6a3;
+            --text-muted: #6b6966;
+            --border: #2a2a34;
+            --shadow: rgba(212, 175, 55, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 149, 0, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .filters {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 2rem;
+            color: var(--bg-primary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: end;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            padding: 1.5rem 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stat-value {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+        
+        .listings {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .listing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 70px 180px 140px 120px 160px 220px;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out both;
+        }
+        
+        .listing-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent-gold);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .listing-card:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 8px 32px var(--shadow);
+            transform: translateX(4px);
+        }
+        
+        .listing-card:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .listing-card:nth-child(n) {
+            animation-delay: calc(0.05s * (var(--index, 1)));
+        }
+        
+        .card-id {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .card-user {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-type {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+        
+        .card-slot {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .slot-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .slot-name {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        
+        .card-power {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .power-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .power-value {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-amber);
+        }
+        
+        .card-costs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .cost-line {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .cost-icon {
+            font-size: 1rem;
+        }
+        
+        .card-extras {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--accent-gold);
+            white-space: nowrap;
+        }
+        
+        .card-dates {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .date-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .date-label {
+            color: var(--text-muted);
+            min-width: 50px;
+        }
+        
+        .date-value {
+            color: var(--text-secondary);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 2rem 0;
+        }
+        
+        .page-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+        
+        .page-btn.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            color: #fca5a5;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 1400px) {
+            .listing-card {
+                grid-template-columns: 60px 160px 120px 110px 150px 200px;
+                gap: 1rem;
+                padding: 1.25rem;
+                font-size: 0.95rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .listing-card {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card-id {
+                text-align: left;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>RPG Listings</h2>
-
-  <div class="row">
-    <div>
-      <label>Page</label>
-      <input id="page" type="number" value="1" min="1" />
+    <div class="container">
+        <div class="header">
+            <h1>Market</h1>
+            <p class="subtitle">Stream Arena RPG - Browse items from adventurers across the realm</p>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>Slot</label>
+                <select id="filterSlot">
+                    <option value="">All Slots</option>
+                    <option value="weapon">Weapon</option>
+                    <option value="off_hand">Off-Hand</option>
+                    <option value="head">Head</option>
+                    <option value="body">Body</option>
+                    <option value="hands">Hands</option>
+                    <option value="feet">Feet</option>
+                    <option value="neck">Neck</option>
+                    <option value="ring">Ring</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Class</label>
+                <select id="filterClass">
+                    <option value="">Any Class</option>
+                    <option value="warrior">Warrior</option>
+                    <option value="mage">Mage</option>
+                    <option value="rogue">Rogue</option>
+                    <option value="priest">Priest</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Page</label>
+                <input type="number" id="pageInput" value="1" min="1">
+            </div>
+            
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="loadListings()">Search</button>
+            </div>
+        </div>
+        
+        <div class="filters" style="animation-delay: 0.3s;">
+            <div class="filter-group">
+                <label>Username</label>
+                <input type="text" id="filterUsername" placeholder="Filter by username...">
+            </div>
+            
+            <div class="filter-group">
+                <label>Min Power %</label>
+                <input type="number" id="filterMinPower" placeholder="0" step="0.1">
+            </div>
+            
+            <div class="filter-group">
+                <label>Max Power %</label>
+                <input type="number" id="filterMaxPower" placeholder="999" step="0.1">
+            </div>
+            
+            <div class="filter-group">
+                <label>Min Range</label>
+                <input type="number" id="filterMinRange" placeholder="Any" min="0">
+            </div>
+            
+            <div class="filter-group">
+                <label>Max Range</label>
+                <input type="number" id="filterMaxRange" placeholder="Any" min="0">
+            </div>
+            
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="applyClientFilters()" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">Apply Filters</button>
+            </div>
+        </div>
+        
+        <div class="filters" style="animation-delay: 0.4s;">
+            <div class="filter-group">
+                <label>Max Platinum</label>
+                <input type="number" id="filterMaxPlatinum" placeholder="No limit" min="0">
+            </div>
+            
+            <div class="filter-group">
+                <label>Max Gold</label>
+                <input type="number" id="filterMaxGold" placeholder="No limit" step="1000" min="0">
+            </div>
+            
+            <div class="filter-group">
+                <label>Max Gems</label>
+                <input type="number" id="filterMaxGems" placeholder="No limit" min="0">
+            </div>
+            
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="clearClientFilters()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">Clear Filters</button>
+            </div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-label">Status</span>
+                <span class="stat-value" id="statusText">Ready</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Current Page</span>
+                <span class="stat-value" id="currentPage">1</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Showing</span>
+                <span class="stat-value" id="showingCount">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Total Loaded</span>
+                <span class="stat-value" id="totalCount">0</span>
+            </div>
+        </div>
+        
+        <div class="listings" id="listings">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading market listings...</p>
+            </div>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <button class="page-btn" onclick="previousPage()">← Previous</button>
+            <button class="page-btn active" id="currentPageBtn">1</button>
+            <button class="page-btn" onclick="nextPage()">Next →</button>
+        </div>
     </div>
-
-    <div>
-      <label>Slot</label>
-      <select id="slot">
-        <option value="any">any</option>
-        <option value="weapon">weapon</option>
-        <option value="head">head</option>
-        <option value="body">body</option>
-        <option value="hands">hands</option>
-        <option value="feet">feet</option>
-        <option value="off_hand">off_hand</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Class</label>
-      <input id="class" placeholder="any (or type class)" value="any" />
-    </div>
-
-    <button id="loadBtn">Load</button>
-    <button id="nextBtn" disabled>Next page</button>
-  </div>
-
-  <div id="meta" class="meta"></div>
-  <div id="error" class="error"></div>
-
-  <table id="table" style="display:none;">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Slot</th>
-        <th>Power</th>
-        <th>Costs</th>
-        <th>Extra</th>
-        <th>Created</th>
-        <th>Expires</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-
-  <details style="margin-top:16px;">
-    <summary>Raw JSON</summary>
-    <pre id="raw" class="mono" style="white-space:pre-wrap;"></pre>
-  </details>
-
-<script>
-  const pageEl = document.getElementById("page");
-  const slotEl = document.getElementById("slot");
-  const classEl = document.getElementById("class");
-  const loadBtn = document.getElementById("loadBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const tbody = document.getElementById("tbody");
-  const table = document.getElementById("table");
-  const meta = document.getElementById("meta");
-  const error = document.getElementById("error");
-  const raw = document.getElementById("raw");
-
-  function costString(item) {
-    return `plat:${item.platinum_cost} gold:${item.gold_cost} gem:${item.gem_cost}`;
-  }
-
-  function safeExtra(extra) {
-    if (extra === null || extra === undefined) return "";
-    // extra is a JSON string sometimes like "{\"range\":5}"
-    try {
-      const obj = JSON.parse(extra);
-      return JSON.stringify(obj);
-    } catch (_) {
-      return String(extra);
-    }
-  }
-
-  async function load() {
-    error.textContent = "";
-    meta.textContent = "Loading...";
-    tbody.innerHTML = "";
-    table.style.display = "none";
-    raw.textContent = "";
-
-    const page = pageEl.value || "1";
-    const slot = slotEl.value || "any";
-    const cls = (classEl.value || "any").trim();
-
-    const qs = new URLSearchParams({ page, slot, class: cls });
-    const res = await fetch(`/api/listings?${qs.toString()}`);
-    const data = await res.json();
-
-    raw.textContent = JSON.stringify(data, null, 2);
-
-    if (!res.ok || data.status !== "success") {
-      meta.textContent = "";
-      error.textContent = data.message || "Request failed.";
-      nextBtn.disabled = true;
-      return;
-    }
-
-    const listings = data.listings || [];
-    meta.textContent = `Status: ${data.status} | Page: ${data.page} | Next page: ${data.next_page}`;
-    nextBtn.disabled = !data.next_page;
-
-    for (const item of listings) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${item.id}</td>
-        <td>${item.username}</td>
-        <td>${item.slot}</td>
-        <td>${item.power}</td>
-        <td>${costString(item)}</td>
-        <td>${safeExtra(item.extra)}</td>
-        <td>${item.time_created}</td>
-        <td>${item.time_expires}</td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-    table.style.display = "table";
-  }
-
-  loadBtn.addEventListener("click", load);
-
-  nextBtn.addEventListener("click", () => {
-    pageEl.value = String(Number(pageEl.value || "1") + 1);
-    load();
-  });
-
-  // Auto-load on first open
-  load();
-</script>
+    
+    <script>
+        const slotIcons = {
+            'weapon': '⚔️',
+            'off_hand': '🛡️',
+            'body': '🛡️',
+            'head': '👑',
+            'hands': '🧤',
+            'feet': '👢',
+            'neck': '📿',
+            'ring': '💍'
+        };
+        
+        let currentData = null;
+        let allListings = []; // Store all loaded listings for client-side filtering
+        
+        async function loadListings() {
+            const listings = document.getElementById('listings');
+            const slot = document.getElementById('filterSlot').value;
+            const classFilter = document.getElementById('filterClass').value;
+            const page = document.getElementById('pageInput').value;
+            
+            document.getElementById('statusText').textContent = 'Loading';
+            listings.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading market listings...</p></div>';
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('page', page);
+                if (slot) params.append('slot', slot);
+                if (classFilter) params.append('class', classFilter);
+                
+                const response = await fetch(`/api/listings?${params.toString()}`);
+                const data = await response.json();
+                
+                if (!response.ok || data.status === 'error') {
+                    throw new Error(data.message || 'Failed to load listings');
+                }
+                
+                currentData = data;
+                allListings = data.listings || [];
+                
+                // Apply client-side filters after loading
+                applyClientFilters();
+                
+                document.getElementById('currentPage').textContent = page;
+                document.getElementById('currentPageBtn').textContent = page;
+                document.getElementById('totalCount').textContent = allListings.length;
+                document.getElementById('statusText').textContent = data.status || 'success';
+                
+            } catch (error) {
+                listings.innerHTML = `<div class="error"><h3>Error Loading Data</h3><p>${error.message}</p></div>`;
+                document.getElementById('statusText').textContent = 'Error';
+            }
+        }
+        
+        function applyClientFilters() {
+            if (!allListings || allListings.length === 0) {
+                return;
+            }
+            
+            // Get filter values
+            const usernameFilter = document.getElementById('filterUsername').value.toLowerCase().trim();
+            const minPower = parseFloat(document.getElementById('filterMinPower').value) || 0;
+            const maxPower = parseFloat(document.getElementById('filterMaxPower').value) || 999;
+            const minRange = parseInt(document.getElementById('filterMinRange').value);
+            const maxRange = parseInt(document.getElementById('filterMaxRange').value);
+            const maxPlatinum = parseInt(document.getElementById('filterMaxPlatinum').value);
+            const maxGold = parseInt(document.getElementById('filterMaxGold').value);
+            const maxGems = parseInt(document.getElementById('filterMaxGems').value);
+            
+            // Filter the listings
+            let filteredListings = allListings.filter(item => {
+                // Username filter
+                if (usernameFilter && !item.username.toLowerCase().includes(usernameFilter)) {
+                    return false;
+                }
+                
+                // Power filter (convert to percentage)
+                const powerPercent = parseFloat(item.power) * 100;
+                if (powerPercent < minPower || powerPercent > maxPower) {
+                    return false;
+                }
+                
+                // Range filter
+                if (!isNaN(minRange) || !isNaN(maxRange)) {
+                    let itemRange = null;
+                    try {
+                        const extras = JSON.parse(item.extra || '{}');
+                        itemRange = extras.range;
+                    } catch (e) {}
+                    
+                    if (itemRange === null) {
+                        // Item has no range, skip if we're filtering by range
+                        if (!isNaN(minRange) || !isNaN(maxRange)) {
+                            return false;
+                        }
+                    } else {
+                        if (!isNaN(minRange) && itemRange < minRange) return false;
+                        if (!isNaN(maxRange) && itemRange > maxRange) return false;
+                    }
+                }
+                
+                // Currency filters
+                if (!isNaN(maxPlatinum)) {
+                    const platinumCost = parseInt(item.platinum_cost) || 0;
+                    if (platinumCost > maxPlatinum) return false;
+                }
+                
+                if (!isNaN(maxGold)) {
+                    const goldCost = parseInt(item.gold_cost) || 0;
+                    if (goldCost > maxGold) return false;
+                }
+                
+                if (!isNaN(maxGems)) {
+                    const gemCost = parseInt(item.gem_cost) || 0;
+                    if (gemCost > maxGems) return false;
+                }
+                
+                return true;
+            });
+            
+            // Update showing count
+            document.getElementById('showingCount').textContent = filteredListings.length;
+            
+            // Render filtered listings
+            renderListings({ listings: filteredListings });
+        }
+        
+        function clearClientFilters() {
+            document.getElementById('filterUsername').value = '';
+            document.getElementById('filterMinPower').value = '';
+            document.getElementById('filterMaxPower').value = '';
+            document.getElementById('filterMinRange').value = '';
+            document.getElementById('filterMaxRange').value = '';
+            document.getElementById('filterMaxPlatinum').value = '';
+            document.getElementById('filterMaxGold').value = '';
+            document.getElementById('filterMaxGems').value = '';
+            applyClientFilters();
+        }
+        
+        function renderListings(data) {
+            const listings = document.getElementById('listings');
+            
+            if (!data.listings || data.listings.length === 0) {
+                listings.innerHTML = '<div class="loading"><p>No listings found</p></div>';
+                return;
+            }
+            
+            listings.innerHTML = '';
+            
+            data.listings.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'listing-card';
+                card.style.setProperty('--index', index + 1);
+                
+                // Parse extra field if it exists
+                let extras = {};
+                let rangeValue = null;
+                let attributeType = null;
+                
+                if (item.extra) {
+                    try {
+                        extras = JSON.parse(item.extra);
+                        if (extras.range) rangeValue = extras.range;
+                        if (extras.extra) attributeType = extras.extra;
+                    } catch (e) {
+                        // Invalid JSON, ignore
+                    }
+                }
+                
+                // Determine what the power represents based on slot
+                let powerType;
+                switch(item.slot) {
+                    case 'weapon':
+                        powerType = 'Damage';
+                        break;
+                    case 'head':
+                        powerType = 'HP';
+                        break;
+                    case 'hands':
+                        powerType = 'Attack Speed';
+                        break;
+                    case 'body':
+                        powerType = 'HP';
+                        break;
+                    case 'feet':
+                        powerType = 'Movement Speed';
+                        break;
+                    case 'neck':
+                        powerType = attributeType || 'Placeholder';
+                        break;
+                    case 'ring':
+                        powerType = attributeType || 'Stat';
+                        break;
+                    case 'off_hand':
+                        powerType = attributeType || 'Stat';
+                        break;
+                    default:
+                        powerType = attributeType || 'Power';
+                }
+                
+                // Add range to power label if exists
+                let powerLabel = powerType;
+                if (rangeValue) {
+                    powerLabel += ` (Range ${rangeValue})`;
+                }
+                
+                let powerPercent = (parseFloat(item.power) * 100).toFixed(1);
+                
+                // Format costs properly - can have multiple currencies
+                const platinum = parseInt(item.platinum_cost) || 0;
+                const gold = parseInt(item.gold_cost) || 0;
+                const gem = parseInt(item.gem_cost) || 0;
+                
+                let costDisplay = [];
+                if (platinum > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: #a8dadc;">💎</span><span>${platinum.toLocaleString()} platinum</span></div>`);
+                if (gold > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: var(--accent-gold);">🪙</span><span>${gold.toLocaleString()} gold</span></div>`);
+                if (gem > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: #c084fc;">💎</span><span>${gem.toLocaleString()} gems</span></div>`);
+                
+                const costHTML = costDisplay.length > 0 ? costDisplay.join('') : '<div class="cost-line" style="color: var(--text-muted);">Free</div>';
+                
+                card.innerHTML = `
+                    <div class="card-id">#${item.id}</div>
+                    <div class="card-user">
+                        <div class="username">${escapeHtml(item.username)}</div>
+                        <div class="item-type">${escapeHtml(item.slot)}</div>
+                    </div>
+                    <div class="card-slot">
+                        <div class="slot-icon">${slotIcons[item.slot] || '📦'}</div>
+                        <span class="slot-name">${formatSlotName(item.slot)}</span>
+                    </div>
+                    <div class="card-power">
+                        <div class="power-label">${powerLabel}</div>
+                        <div class="power-value">${powerPercent}%</div>
+                    </div>
+                    <div class="card-costs">
+                        ${costHTML}
+                    </div>
+                    <div class="card-dates">
+                        <div class="date-row">
+                            <span class="date-label">Created:</span>
+                            <span class="date-value">${formatDate(item.time_created)}</span>
+                        </div>
+                        <div class="date-row">
+                            <span class="date-label">Expires:</span>
+                            <span class="date-value">${formatDate(item.time_expires)}</span>
+                        </div>
+                    </div>
+                `;
+                
+                listings.appendChild(card);
+            });
+        }
+        
+        function formatSlotName(slot) {
+            if (!slot) return 'Unknown';
+            return slot.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            return dateStr.substring(0, 16).replace('T', ' ');
+        }
+        
+        function getTagIcon(key) {
+            const icons = {
+                'Damage': '⚔️',
+                'damage': '⚔️',
+                'Mana': '✨',
+                'mana': '✨',
+                'Health': '❤️',
+                'health': '❤️',
+                'Defense': '🛡️',
+                'defense': '🛡️',
+                'Speed': '⚡',
+                'speed': '⚡'
+            };
+            return icons[key] || '✨';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function nextPage() {
+            const pageInput = document.getElementById('pageInput');
+            if (currentData && currentData.next_page !== 'false' && currentData.next_page !== false) {
+                pageInput.value = parseInt(pageInput.value) + 1;
+                loadListings();
+            }
+        }
+        
+        function previousPage() {
+            const pageInput = document.getElementById('pageInput');
+            if (parseInt(pageInput.value) > 1) {
+                pageInput.value = parseInt(pageInput.value) - 1;
+                loadListings();
+            }
+        }
+        
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadListings();
+            
+            // Add real-time filtering on Enter key
+            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange', 
+             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
+                document.getElementById(id).addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') applyClientFilters();
+                });
+            });
+        });
+        
+        // Allow Enter key in inputs
+        document.getElementById('pageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadListings();
+        });
+    </script>
 </body>
 </html>
