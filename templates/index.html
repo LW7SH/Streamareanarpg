@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream Arena RPG Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Crimson+Text:wght@400;600&display=swap');
-        
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #13131a;
-            --bg-card: #1a1a24;
-            --accent-gold: #d4af37;
-            --accent-amber: #ff9500;
-            --text-primary: #e8e6e3;
-            --text-secondary: #a8a6a3;
-            --text-muted: #6b6966;
-            --border: #2a2a34;
-            --shadow: rgba(212, 175, 55, 0.1);
+            --bg: #0f0f0f;
+            --bg-elevated: #1a1a1a;
+            --bg-card: #222;
+            --bg-hover: #2a2a2a;
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #f5f5f5;
+            --text-dim: #a3a3a3;
+            --text-dimmer: #666;
+            --border: #333;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --glow: rgba(139, 92, 246, 0.4);
         }
         
         * {
@@ -27,432 +34,580 @@
         }
         
         body {
-            font-family: 'Crimson Text', serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
-            overflow-x: hidden;
         }
         
-        body::before {
-            content: '';
-            position: fixed;
+        /* Header */
+        .header {
+            background: var(--bg-elevated);
+            border-bottom: 2px solid var(--primary);
+            padding: 1.5rem 2rem;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 149, 0, 0.03) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px var(--shadow);
         }
         
-        .container {
+        .header-content {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header {
-            margin-bottom: 3rem;
-            animation: fadeInDown 0.8s ease-out;
-        }
-        
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
-        
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            letter-spacing: 0.05em;
-        }
-        
-        .filter-section-title {
-            margin-bottom: 1rem;
-            animation: fadeInDown 0.8s ease-out;
-        }
-        
-        .filter-section-title h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-        
-        .filter-section-title p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-style: italic;
-        }
-        
-        .filters {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            animation: fadeIn 0.8s ease-out 0.2s both;
-        }
-        
-        .filter-group {
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .filter-group label {
-            font-family: 'Cinzel', serif;
-            font-size: 0.85rem;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 600;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        select {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            color: var(--text-primary);
-            font-family: 'Crimson Text', serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
-            border: none;
-            border-radius: 6px;
-            padding: 0.75rem 2rem;
-            color: var(--bg-primary);
-            font-family: 'Cinzel', serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            align-self: end;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .stats-bar {
-            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 2rem;
-            padding: 1.5rem 2rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            animation: fadeIn 0.8s ease-out 0.3s both;
         }
         
-        .stat {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .stat-value {
-            font-family: 'Cinzel', serif;
+        .logo {
+            font-family: 'Space Mono', monospace;
             font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--accent-gold);
-        }
-        
-        .listings {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .listing-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 70px 180px 140px 120px 160px 220px;
-            gap: 1.5rem;
-            align-items: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.5s ease-out both;
-        }
-        
-        .listing-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--accent-gold);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-        
-        .listing-card:hover {
-            border-color: var(--accent-gold);
-            box-shadow: 0 8px 32px var(--shadow);
-            transform: translateX(4px);
-        }
-        
-        .listing-card:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .listing-card:nth-child(n) {
-            animation-delay: calc(0.05s * (var(--index, 1)));
-        }
-        
-        .card-id {
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            text-align: center;
-        }
-        
-        .card-user {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .username {
-            font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-        
-        .item-name {
-            font-size: 0.85rem;
-            color: var(--accent-gold);
-            font-style: italic;
-            margin-bottom: 0.15rem;
-        }
-        
-        .item-type {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-transform: capitalize;
-        }
-        
-        .card-slot {
+            font-weight: 700;
+            letter-spacing: -0.02em;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
         
-        .slot-icon {
+        .logo-icon {
             width: 32px;
             height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 6px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
         }
         
-        .slot-name {
-            font-size: 0.95rem;
-            color: var(--text-primary);
-        }
-        
-        .card-power {
+        .stats {
             display: flex;
-            flex-direction: column;
+            gap: 3rem;
             align-items: center;
         }
         
-        .power-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.25rem;
-        }
-        
-        .power-value {
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--accent-amber);
-        }
-        
-        .card-costs {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        
-        .cost-line {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        
-        .cost-icon {
-            font-size: 1rem;
-        }
-        
-        .card-extras {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        .tag {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: var(--accent-gold);
-            white-space: nowrap;
-        }
-        
-        .card-dates {
+        .stat-item {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
         }
         
-        .date-row {
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.875rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            position: relative;
         }
         
-        .date-label {
-            color: var(--text-muted);
-            min-width: 50px;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
         
-        .date-value {
-            color: var(--text-secondary);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--success); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 6px transparent; }
         }
         
-        .pagination {
-            display: flex;
-            justify-content: center;
+        /* Main Layout */
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dimmer);
+        }
+        
+        .filter-section {
+            margin-bottom: 2rem;
+        }
+        
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .filter-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+        
+        input, select {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        input:hover, select:hover {
+            border-color: var(--text-dimmer);
+        }
+        
+        .range-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
-            margin-top: 2rem;
-            padding: 2rem 0;
         }
         
-        .page-btn {
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--glow);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+            box-shadow: none;
+        }
+        
+        /* Content */
+        .content {
+            min-height: 80vh;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .view-switcher {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-elevated);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .sort-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sort-group select {
+            width: auto;
+            min-width: 180px;
+        }
+        
+        /* Grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* Card */
+        .item-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .item-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px var(--shadow), 0 0 40px var(--glow);
+        }
+        
+        .item-card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .item-id {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dimmer);
+        }
+        
+        .slot-badge {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .slot-badge.weapon { border-color: #ef4444; color: #ef4444; }
+        .slot-badge.head { border-color: #f59e0b; color: #f59e0b; }
+        .slot-badge.body { border-color: #8b5cf6; color: #8b5cf6; }
+        .slot-badge.hands { border-color: #06b6d4; color: #06b6d4; }
+        .slot-badge.feet { border-color: #10b981; color: #10b981; }
+        .slot-badge.off_hand { border-color: #ec4899; color: #ec4899; }
+        .slot-badge.ring { border-color: #f59e0b; color: #f59e0b; }
+        .slot-badge.neck { border-color: #8b5cf6; color: #8b5cf6; }
+        
+        .item-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+        
+        .item-seller {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .item-stats {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .stat-type {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-power {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .item-price {
+            margin-bottom: 1rem;
+        }
+        
+        .price-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .price-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .price-icon {
+            font-size: 1.125rem;
+        }
+        
+        .price-value {
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .item-time {
+            font-size: 0.75rem;
+            color: var(--text-dimmer);
+        }
+        
+        /* List View */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .item-row {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: grid;
+            grid-template-columns: 60px 2fr 1fr 120px 1fr 120px;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .item-row:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+        
+        /* Tooltip */
+        [data-tooltip] {
+            position: relative;
+        }
+        
+        [data-tooltip]:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 0.5rem 0.75rem;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 0.5rem 1rem;
-            color: var(--text-primary);
-            font-family: 'Cinzel', serif;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1000;
+            animation: tooltipIn 0.2s ease;
         }
         
-        .page-btn:hover:not(:disabled) {
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
+        @keyframes tooltipIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(-8px);
+            }
         }
         
-        .page-btn.active {
-            background: var(--accent-gold);
-            border-color: var(--accent-gold);
-            color: var(--bg-primary);
-        }
-        
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
+        /* Loading */
         .loading {
-            text-align: center;
-            padding: 4rem 0;
-            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            gap: 1.5rem;
         }
         
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent-gold);
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            margin: 0 auto 1rem;
             animation: spin 1s linear infinite;
-        }
-        
-        .error {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            color: #fca5a5;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         
+        .loading-text {
+            font-size: 1.125rem;
+            color: var(--text-dim);
+        }
+        
+        /* Empty State */
+        .empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            text-align: center;
+            gap: 1rem;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .empty-text {
+            color: var(--text-dim);
+            max-width: 400px;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        @keyframes fadeInDown {
+        .item-card, .item-row {
+            animation: slideUp 0.4s ease-out both;
+        }
+        
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -460,756 +615,572 @@
             }
         }
         
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @media (max-width: 1400px) {
-            .listing-card {
-                grid-template-columns: 60px 160px 120px 110px 150px 200px;
-                gap: 1rem;
-                padding: 1.25rem;
-                font-size: 0.95rem;
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main {
+                grid-template-columns: 1fr;
             }
             
-            h1 {
-                font-size: 2.5rem;
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+            
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
         }
         
-        @media (max-width: 1200px) {
-            .listing-card {
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stats {
+                width: 100%;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .item-row {
                 grid-template-columns: 1fr;
                 gap: 1rem;
-            }
-            
-            .card-id {
-                text-align: left;
-            }
-            
-            h1 {
-                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Market</h1>
-            <p class="subtitle">Stream Arena RPG - Browse items from adventurers across the realm</p>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚔️</div>
+                <div>Stream Arena RPG Market</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="showingCount">0</div>
+                    <div class="stat-label">Showing</div>
+                </div>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span id="statusText">Loading...</span>
+                </div>
+            </div>
         </div>
+    </header>
+    
+    <main class="main">
+        <aside class="sidebar">
+            <div class="filter-section">
+                <div class="filter-title">Search</div>
+                <div class="filter-group">
+                    <label>Item Name</label>
+                    <select id="filterItemName">
+                        <option value="">Any Item</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Seller</label>
+                    <input type="text" id="filterUsername" placeholder="Search by username...">
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-title">Item Type</div>
+                <div class="filter-group">
+                    <label>Slot</label>
+                    <select id="filterSlot">
+                        <option value="">All Slots</option>
+                        <option value="weapon">⚔️ Weapon</option>
+                        <option value="off_hand">🛡️ Off-Hand</option>
+                        <option value="head">⛑️ Head</option>
+                        <option value="body">👕 Body</option>
+                        <option value="hands">🧤 Hands</option>
+                        <option value="feet">🥾 Feet</option>
+                        <option value="neck">📿 Neck</option>
+                        <option value="ring">💍 Ring</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Class</label>
+                    <select id="filterItemClass">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Property</label>
+                    <select id="filterExtraProperty">
+                        <option value="">Any</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-title">Stats</div>
+                <div class="filter-group">
+                    <label>Power %</label>
+                    <div class="range-group">
+                        <input type="number" id="filterMinPower" placeholder="Min" step="0.1">
+                        <input type="number" id="filterMaxPower" placeholder="Max" step="0.1">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Range</label>
+                    <div class="range-group">
+                        <input type="number" id="filterMinRange" placeholder="Min">
+                        <input type="number" id="filterMaxRange" placeholder="Max">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-title">Price</div>
+                <div class="filter-group">
+                    <label>Max Platinum</label>
+                    <input type="number" id="filterMaxPlatinum" placeholder="Unlimited">
+                </div>
+                <div class="filter-group">
+                    <label>Max Gold (Total Value)</label>
+                    <input type="number" id="filterMaxGold" placeholder="Unlimited" data-tooltip="Includes platinum converted to gold (1 plat = 100k gold)">
+                </div>
+                <div class="filter-group">
+                    <label>Max Gems</label>
+                    <input type="number" id="filterMaxGems" placeholder="Unlimited">
+                </div>
+            </div>
+            
+            <button class="btn" onclick="applyFilters()">Apply Filters</button>
+            <button class="btn btn-secondary" onclick="clearFilters()" style="margin-top: 0.5rem;">Clear All</button>
+        </aside>
         
-        <!-- Filters Section -->
-        <div class="filter-section-title">
-            <h2>🔍 Filters</h2>
-            <p>All listings are loaded automatically - filter them instantly below</p>
-        </div>
-        
-        <div class="filters">
-            <div class="filter-group">
-                <label>Item Name</label>
-                <select id="filterItemName">
-                    <option value="">Any Item</option>
-                </select>
+        <div class="content">
+            <div class="controls">
+                <div class="view-switcher">
+                    <button class="view-btn active" data-tooltip="Grid View" onclick="setView('grid', event)">Grid</button>
+                    <button class="view-btn" data-tooltip="List View" onclick="setView('list', event)">List</button>
+                </div>
+                <div class="sort-group">
+                    <label style="margin: 0;">Sort:</label>
+                    <select id="sortBy" onchange="applyFilters()">
+                        <option value="created_desc">Newest First</option>
+                        <option value="created_asc">Oldest First</option>
+                        <option value="power_desc">Highest Power</option>
+                        <option value="power_asc">Lowest Power</option>
+                        <option value="price_asc">Cheapest</option>
+                        <option value="price_desc">Most Expensive</option>
+                    </select>
+                </div>
             </div>
             
-            <div class="filter-group">
-                <label>Slot</label>
-                <select id="filterSlot">
-                    <option value="">All Slots</option>
-                    <option value="weapon">Weapon</option>
-                    <option value="off_hand">Off-Hand</option>
-                    <option value="head">Head</option>
-                    <option value="body">Body</option>
-                    <option value="hands">Hands</option>
-                    <option value="feet">Feet</option>
-                    <option value="neck">Neck</option>
-                    <option value="ring">Ring</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label>Class</label>
-                <select id="filterItemClass">
-                    <option value="">Any Class</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label>Username</label>
-                <input type="text" id="filterUsername" placeholder="Filter by username...">
-            </div>
-            
-            <div class="filter-group">
-                <label>Min Power %</label>
-                <input type="number" id="filterMinPower" placeholder="0" step="0.1">
-            </div>
-            
-            <div class="filter-group">
-                <label>Max Power %</label>
-                <input type="number" id="filterMaxPower" placeholder="999" step="0.1">
+            <div id="listings" class="items-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Loading marketplace...</div>
+                </div>
             </div>
         </div>
-        
-        <div class="filters" style="animation-delay: 0.3s;">
-            <div class="filter-group">
-                <label>Min Range</label>
-                <input type="number" id="filterMinRange" placeholder="Any" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label>Max Range</label>
-                <input type="number" id="filterMaxRange" placeholder="Any" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label>Extra Property</label>
-                <select id="filterExtraProperty">
-                    <option value="">Any</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label>Max Platinum</label>
-                <input type="number" id="filterMaxPlatinum" placeholder="No limit" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label>Max Gold</label>
-                <input type="number" id="filterMaxGold" placeholder="No limit" step="1000" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label>Max Gems</label>
-                <input type="number" id="filterMaxGems" placeholder="No limit" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label>&nbsp;</label>
-                <button class="btn" onclick="applyFilters()" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">✨ Apply Filters</button>
-            </div>
-            
-            <div class="filter-group">
-                <label>&nbsp;</label>
-                <button class="btn" onclick="clearFilters()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🗑️ Clear Filters</button>
-            </div>
-        </div>
-        
-        <div class="stats-bar">
-            <div class="stat">
-                <span class="stat-label">Status</span>
-                <span class="stat-value" id="statusText">Loading...</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">Total Listings</span>
-                <span class="stat-value" id="totalCount">0</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">Showing</span>
-                <span class="stat-value" id="showingCount">0</span>
-            </div>
-        </div>
-        
-        <div class="listings" id="listings">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Loading market listings...</p>
-            </div>
-        </div>
-    </div>
+    </main>
     
     <script>
         const slotIcons = {
             'weapon': '⚔️',
             'off_hand': '🛡️',
-            'body': '🛡️',
-            'head': '👑',
+            'body': '👕',
+            'head': '⛑️',
             'hands': '🧤',
-            'feet': '👢',
+            'feet': '🥾',
             'neck': '📿',
             'ring': '💍'
         };
         
-        let currentData = null;
-        let allListings = []; // Store all loaded listings for client-side filtering
-        let gameItems = null; // Store game items data
+        const currencyIcons = {
+            platinum: '💎',
+            gold: '🟡',
+            gems: '💠'
+        };
         
-        // Load game items data on page load
+        const PLATINUM_TO_GOLD = 100000;
+        
+        // Stat type colors for visual distinction
+        const statColors = {
+            'Damage': '#ef4444',        // Red - offensive
+            'Attack Speed': '#f97316',   // Orange - offensive tempo
+            'HP': '#10b981',             // Green - health/vitality
+            'Armor': '#06b6d4',          // Cyan - defense
+            'Mana': '#8b5cf6',           // Purple - magic
+            'Movement Speed': '#f59e0b', // Amber - mobility
+            'Regen': '#22c55e',          // Light green - recovery
+            'Speed': '#fbbf24',          // Yellow - general speed
+            'A_Speed': '#fb923c',        // Light orange - attack speed alt
+            'Stat': '#94a3b3'            // Gray - generic stat
+        };
+        
+        function getStatColor(statType) {
+            return statColors[statType] || '#94a3b3';
+        }
+        
+        // Convert all prices to gold equivalent for comparison
+        function getTotalGoldValue(item) {
+            const plat = parseInt(item.platinum_cost) || 0;
+            const gold = parseInt(item.gold_cost) || 0;
+            const gems = parseInt(item.gem_cost) || 0;
+            return (plat * PLATINUM_TO_GOLD) + gold + gems;
+        }
+        
+        let allListings = [];
+        let gameItems = null;
+        let currentView = 'grid';
+        
         async function loadGameItems() {
-            console.log('  → Fetching /api/items...');
-            
-            try {
-                const response = await fetch('/api/items');
-                console.log('  → Response status:', response.status, response.statusText);
-                
-                const data = await response.json();
-                console.log('  → Response data:', data);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${data.message || 'Unknown error'}`);
-                }
-                
-                if (data.status !== 'success') {
-                    throw new Error(`API returned status: ${data.status}`);
-                }
-                
-                if (!data.items || !Array.isArray(data.items)) {
-                    throw new Error('API response missing items array');
-                }
-                
-                gameItems = data.items;
-                console.log('  → Successfully loaded', gameItems.length, 'items');
-                
-                if (gameItems.length > 0) {
-                    console.log('  → Sample item:', JSON.stringify(gameItems[0], null, 2));
-                }
-                
-                return true;
-                
-            } catch (error) {
-                console.error('  ✗ ERROR loading game items:', error);
-                gameItems = null;
-                throw error;
-            }
+            const response = await fetch('/api/items');
+            const data = await response.json();
+            if (!response.ok || data.status !== 'success') throw new Error('Failed to load items');
+            gameItems = data.items || [];
         }
         
-        // Populate all filters from game items
         function populateFilters() {
-            console.log('  → populateFilters called');
+            if (!gameItems) return;
             
-            if (!gameItems || gameItems.length === 0) {
-                console.error('  ✗ Cannot populate filters - gameItems is null or empty!');
-                return false;
-            }
-            
-            console.log('  → gameItems available:', gameItems.length, 'items');
-            
-            populateItemNameFilter();
-            populateItemClassFilter();
-            populateExtraPropertyFilter();
-            
-            return true;
-        }
-        
-        function setupEventListeners() {
-            console.log('Setting up event listeners...');
-            
-            // Add real-time filtering on Enter key
-            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange', 
-             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') applyFilters();
-                    });
-                }
+            // Items
+            const itemFilter = document.getElementById('filterItemName');
+            const bySlot = {};
+            gameItems.forEach(i => {
+                if (!bySlot[i.slot]) bySlot[i.slot] = [];
+                bySlot[i.slot].push(i);
             });
             
-            // Add change listeners for select dropdowns
-            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('change', applyFilters);
-                }
-            });
-            
-            console.log('Event listeners setup complete');
-        }
-        
-        // Populate item name filter
-        function populateItemNameFilter() {
-            console.log('    → Populating Item Name filter...');
-            
-            const itemNameFilter = document.getElementById('filterItemName');
-            if (!itemNameFilter) {
-                console.error('    ✗ filterItemName element not found!');
-                return;
-            }
-            
-            itemNameFilter.innerHTML = '<option value="">Any Item</option>';
-            
-            // Group by slot and sort
-            const itemsBySlot = {};
-            gameItems.forEach(item => {
-                if (!itemsBySlot[item.slot]) {
-                    itemsBySlot[item.slot] = [];
-                }
-                itemsBySlot[item.slot].push(item);
-            });
-            
-            // Add optgroups by slot
-            let totalItems = 0;
-            Object.keys(itemsBySlot).sort().forEach(slot => {
+            Object.keys(bySlot).sort().forEach(slot => {
                 const optgroup = document.createElement('optgroup');
-                optgroup.label = formatSlotName(slot);
-                
-                itemsBySlot[slot].sort((a, b) => a.item_name.localeCompare(b.item_name)).forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = `${item.id}:${item.slot}`;
-                    option.textContent = item.item_name;
-                    optgroup.appendChild(option);
-                    totalItems++;
+                optgroup.label = formatSlot(slot);
+                bySlot[slot].sort((a,b) => a.item_name.localeCompare(b.item_name)).forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = `${item.id}:${item.slot}`;
+                    opt.textContent = item.item_name;
+                    optgroup.appendChild(opt);
                 });
-                
-                itemNameFilter.appendChild(optgroup);
+                itemFilter.appendChild(optgroup);
             });
             
-            console.log('    ✓ Item Name filter:', totalItems, 'items in', Object.keys(itemsBySlot).length, 'slots');
-        }
-        
-        // Populate item class filter
-        function populateItemClassFilter() {
-            console.log('    → Populating Class filter...');
-            
-            const itemClassFilter = document.getElementById('filterItemClass');
-            if (!itemClassFilter) {
-                console.error('    ✗ filterItemClass element not found!');
-                return;
-            }
-            
-            const classSet = new Set();
-            gameItems.forEach(item => {
-                if (item.classes) {
-                    try {
-                        const classes = JSON.parse(item.classes);
-                        classes.forEach(cls => classSet.add(cls));
-                    } catch (e) {
-                        console.error('    ✗ Error parsing classes:', item.id, e);
-                    }
+            // Classes
+            const classes = new Set();
+            gameItems.forEach(i => {
+                if (i.classes) {
+                    try { JSON.parse(i.classes).forEach(c => classes.add(c)); } catch(e) {}
                 }
             });
             
-            itemClassFilter.innerHTML = '<option value="">Any Class</option>';
-            
-            Array.from(classSet).sort().forEach(cls => {
-                const option = document.createElement('option');
-                option.value = cls;
-                option.textContent = cls === 'any' ? 'Any Class (Universal)' : cls.charAt(0).toUpperCase() + cls.slice(1);
-                itemClassFilter.appendChild(option);
+            const classFilter = document.getElementById('filterItemClass');
+            Array.from(classes).sort().forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                // Show 'any' as 'Universal' and capitalize other classes
+                opt.textContent = c === 'any' ? 'Universal (Any Class)' : c.charAt(0).toUpperCase() + c.slice(1);
+                classFilter.appendChild(opt);
             });
             
-            console.log('    ✓ Class filter:', classSet.size, 'classes -', Array.from(classSet).join(', '));
+            // Properties
+            const props = new Set();
+            gameItems.forEach(i => {
+                if (i.extra) i.extra.split(',').forEach(e => { const t = e.trim(); if (t) props.add(t); });
+            });
+            
+            const propFilter = document.getElementById('filterExtraProperty');
+            Array.from(props).sort().forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                propFilter.appendChild(opt);
+            });
         }
         
-        // Populate extra property filter
-        function populateExtraPropertyFilter() {
-            console.log('    → Populating Extra Property filter...');
-            
-            const extraFilter = document.getElementById('filterExtraProperty');
-            if (!extraFilter) {
-                console.error('    ✗ filterExtraProperty element not found!');
-                return;
-            }
-            
-            const extraSet = new Set();
-            gameItems.forEach(item => {
-                if (item.extra) {
-                    item.extra.split(',').forEach(extra => {
-                        const trimmed = extra.trim();
-                        if (trimmed) extraSet.add(trimmed);
-                    });
-                }
+        function setupListeners() {
+            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
+             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
+                document.getElementById(id).addEventListener('keypress', e => {
+                    if (e.key === 'Enter') applyFilters();
+                });
             });
             
-            extraFilter.innerHTML = '<option value="">Any</option>';
-            
-            Array.from(extraSet).sort().forEach(extra => {
-                const option = document.createElement('option');
-                option.value = extra;
-                option.textContent = extra;
-                extraFilter.appendChild(option);
+            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
             });
-            
-            console.log('    ✓ Extra Property filter:', extraSet.size, 'properties -', Array.from(extraSet).join(', '));
-        }
-        
-        // Populate all filters from game items
-        function populateFilters() {
-            console.log('  → populateFilters called');
-            
-            if (!gameItems || gameItems.length === 0) {
-                console.error('  ✗ Cannot populate filters - gameItems is null or empty!');
-                return false;
-            }
-            
-            console.log('  → gameItems available:', gameItems.length, 'items');
-            
-            populateItemNameFilter();
-            populateItemClassFilter();
-            populateExtraPropertyFilter();
-            
-            return true;
         }
         
         async function loadAllListings() {
-            console.log('  → Starting to load all listings...');
-            
-            const listings = document.getElementById('listings');
-            document.getElementById('statusText').textContent = 'Loading';
-            listings.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading all market listings...</p></div>';
-            
             allListings = [];
             let page = 1;
             let hasMore = true;
             
-            try {
-                while (hasMore) {
-                    console.log(`  → Fetching page ${page}...`);
-                    document.getElementById('statusText').textContent = `Loading page ${page}...`;
-                    
-                    const params = new URLSearchParams();
-                    params.append('page', page);
-                    
-                    const response = await fetch(`/api/listings?${params.toString()}`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log(`  → Page ${page} response:`, data.status, `(${data.listings?.length || 0} items)`);
-                    
-                    if (data.status === 'error') {
-                        throw new Error(data.message || 'API returned error status');
-                    }
-                    
-                    if (data.listings && data.listings.length > 0) {
-                        allListings = allListings.concat(data.listings);
-                        document.getElementById('totalCount').textContent = allListings.length;
-                    }
-                    
-                    // Check if there's a next page
-                    hasMore = data.next_page === true || data.next_page === 'true';
-                    console.log(`  → Page ${page} complete. Next page: ${hasMore}`);
-                    page++;
-                    
-                    // Safety limit to prevent infinite loops
-                    if (page > 100) {
-                        console.warn('  ⚠ Reached page limit of 100');
-                        break;
-                    }
+            while (hasMore && page <= 100) {
+                document.getElementById('statusText').textContent = `Loading page ${page}...`;
+                const response = await fetch(`/api/listings?page=${page}`);
+                const data = await response.json();
+                
+                if (data.listings?.length) {
+                    allListings = allListings.concat(data.listings);
+                    document.getElementById('totalCount').textContent = allListings.length;
                 }
                 
-                console.log('  ✓ All listings loaded:', allListings.length, 'total');
-                document.getElementById('statusText').textContent = 'Ready';
-                document.getElementById('totalCount').textContent = allListings.length;
-                
-                // Apply filters to show all listings
-                applyFilters();
-                
-            } catch (error) {
-                console.error('  ✗ ERROR loading listings:', error);
-                listings.innerHTML = `<div class="error"><h3>Error Loading Listings</h3><p>${error.message}</p></div>`;
-                document.getElementById('statusText').textContent = 'Error';
-                throw error; // Re-throw so the main initialization catches it
+                hasMore = data.next_page === true;
+                page++;
             }
+            
+            document.getElementById('statusText').textContent = 'Ready';
+            applyFilters();
         }
         
         function applyFilters() {
-            if (!allListings || allListings.length === 0) {
-                return;
-            }
+            if (!allListings.length) return;
             
-            // Get filter values
-            const usernameFilter = document.getElementById('filterUsername').value.toLowerCase().trim();
-            const minPower = parseFloat(document.getElementById('filterMinPower').value) || 0;
-            const maxPower = parseFloat(document.getElementById('filterMaxPower').value) || 999;
-            const minRange = parseInt(document.getElementById('filterMinRange').value);
-            const maxRange = parseInt(document.getElementById('filterMaxRange').value);
-            const maxPlatinum = parseInt(document.getElementById('filterMaxPlatinum').value);
-            const maxGold = parseInt(document.getElementById('filterMaxGold').value);
-            const maxGems = parseInt(document.getElementById('filterMaxGems').value);
-            const itemNameFilter = document.getElementById('filterItemName').value;
-            const slotFilter = document.getElementById('filterSlot').value;
-            const itemClassFilter = document.getElementById('filterItemClass').value.toLowerCase();
-            const extraPropertyFilter = document.getElementById('filterExtraProperty').value;
+            const f = {
+                username: document.getElementById('filterUsername').value.toLowerCase().trim(),
+                slot: document.getElementById('filterSlot').value,
+                itemClass: document.getElementById('filterItemClass').value.toLowerCase(),
+                itemName: document.getElementById('filterItemName').value,
+                extraProp: document.getElementById('filterExtraProperty').value,
+                minPower: parseFloat(document.getElementById('filterMinPower').value) || 0,
+                maxPower: parseFloat(document.getElementById('filterMaxPower').value) || 999,
+                minRange: parseInt(document.getElementById('filterMinRange').value),
+                maxRange: parseInt(document.getElementById('filterMaxRange').value),
+                maxPlat: parseInt(document.getElementById('filterMaxPlatinum').value),
+                maxGold: parseInt(document.getElementById('filterMaxGold').value),
+                maxGems: parseInt(document.getElementById('filterMaxGems').value),
+                sortBy: document.getElementById('sortBy').value
+            };
             
-            // Filter the listings
-            let filteredListings = allListings.filter(item => {
-                // Username filter
-                if (usernameFilter && !item.username.toLowerCase().includes(usernameFilter)) {
-                    return false;
+            let filtered = allListings.filter(item => {
+                if (f.username && !item.username.toLowerCase().includes(f.username)) return false;
+                if (f.slot && item.slot !== f.slot) return false;
+                
+                const power = parseFloat(item.power) * 100;
+                if (power < f.minPower || power > f.maxPower) return false;
+                
+                if (!isNaN(f.minRange) || !isNaN(f.maxRange)) {
+                    let range = null;
+                    try { range = JSON.parse(item.extra || '{}').range; } catch(e) {}
+                    if (range === null) return false;
+                    if (!isNaN(f.minRange) && range < f.minRange) return false;
+                    if (!isNaN(f.maxRange) && range > f.maxRange) return false;
                 }
                 
-                // Slot filter
-                if (slotFilter && item.slot !== slotFilter) {
-                    return false;
+                // Price filtering with platinum conversion
+                if (!isNaN(f.maxPlat)) {
+                    const platCost = parseInt(item.platinum_cost) || 0;
+                    if (platCost > f.maxPlat) return false;
                 }
                 
-                // Power filter (convert to percentage)
-                const powerPercent = parseFloat(item.power) * 100;
-                if (powerPercent < minPower || powerPercent > maxPower) {
-                    return false;
+                if (!isNaN(f.maxGold)) {
+                    const totalGold = getTotalGoldValue(item);
+                    if (totalGold > f.maxGold) return false;
                 }
                 
-                // Range filter
-                if (!isNaN(minRange) || !isNaN(maxRange)) {
-                    let itemRange = null;
-                    try {
-                        const extras = JSON.parse(item.extra || '{}');
-                        itemRange = extras.range;
-                    } catch (e) {}
-                    
-                    if (itemRange === null) {
-                        // Item has no range, skip if we're filtering by range
-                        if (!isNaN(minRange) || !isNaN(maxRange)) {
-                            return false;
-                        }
-                    } else {
-                        if (!isNaN(minRange) && itemRange < minRange) return false;
-                        if (!isNaN(maxRange) && itemRange > maxRange) return false;
-                    }
-                }
-                
-                // Currency filters
-                if (!isNaN(maxPlatinum)) {
-                    const platinumCost = parseInt(item.platinum_cost) || 0;
-                    if (platinumCost > maxPlatinum) return false;
-                }
-                
-                if (!isNaN(maxGold)) {
-                    const goldCost = parseInt(item.gold_cost) || 0;
-                    if (goldCost > maxGold) return false;
-                }
-                
-                if (!isNaN(maxGems)) {
+                if (!isNaN(f.maxGems)) {
                     const gemCost = parseInt(item.gem_cost) || 0;
-                    if (gemCost > maxGems) return false;
+                    if (gemCost > f.maxGems) return false;
                 }
                 
-                // Item name filter
-                if (itemNameFilter) {
-                    const [filterId, filterSlot] = itemNameFilter.split(':');
-                    if (item.base_item_id !== filterId || item.slot !== filterSlot) {
-                        return false;
-                    }
+                if (f.itemName) {
+                    const [id, slot] = f.itemName.split(':');
+                    if (item.base_item_id !== id || item.slot !== slot) return false;
                 }
                 
-                // Item class filter - items with "any" class can be worn by anyone
-                if (itemClassFilter && gameItems) {
-                    const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
-                    if (gameItem && gameItem.classes) {
+                if (f.itemClass && gameItems) {
+                    const gi = gameItems.find(g => g.id === item.base_item_id && g.slot === item.slot);
+                    if (gi?.classes) {
                         try {
-                            const classes = JSON.parse(gameItem.classes);
-                            // Show items that either match the selected class OR have "any" class
-                            if (!classes.includes(itemClassFilter) && !classes.includes('any')) {
-                                return false;
-                            }
-                        } catch (e) {
-                            return false;
-                        }
+                            const classes = JSON.parse(gi.classes);
+                            if (!classes.includes(f.itemClass) && !classes.includes('any')) return false;
+                        } catch(e) { return false; }
                     }
                 }
                 
-                // Extra property filter
-                if (extraPropertyFilter) {
-                    let hasProperty = false;
-                    try {
-                        const extras = JSON.parse(item.extra || '{}');
-                        // Check if the extra property matches
-                        if (extras.extra === extraPropertyFilter) {
-                            hasProperty = true;
-                        }
-                    } catch (e) {}
-                    
-                    // Also check game item's extra field
-                    if (!hasProperty && gameItems) {
-                        const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
-                        if (gameItem && gameItem.extra) {
-                            const extraProps = gameItem.extra.split(',').map(e => e.trim());
-                            hasProperty = extraProps.includes(extraPropertyFilter);
-                        }
+                if (f.extraProp) {
+                    let has = false;
+                    try { if (JSON.parse(item.extra || '{}').extra === f.extraProp) has = true; } catch(e) {}
+                    if (!has && gameItems) {
+                        const gi = gameItems.find(g => g.id === item.base_item_id && g.slot === item.slot);
+                        if (gi?.extra) has = gi.extra.split(',').map(e => e.trim()).includes(f.extraProp);
                     }
-                    
-                    if (!hasProperty) {
-                        return false;
-                    }
+                    if (!has) return false;
                 }
                 
                 return true;
             });
             
-            // Update showing count
-            document.getElementById('showingCount').textContent = filteredListings.length;
+            filtered.sort((a,b) => {
+                switch(f.sortBy) {
+                    case 'created_desc': return new Date(b.time_created) - new Date(a.time_created);
+                    case 'created_asc': return new Date(a.time_created) - new Date(b.time_created);
+                    case 'power_desc': return parseFloat(b.power) - parseFloat(a.power);
+                    case 'power_asc': return parseFloat(a.power) - parseFloat(b.power);
+                    case 'price_asc': return getTotalGoldValue(a) - getTotalGoldValue(b);
+                    case 'price_desc': return getTotalGoldValue(b) - getTotalGoldValue(a);
+                    default: return 0;
+                }
+            });
             
-            // Render filtered listings
-            renderListings({ listings: filteredListings });
+            document.getElementById('showingCount').textContent = filtered.length;
+            renderListings(filtered);
         }
         
-        function clearFilters() {
-            document.getElementById('filterUsername').value = '';
-            document.getElementById('filterMinPower').value = '';
-            document.getElementById('filterMaxPower').value = '';
-            document.getElementById('filterMinRange').value = '';
-            document.getElementById('filterMaxRange').value = '';
-            document.getElementById('filterMaxPlatinum').value = '';
-            document.getElementById('filterMaxGold').value = '';
-            document.getElementById('filterMaxGems').value = '';
-            document.getElementById('filterItemName').value = '';
-            document.getElementById('filterSlot').value = '';
-            document.getElementById('filterItemClass').value = '';
-            document.getElementById('filterExtraProperty').value = '';
-            applyFilters();
-        }
-        
-        function getItemName(baseItemId, slot) {
-            if (!gameItems) return null;
+        function renderListings(items) {
+            const container = document.getElementById('listings');
             
-            const item = gameItems.find(i => i.id === baseItemId && i.slot === slot);
-            return item ? item.item_name : null;
-        }
-        
-        function renderListings(data) {
-            const listings = document.getElementById('listings');
-            
-            if (!data.listings || data.listings.length === 0) {
-                listings.innerHTML = '<div class="loading"><p>No listings found</p></div>';
+            if (!items.length) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-title">No items found</div>
+                        <div class="empty-text">Try adjusting your filters or search terms</div>
+                    </div>
+                `;
                 return;
             }
             
-            listings.innerHTML = '';
-            
-            data.listings.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'listing-card';
-                card.style.setProperty('--index', index + 1);
-                
-                // Parse extra field if it exists
-                let extras = {};
-                let rangeValue = null;
-                let attributeType = null;
-                
-                if (item.extra) {
-                    try {
-                        extras = JSON.parse(item.extra);
-                        if (extras.range) rangeValue = extras.range;
-                        if (extras.extra) attributeType = extras.extra;
-                    } catch (e) {
-                        // Invalid JSON, ignore
-                    }
-                }
-                
-                // Determine what the power represents based on slot
-                let powerType;
-                switch(item.slot) {
-                    case 'weapon':
-                        powerType = 'Damage';
-                        break;
-                    case 'head':
-                        powerType = 'HP';
-                        break;
-                    case 'hands':
-                        powerType = 'Attack Speed';
-                        break;
-                    case 'body':
-                        powerType = 'HP';
-                        break;
-                    case 'feet':
-                        powerType = 'Movement Speed';
-                        break;
-                    case 'neck':
-                        powerType = attributeType || 'Placeholder';
-                        break;
-                    case 'ring':
-                        powerType = attributeType || 'Stat';
-                        break;
-                    case 'off_hand':
-                        powerType = attributeType || 'Stat';
-                        break;
-                    default:
-                        powerType = attributeType || 'Power';
-                }
-                
-                // Add range to power label if exists
-                let powerLabel = powerType;
-                if (rangeValue) {
-                    powerLabel += ` (Range ${rangeValue})`;
-                }
-                
-                let powerPercent = (parseFloat(item.power) * 100).toFixed(1);
-                
-                // Get item name from game items data
-                const itemName = getItemName(item.base_item_id, item.slot);
-                const itemNameDisplay = itemName ? `<div class="item-name">${escapeHtml(itemName)}</div>` : '';
-                
-                // Format costs properly - can have multiple currencies
-                const platinum = parseInt(item.platinum_cost) || 0;
-                const gold = parseInt(item.gold_cost) || 0;
-                const gem = parseInt(item.gem_cost) || 0;
-                
-                let costDisplay = [];
-                if (platinum > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: #a8dadc;">💎</span><span>${platinum.toLocaleString()} platinum</span></div>`);
-                if (gold > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: var(--accent-gold);">🪙</span><span>${gold.toLocaleString()} gold</span></div>`);
-                if (gem > 0) costDisplay.push(`<div class="cost-line"><span class="cost-icon" style="color: #c084fc;">💎</span><span>${gem.toLocaleString()} gems</span></div>`);
-                
-                const costHTML = costDisplay.length > 0 ? costDisplay.join('') : '<div class="cost-line" style="color: var(--text-muted);">Free</div>';
-                
-                card.innerHTML = `
-                    <div class="card-id">#${item.id}</div>
-                    <div class="card-user">
-                        <div class="username">${escapeHtml(item.username)}</div>
-                        ${itemNameDisplay}
-                        <div class="item-type">${escapeHtml(item.slot)}</div>
-                    </div>
-                    <div class="card-slot">
-                        <div class="slot-icon">${slotIcons[item.slot] || '📦'}</div>
-                        <span class="slot-name">${formatSlotName(item.slot)}</span>
-                    </div>
-                    <div class="card-power">
-                        <div class="power-label">${powerLabel}</div>
-                        <div class="power-value">${powerPercent}%</div>
-                    </div>
-                    <div class="card-costs">
-                        ${costHTML}
-                    </div>
-                    <div class="card-dates">
-                        <div class="date-row">
-                            <span class="date-label">Created:</span>
-                            <span class="date-value">${formatDate(item.time_created)}</span>
+            if (currentView === 'grid') {
+                container.className = 'items-grid';
+                container.innerHTML = items.map((item, idx) => {
+                    const name = getItemName(item.base_item_id, item.slot) || 'Unknown Item';
+                    const power = (parseFloat(item.power) * 100).toFixed(1);
+                    const type = getPowerType(item);
+                    const range = getRange(item);
+                    const statColor = getStatColor(type);
+                    
+                    return `
+                        <div class="item-card" style="animation-delay: ${idx * 0.03}s">
+                            <div class="card-header">
+                                <div class="item-id">#${item.id}</div>
+                                <div class="slot-badge ${item.slot}">${slotIcons[item.slot] || ''} ${formatSlot(item.slot)}</div>
+                            </div>
+                            <div class="item-name">${escapeHtml(name)}</div>
+                            <div class="item-seller">by ${escapeHtml(item.username)}</div>
+                            <div class="item-stats">
+                                <div class="stat-type" style="color: ${statColor}">${type}</div>
+                                ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.25rem; padding: 0.25rem 0.5rem; background: var(--bg-card); border-radius: 4px; display: inline-block;">⟷ ${range} Range</div>` : ''}
+                                <div class="stat-power" style="background: linear-gradient(135deg, ${statColor}, ${statColor}dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${power}%</div>
+                            </div>
+                            <div class="item-price">
+                                ${formatPrice(item)}
+                            </div>
+                            <div class="card-footer">
+                                <div class="item-time" data-tooltip="${new Date(item.time_created).toLocaleString()}">${formatTime(item.time_created)}</div>
+                            </div>
                         </div>
-                        <div class="date-row">
-                            <span class="date-label">Expires:</span>
-                            <span class="date-value">${formatDate(item.time_expires)}</span>
+                    `;
+                }).join('');
+            } else {
+                container.className = 'items-list';
+                container.innerHTML = items.map((item, idx) => {
+                    const name = getItemName(item.base_item_id, item.slot) || 'Unknown Item';
+                    const power = (parseFloat(item.power) * 100).toFixed(1);
+                    const type = getPowerType(item);
+                    const range = getRange(item);
+                    const statColor = getStatColor(type);
+                    
+                    return `
+                        <div class="item-row" style="animation-delay: ${idx * 0.02}s">
+                            <div class="item-id">#${item.id}</div>
+                            <div>
+                                <div class="item-name">${escapeHtml(name)}</div>
+                                <div class="item-seller">by ${escapeHtml(item.username)}</div>
+                            </div>
+                            <div class="slot-badge ${item.slot}">${slotIcons[item.slot] || ''} ${formatSlot(item.slot)}</div>
+                            <div style="text-align: center;">
+                                <div class="stat-type" style="color: ${statColor}">${type}</div>
+                                ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin: 0.25rem 0;">⟷ ${range}</div>` : ''}
+                                <div style="font-family: 'Space Mono', monospace; font-weight: 700; color: ${statColor};">${power}%</div>
+                            </div>
+                            <div>${formatPrice(item)}</div>
+                            <div class="item-time">${formatTime(item.time_created)}</div>
                         </div>
-                    </div>
-                `;
-                
-                listings.appendChild(card);
+                    `;
+                }).join('');
+            }
+        }
+        
+        function setView(view, event) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            applyFilters();
+        }
+        
+        function clearFilters() {
+            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
+             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
+                document.getElementById(id).value = '';
             });
+            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            applyFilters();
         }
         
-        function formatSlotName(slot) {
-            if (!slot) return 'Unknown';
-            return slot.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        function getItemName(id, slot) {
+            if (!gameItems) return null;
+            return gameItems.find(i => i.id === id && i.slot === slot)?.item_name;
         }
         
-        function formatDate(dateStr) {
-            if (!dateStr) return 'N/A';
-            return dateStr.substring(0, 16).replace('T', ' ');
-        }
-        
-        function getTagIcon(key) {
-            const icons = {
-                'Damage': '⚔️',
-                'damage': '⚔️',
-                'Mana': '✨',
-                'mana': '✨',
-                'Health': '❤️',
-                'health': '❤️',
-                'Defense': '🛡️',
-                'defense': '🛡️',
-                'Speed': '⚡',
-                'speed': '⚡'
+        function getPowerType(item) {
+            let attr = null;
+            try { attr = JSON.parse(item.extra || '{}').extra; } catch(e) {}
+            const map = {
+                'weapon': 'Damage', 'head': 'HP', 'hands': 'Attack Speed',
+                'body': 'HP', 'feet': 'Movement Speed',
+                'neck': attr || 'Stat', 'ring': attr || 'Stat', 'off_hand': attr || 'Stat'
             };
-            return icons[key] || '✨';
+            return map[item.slot] || 'Power';
+        }
+        
+        function getRange(item) {
+            try { return JSON.parse(item.extra || '{}').range; } catch(e) { return null; }
+        }
+        
+        function formatPrice(item) {
+            const plat = parseInt(item.platinum_cost) || 0;
+            const gold = parseInt(item.gold_cost) || 0;
+            const gems = parseInt(item.gem_cost) || 0;
+            const totalGold = getTotalGoldValue(item);
+            
+            let html = '';
+            if (plat) {
+                const goldEquiv = plat * PLATINUM_TO_GOLD;
+                html += `<div class="price-item" data-tooltip="${goldEquiv.toLocaleString()} Gold equivalent"><span class="price-icon">${currencyIcons.platinum}</span><span class="price-value">${plat.toLocaleString()}</span> Platinum</div>`;
+            }
+            if (gold) html += `<div class="price-item"><span class="price-icon">${currencyIcons.gold}</span><span class="price-value">${gold.toLocaleString()}</span> Gold</div>`;
+            if (gems) html += `<div class="price-item"><span class="price-icon">${currencyIcons.gems}</span><span class="price-value">${gems.toLocaleString()}</span> Gems</div>`;
+            
+            // Show total if there are multiple currencies
+            if ((plat && (gold || gems)) || (gold && gems)) {
+                html += `<div class="price-item" style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem; color: var(--text-dim);"><span>Total: ${totalGold.toLocaleString()} 🟡</span></div>`;
+            }
+            
+            return html || '<div class="price-item">Free</div>';
+        }
+        
+        function formatTime(date) {
+            const d = new Date(date);
+            const now = new Date();
+            const diff = now - d;
+            const min = Math.floor(diff / 60000);
+            const hr = Math.floor(diff / 3600000);
+            const day = Math.floor(diff / 86400000);
+            if (min < 60) return `${min}m ago`;
+            if (hr < 24) return `${hr}h ago`;
+            return `${day}d ago`;
+        }
+        
+        function formatSlot(slot) {
+            return slot.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
         
         function escapeHtml(text) {
@@ -1218,45 +1189,15 @@
             return div.innerHTML;
         }
         
-        
-        // Load on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('=== Page Initialization Started ===');
-            
             try {
-                // STEP 1: Load game items and WAIT for completion
-                console.log('STEP 1: Loading game items...');
                 await loadGameItems();
-                
-                if (!gameItems || gameItems.length === 0) {
-                    console.error('CRITICAL ERROR: Game items failed to load!');
-                    document.getElementById('statusText').textContent = 'Error: Game items failed to load';
-                    return;
-                }
-                
-                console.log('✓ STEP 1 COMPLETE: Game items loaded successfully');
-                console.log('  Total items:', gameItems.length);
-                
-                // STEP 2: Populate all filters
-                console.log('STEP 2: Populating filters...');
                 populateFilters();
-                console.log('✓ STEP 2 COMPLETE: Filters populated');
-                
-                // STEP 3: Setup event listeners
-                console.log('STEP 3: Setting up event listeners...');
-                setupEventListeners();
-                console.log('✓ STEP 3 COMPLETE: Event listeners ready');
-                
-                // STEP 4: Load all listings
-                console.log('STEP 4: Loading all market listings...');
+                setupListeners();
                 await loadAllListings();
-                console.log('✓ STEP 4 COMPLETE: All listings loaded');
-                
-                console.log('=== Initialization Complete ===');
-                
-            } catch (error) {
-                console.error('FATAL ERROR during initialization:', error);
-                document.getElementById('statusText').textContent = 'Fatal Error';
+            } catch(e) {
+                console.error(e);
+                document.getElementById('statusText').textContent = 'Error';
             }
         });
     </script>
