@@ -15,7 +15,6 @@ def get_listings(page=1, slot=None, class_=None):
     payload = {
         "route": "get_listings",
         "token": TOKEN,
-        "page": int(page),
     }
 
     if slot:

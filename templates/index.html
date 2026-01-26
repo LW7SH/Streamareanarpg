@@ -887,8 +887,13 @@
                 classFilter.appendChild(opt);
             });
             
-            // Properties
+            // Properties - include both innate slot stats and extra properties
             const props = new Set();
+            
+            // Add innate slot stats
+            ['Damage', 'HP', 'Attack Speed', 'Movement Speed', 'Armor', 'Mana'].forEach(s => props.add(s));
+            
+            // Add extra properties from game items
             gameItems.forEach(i => {
                 if (i.extra) i.extra.split(',').forEach(e => { const t = e.trim(); if (t) props.add(t); });
             });
@@ -903,39 +908,64 @@
         }
         
         function setupListeners() {
+            // text + numeric inputs: apply as you type
             ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
-             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
-                document.getElementById(id).addEventListener('keypress', e => {
-                    if (e.key === 'Enter') applyFilters();
-                });
+            'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'
+            ].forEach(id => {
+                document.getElementById(id).addEventListener('input', applyFilters);
             });
-            
-            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
+
+            // selects: apply on selection
+            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'
+            ].forEach(id => {
                 document.getElementById(id).addEventListener('change', applyFilters);
             });
         }
-        
+
         async function loadAllListings() {
             allListings = [];
             let page = 1;
             let hasMore = true;
             
-            while (hasMore && page <= 100) {
-                document.getElementById('statusText').textContent = `Loading page ${page}...`;
-                const response = await fetch(`/api/listings?page=${page}`);
-                const data = await response.json();
-                
-                if (data.listings?.length) {
-                    allListings = allListings.concat(data.listings);
-                    document.getElementById('totalCount').textContent = allListings.length;
+            try {
+                while (hasMore && page <= 100) {
+                    console.log(`  → Fetching page ${page}...`);
+                    document.getElementById('statusText').textContent = `Loading page ${page}...`;
+                    
+                    const response = await fetch(`/api/listings?page=${page}`);
+                    
+                    if (!response.ok) {
+                        console.error(`  ✗ HTTP ${response.status}`);
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`  → Page ${page}:`, data.status, `(${data.listings?.length || 0} items, next: ${data.next_page})`);
+                    
+                    if (data.listings?.length) {
+                        allListings = allListings.concat(data.listings);
+                        document.getElementById('totalCount').textContent = allListings.length;
+                    }
+                    
+                    hasMore = data.next_page === true;
+                    page++;
                 }
                 
-                hasMore = data.next_page === true;
-                page++;
+                console.log(`  ✓ Finished loading: ${allListings.length} total items`);
+                document.getElementById('statusText').textContent = 'Ready';
+                applyFilters();
+                
+            } catch (error) {
+                console.error('  ✗ ERROR:', error);
+                document.getElementById('statusText').textContent = 'Error';
+                document.getElementById('listings').innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">❌</div>
+                        <div class="empty-title">Failed to load</div>
+                        <div class="empty-text">${error.message}</div>
+                    </div>
+                `;
             }
-            
-            document.getElementById('statusText').textContent = 'Ready';
-            applyFilters();
         }
         
         function applyFilters() {
@@ -994,7 +1024,7 @@
                 }
                 
                 if (f.itemClass && gameItems) {
-                    const gi = gameItems.find(g => g.id === item.base_item_id && g.slot === item.slot);
+                    const gi = gameItems.find(g => String(g.id) === String(item.base_item_id) && g.slot === item.slot);
                     if (gi?.classes) {
                         try {
                             const classes = JSON.parse(gi.classes);
@@ -1004,13 +1034,8 @@
                 }
                 
                 if (f.extraProp) {
-                    let has = false;
-                    try { if (JSON.parse(item.extra || '{}').extra === f.extraProp) has = true; } catch(e) {}
-                    if (!has && gameItems) {
-                        const gi = gameItems.find(g => g.id === item.base_item_id && g.slot === item.slot);
-                        if (gi?.extra) has = gi.extra.split(',').map(e => e.trim()).includes(f.extraProp);
-                    }
-                    if (!has) return false;
+                    const itemStats = getItemStatTypes(item);
+                    if (!itemStats.includes(f.extraProp)) return false;
                 }
                 
                 return true;
@@ -1134,11 +1159,54 @@
             let attr = null;
             try { attr = JSON.parse(item.extra || '{}').extra; } catch(e) {}
             const map = {
-                'weapon': 'Damage', 'head': 'HP', 'hands': 'Attack Speed',
-                'body': 'HP', 'feet': 'Movement Speed',
-                'neck': attr || 'Stat', 'ring': attr || 'Stat', 'off_hand': attr || 'Stat'
+                'weapon': 'Damage',
+                'head': 'HP',
+                'hands': 'Attack Speed',
+                'body': 'HP',
+                'feet': 'Movement Speed',
+                'neck': attr || 'Placeholder',
+                'ring': attr || 'Stat',
+                'off_hand': attr || 'Stat'
             };
             return map[item.slot] || 'Power';
+        }
+        
+        // Get all stat types for an item (innate + extra)
+        function getItemStatTypes(item) {
+            const stats = new Set();
+            
+            // Add innate stat type for slots that HAVE fixed innate stats
+            const innateStats = {
+                'weapon': 'Damage',
+                'head': 'HP',
+                'hands': 'Attack Speed',
+                'body': 'HP',
+                'feet': 'Movement Speed'
+                // neck, ring, off_hand have NO innate stats - they only have extra
+            };
+            
+            if (innateStats[item.slot]) {
+                stats.add(innateStats[item.slot]);
+            }
+            
+            // Add extra property from listing
+            try {
+                const extra = JSON.parse(item.extra || '{}').extra;
+                if (extra) stats.add(extra);
+            } catch(e) {}
+            
+            // Add extra properties from game items
+            if (gameItems) {
+                const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
+                if (gameItem?.extra) {
+                    gameItem.extra.split(',').forEach(e => {
+                        const trimmed = e.trim();
+                        if (trimmed) stats.add(trimmed);
+                    });
+                }
+            }
+            
+            return Array.from(stats);
         }
         
         function getRange(item) {
@@ -1190,13 +1258,27 @@
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('=== Page loaded, starting initialization ===');
             try {
+                console.log('Step 1: Loading game items...');
                 await loadGameItems();
+                console.log('✓ Game items loaded:', gameItems?.length || 0);
+                
+                console.log('Step 2: Populating filters...');
                 populateFilters();
+                console.log('✓ Filters populated');
+                
+                console.log('Step 3: Setting up listeners...');
                 setupListeners();
+                console.log('✓ Listeners ready');
+                
+                console.log('Step 4: Loading all listings...');
                 await loadAllListings();
+                console.log('✓ All listings loaded:', allListings?.length || 0);
+                
+                console.log('=== Initialization complete ===');
             } catch(e) {
-                console.error(e);
+                console.error('❌ Initialization error:', e);
                 document.getElementById('statusText').textContent = 'Error';
             }
         });
