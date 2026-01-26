@@ -7,668 +7,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0f0f0f;
-            --bg-elevated: #1a1a1a;
-            --bg-card: #222;
-            --bg-hover: #2a2a2a;
-            --primary: #8b5cf6;
-            --primary-dark: #7c3aed;
-            --secondary: #06b6d4;
-            --accent: #f59e0b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --text: #f5f5f5;
-            --text-dim: #a3a3a3;
-            --text-dimmer: #666;
-            --border: #333;
-            --shadow: rgba(0, 0, 0, 0.3);
-            --glow: rgba(139, 92, 246, 0.4);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-        
-        /* Header */
-        .header {
-            background: var(--bg-elevated);
-            border-bottom: 2px solid var(--primary);
-            padding: 1.5rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px var(--shadow);
-        }
-        
-        .header-content {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-        }
-        
-        .logo {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        .stats {
-            display: flex;
-            gap: 3rem;
-            align-items: center;
-        }
-        
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        
-        .stat-value {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.75rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-dim);
-            font-weight: 600;
-        }
-        
-        .status-badge {
-            padding: 0.5rem 1rem;
-            background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--success); }
-            50% { opacity: 0.7; box-shadow: 0 0 0 6px transparent; }
-        }
-        
-        /* Main Layout */
-        .main {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: sticky;
-            top: 100px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: var(--text-dimmer);
-        }
-        
-        .filter-section {
-            margin-bottom: 2rem;
-        }
-        
-        .filter-section:last-child {
-            margin-bottom: 0;
-        }
-        
-        .filter-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-dim);
-            margin-bottom: 1rem;
-            padding-left: 0.5rem;
-            border-left: 3px solid var(--primary);
-        }
-        
-        .filter-group {
-            margin-bottom: 1rem;
-        }
-        
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-dim);
-        }
-        
-        input, select {
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-        }
-        
-        input:hover, select:hover {
-            border-color: var(--text-dimmer);
-        }
-        
-        .range-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 0.875rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px var(--glow);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-dim);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-            color: var(--text);
-            box-shadow: none;
-        }
-        
-        /* Content */
-        .content {
-            min-height: 80vh;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .view-switcher {
-            display: flex;
-            gap: 0.5rem;
-            background: var(--bg-elevated);
-            padding: 0.25rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        
-        .view-btn {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .sort-group {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .sort-group select {
-            width: auto;
-            min-width: 180px;
-        }
-        
-        /* Grid */
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        /* Card */
-        .item-card {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .item-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .item-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px var(--shadow), 0 0 40px var(--glow);
-        }
-        
-        .item-card:hover::before {
-            opacity: 1;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-        
-        .item-id {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--text-dimmer);
-        }
-        
-        .slot-badge {
-            padding: 0.25rem 0.75rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: capitalize;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .slot-badge.weapon { border-color: #ef4444; color: #ef4444; }
-        .slot-badge.head { border-color: #f59e0b; color: #f59e0b; }
-        .slot-badge.body { border-color: #8b5cf6; color: #8b5cf6; }
-        .slot-badge.hands { border-color: #06b6d4; color: #06b6d4; }
-        .slot-badge.feet { border-color: #10b981; color: #10b981; }
-        .slot-badge.off_hand { border-color: #ec4899; color: #ec4899; }
-        .slot-badge.ring { border-color: #f59e0b; color: #f59e0b; }
-        .slot-badge.neck { border-color: #8b5cf6; color: #8b5cf6; }
-        
-        .item-name {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            color: var(--text);
-        }
-        
-        .item-seller {
-            font-size: 0.875rem;
-            color: var(--text-dim);
-            margin-bottom: 1rem;
-        }
-        
-        .item-stats {
-            background: var(--bg-card);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .stat-type {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-power {
-            font-family: 'Space Mono', monospace;
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), #fbbf24);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .item-price {
-            margin-bottom: 1rem;
-        }
-        
-        .price-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--bg-card);
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-        
-        .price-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .price-icon {
-            font-size: 1.125rem;
-        }
-        
-        .price-value {
-            font-family: 'Space Mono', monospace;
-            font-weight: 600;
-        }
-        
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-        
-        .item-time {
-            font-size: 0.75rem;
-            color: var(--text-dimmer);
-        }
-        
-        /* List View */
-        .items-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .item-row {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            display: grid;
-            grid-template-columns: 60px 2fr 1fr 120px 1fr 120px;
-            gap: 1.5rem;
-            align-items: center;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .item-row:hover {
-            border-color: var(--primary);
-            transform: translateX(4px);
-            box-shadow: 0 4px 20px var(--shadow);
-        }
-        
-        /* Tooltip */
-        [data-tooltip] {
-            position: relative;
-        }
-        
-        [data-tooltip]:hover::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-8px);
-            padding: 0.5rem 0.75rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            z-index: 1000;
-            animation: tooltipIn 0.2s ease;
-        }
-        
-        @keyframes tooltipIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(-8px);
-            }
-        }
-        
-        /* Loading */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-            gap: 1.5rem;
-        }
-        
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 1.125rem;
-            color: var(--text-dim);
-        }
-        
-        /* Empty State */
-        .empty {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-            text-align: center;
-            gap: 1rem;
-        }
-        
-        .empty-icon {
-            font-size: 4rem;
-            opacity: 0.3;
-        }
-        
-        .empty-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .empty-text {
-            color: var(--text-dim);
-            max-width: 400px;
-        }
-        
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .item-card, .item-row {
-            animation: slideUp 0.4s ease-out both;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .main {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: static;
-                max-height: none;
-            }
-            
-            .items-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .stats {
-                width: 100%;
-                justify-content: space-between;
-                gap: 1rem;
-            }
-            
-            .items-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .item-row {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header class="header">
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">⚔️</div>
-                <div>Stream Arena RPG Market</div>
+                <span>Stream Arena RPG Market</span>
             </div>
             <div class="stats">
                 <div class="stat-item">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">Total Items</div>
+                    <div class="stat-value" id="totalListings">0</div>
+                    <div class="stat-label">Listings</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="showingCount">0</div>
-                    <div class="stat-label">Showing</div>
+                    <div class="stat-value" id="uniqueItems">0</div>
+                    <div class="stat-label">Unique Items</div>
                 </div>
                 <div class="status-badge">
                     <div class="status-dot"></div>
@@ -678,637 +33,236 @@
         </div>
     </header>
     
+    <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('marketplace')">🛒 Marketplace</button>
+        <button class="tab-btn" onclick="switchTab('analysis')">📊 Item Analysis</button>
+    </div>
+    
     <main class="main">
-        <aside class="sidebar">
-            <div class="filter-section">
-                <div class="filter-title">Search</div>
-                <div class="filter-group">
-                    <label>Item Name</label>
-                    <select id="filterItemName">
-                        <option value="">Any Item</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Seller</label>
-                    <input type="text" id="filterUsername" placeholder="Search by username...">
-                </div>
-            </div>
-            
-            <div class="filter-section">
-                <div class="filter-title">Item Type</div>
-                <div class="filter-group">
-                    <label>Slot</label>
-                    <select id="filterSlot">
-                        <option value="">All Slots</option>
-                        <option value="weapon">⚔️ Weapon</option>
-                        <option value="off_hand">🛡️ Off-Hand</option>
-                        <option value="head">⛑️ Head</option>
-                        <option value="body">👕 Body</option>
-                        <option value="hands">🧤 Hands</option>
-                        <option value="feet">🥾 Feet</option>
-                        <option value="neck">📿 Neck</option>
-                        <option value="ring">💍 Ring</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Class</label>
-                    <select id="filterItemClass">
-                        <option value="">All Classes</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Property</label>
-                    <select id="filterExtraProperty">
-                        <option value="">Any</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="filter-section">
-                <div class="filter-title">Stats</div>
-                <div class="filter-group">
-                    <label>Power %</label>
-                    <div class="range-group">
-                        <input type="number" id="filterMinPower" placeholder="Min" step="0.1">
-                        <input type="number" id="filterMaxPower" placeholder="Max" step="0.1">
+        <!-- MARKETPLACE TAB -->
+        <div id="marketplaceTab" class="tab-content active">
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <div class="filter-title">Quick Search</div>
+                    <div class="filter-group">
+                        <label for="filterItemName">Item Name</label>
+                        <select id="filterItemName">
+                            <option value="">All Items</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterUsername">Seller</label>
+                        <input type="text" id="filterUsername" placeholder="Username">
                     </div>
                 </div>
-                <div class="filter-group">
-                    <label>Range</label>
-                    <div class="range-group">
-                        <input type="number" id="filterMinRange" placeholder="Min">
-                        <input type="number" id="filterMaxRange" placeholder="Max">
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Item Filters</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="filterSlot">Slot</label>
+                                <select id="filterSlot">
+                                    <option value="">All</option>
+                                    <option value="weapon">Weapon</option>
+                                    <option value="head">Head</option>
+                                    <option value="body">Body</option>
+                                    <option value="hands">Hands</option>
+                                    <option value="feet">Feet</option>
+                                    <option value="neck">Neck</option>
+                                    <option value="ring">Ring</option>
+                                    <option value="off_hand">Off Hand</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="filterItemClass">Class</label>
+                                <select id="filterItemClass">
+                                    <option value="">All</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterExtraProperty">Stat Type</label>
+                            <select id="filterExtraProperty">
+                                <option value="">All Stats</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Power & Range</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="filterMinPower">Min Power (%)</label>
+                                <input type="number" id="filterMinPower" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filterMaxPower">Max Power (%)</label>
+                                <input type="number" id="filterMaxPower" placeholder="100" min="0" max="100" step="0.1">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="filterMinRange">Min Range</label>
+                                <input type="number" id="filterMinRange" placeholder="0" min="0">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filterMaxRange">Max Range</label>
+                                <input type="number" id="filterMaxRange" placeholder="Any" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Price Limits</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-group">
+                            <label for="filterMaxPlatinum">Max Platinum</label>
+                            <input type="number" id="filterMaxPlatinum" placeholder="Any" min="0">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMaxGold">Max Gold</label>
+                            <input type="number" id="filterMaxGold" placeholder="Any" min="0">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMaxGems">Max Gems</label>
+                            <input type="number" id="filterMaxGems" placeholder="Any" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="clearFilters()">Clear All</button>
+                </div>
+            </aside>
+            
+            <div class="content">
+                <div class="controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="setView('grid', event)">Grid</button>
+                        <button class="view-btn" onclick="setView('list', event)">List</button>
+                    </div>
+                    <div class="results-info">
+                        Showing <strong id="filteredCount">0</strong> of <strong id="totalCount">0</strong> items
+                    </div>
+                    <div class="filter-group" style="margin: 0; min-width: 200px;">
+                        <label for="marketplaceSortBy" style="margin-bottom: 0.25rem;">Sort By</label>
+                        <select id="marketplaceSortBy" onchange="applyFilters()">
+                            <option value="time_newest">Newest First</option>
+                            <option value="time_oldest">Oldest First</option>
+                            <option value="power_high">Highest Power</option>
+                            <option value="power_low">Lowest Power</option>
+                            <option value="price_low">Lowest Price</option>
+                            <option value="price_high">Highest Price</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="itemsContainer" class="items-grid">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div>Loading market data...</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="filter-section">
-                <div class="filter-title">Price</div>
-                <div class="filter-group">
-                    <label>Max Platinum</label>
-                    <input type="number" id="filterMaxPlatinum" placeholder="Unlimited">
-                </div>
-                <div class="filter-group">
-                    <label>Max Gold (Total Value)</label>
-                    <input type="number" id="filterMaxGold" placeholder="Unlimited" data-tooltip="Includes platinum converted to gold (1 plat = 100k gold)">
-                </div>
-                <div class="filter-group">
-                    <label>Max Gems</label>
-                    <input type="number" id="filterMaxGems" placeholder="Unlimited">
-                </div>
-            </div>
-            
-            <button class="btn" onclick="applyFilters()">Apply Filters</button>
-            <button class="btn btn-secondary" onclick="clearFilters()" style="margin-top: 0.5rem;">Clear All</button>
-        </aside>
+        </div>
         
-        <div class="content">
-            <div class="controls">
-                <div class="view-switcher">
-                    <button class="view-btn active" data-tooltip="Grid View" onclick="setView('grid', event)">Grid</button>
-                    <button class="view-btn" data-tooltip="List View" onclick="setView('list', event)">List</button>
+        <!-- ANALYSIS TAB -->
+        <div id="analysisTab" class="tab-content">
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <div class="filter-title">Quick Search</div>
+                    <div class="filter-group">
+                        <label for="analysisFilterName">Item Name</label>
+                        <input type="text" id="analysisFilterName" placeholder="Search...">
+                    </div>
                 </div>
-                <div class="sort-group">
-                    <label style="margin: 0;">Sort:</label>
-                    <select id="sortBy" onchange="applyFilters()">
-                        <option value="created_desc">Newest First</option>
-                        <option value="created_asc">Oldest First</option>
-                        <option value="power_desc">Highest Power</option>
-                        <option value="power_asc">Lowest Power</option>
-                        <option value="price_asc">Cheapest</option>
-                        <option value="price_desc">Most Expensive</option>
-                    </select>
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Filters</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="analysisFilterSlot">Slot</label>
+                                <select id="analysisFilterSlot">
+                                    <option value="">All</option>
+                                    <option value="weapon">Weapon</option>
+                                    <option value="head">Head</option>
+                                    <option value="body">Body</option>
+                                    <option value="hands">Hands</option>
+                                    <option value="feet">Feet</option>
+                                    <option value="neck">Neck</option>
+                                    <option value="ring">Ring</option>
+                                    <option value="off_hand">Off Hand</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="analysisFilterClass">Class</label>
+                                <select id="analysisFilterClass">
+                                    <option value="">All</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="analysisFilterStat">Stat Type</label>
+                            <select id="analysisFilterStat">
+                                <option value="">All Stats</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="clearAnalysisFilters()">Clear All</button>
+                </div>
+            </aside>
             
-            <div id="listings" class="items-grid">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Loading marketplace...</div>
+            <div class="content">
+                <div class="controls">
+                    <div class="results-info">
+                        Showing <strong id="analysisFilteredCount">0</strong> of <strong id="analysisTotalCount">0</strong> unique items
+                    </div>
+                    <div class="filter-group" style="margin: 0; min-width: 200px;">
+                        <label for="analysisSortBy" style="margin-bottom: 0.25rem;">Sort By</label>
+                        <select id="analysisSortBy" onchange="applyAnalysisFilters()">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="listings">Most Listings</option>
+                            <option value="maxPower">Highest Max Power</option>
+                            <option value="minPrice">Lowest Price</option>
+                            <option value="maxPrice">Highest Price</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="analysisContainer" class="analysis-grid">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div>Analyzing market data...</div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
     
-    <script>
-        const slotIcons = {
-            'weapon': '⚔️',
-            'off_hand': '🛡️',
-            'body': '👕',
-            'head': '⛑️',
-            'hands': '🧤',
-            'feet': '🥾',
-            'neck': '📿',
-            'ring': '💍'
-        };
-        
-        const currencyIcons = {
-            platinum: '💎',
-            gold: '🟡',
-            gems: '💠'
-        };
-        
-        const PLATINUM_TO_GOLD = 100000;
-        
-        // Stat type colors for visual distinction
-        const statColors = {
-            'Damage': '#ef4444',        // Red - offensive
-            'Attack Speed': '#f97316',   // Orange - offensive tempo
-            'HP': '#10b981',             // Green - health/vitality
-            'Armor': '#06b6d4',          // Cyan - defense
-            'Mana': '#8b5cf6',           // Purple - magic
-            'Movement Speed': '#f59e0b', // Amber - mobility
-            'Regen': '#22c55e',          // Light green - recovery
-            'Speed': '#fbbf24',          // Yellow - general speed
-            'A_Speed': '#fb923c',        // Light orange - attack speed alt
-            'Stat': '#94a3b3'            // Gray - generic stat
-        };
-        
-        function getStatColor(statType) {
-            return statColors[statType] || '#94a3b3';
-        }
-        
-        // Convert all prices to gold equivalent for comparison
-        function getTotalGoldValue(item) {
-            const plat = parseInt(item.platinum_cost) || 0;
-            const gold = parseInt(item.gold_cost) || 0;
-            const gems = parseInt(item.gem_cost) || 0;
-            return (plat * PLATINUM_TO_GOLD) + gold + gems;
-        }
-        
-        let allListings = [];
-        let gameItems = null;
-        let currentView = 'grid';
-        
-        async function loadGameItems() {
-            const response = await fetch('/api/items');
-            const data = await response.json();
-            if (!response.ok || data.status !== 'success') throw new Error('Failed to load items');
-            gameItems = data.items || [];
-        }
-        
-        function populateFilters() {
-            if (!gameItems) return;
-            
-            // Items
-            const itemFilter = document.getElementById('filterItemName');
-            const bySlot = {};
-            gameItems.forEach(i => {
-                if (!bySlot[i.slot]) bySlot[i.slot] = [];
-                bySlot[i.slot].push(i);
-            });
-            
-            Object.keys(bySlot).sort().forEach(slot => {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = formatSlot(slot);
-                bySlot[slot].sort((a,b) => a.item_name.localeCompare(b.item_name)).forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = `${item.id}:${item.slot}`;
-                    opt.textContent = item.item_name;
-                    optgroup.appendChild(opt);
-                });
-                itemFilter.appendChild(optgroup);
-            });
-            
-            // Classes
-            const classes = new Set();
-            gameItems.forEach(i => {
-                if (i.classes) {
-                    try { JSON.parse(i.classes).forEach(c => classes.add(c)); } catch(e) {}
-                }
-            });
-            
-            const classFilter = document.getElementById('filterItemClass');
-            Array.from(classes).sort().forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                // Show 'any' as 'Universal' and capitalize other classes
-                opt.textContent = c === 'any' ? 'Universal (Any Class)' : c.charAt(0).toUpperCase() + c.slice(1);
-                classFilter.appendChild(opt);
-            });
-            
-            // Properties - include both innate slot stats and extra properties
-            const props = new Set();
-            
-            // Add innate slot stats
-            ['Damage', 'HP', 'Attack Speed', 'Movement Speed', 'Armor', 'Mana'].forEach(s => props.add(s));
-            
-            // Add extra properties from game items
-            gameItems.forEach(i => {
-                if (i.extra) i.extra.split(',').forEach(e => { 
-                    const t = e.trim(); 
-                    if (t) {
-                        // Normalize A_Speed to Attack Speed
-                        const normalized = t === 'A_Speed' ? 'Attack Speed' : t;
-                        props.add(normalized);
-                    }
-                });
-            });
-            
-            const propFilter = document.getElementById('filterExtraProperty');
-            Array.from(props).sort().forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.textContent = p;
-                propFilter.appendChild(opt);
-            });
-        }
-        
-        function setupListeners() {
-            // text + numeric inputs: apply as you type
-            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
-            'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'
-            ].forEach(id => {
-                document.getElementById(id).addEventListener('input', applyFilters);
-            });
-
-            // selects: apply on selection
-            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'
-            ].forEach(id => {
-                document.getElementById(id).addEventListener('change', applyFilters);
-            });
-        }
-
-        async function loadAllListings() {
-            allListings = [];
-            let page = 1;
-            let hasMore = true;
-            
-            try {
-                while (hasMore && page <= 100) {
-                    console.log(`  → Fetching page ${page}...`);
-                    document.getElementById('statusText').textContent = `Loading page ${page}...`;
-                    
-                    const response = await fetch(`/api/listings?page=${page}`);
-                    
-                    if (!response.ok) {
-                        console.error(`  ✗ HTTP ${response.status}`);
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log(`  → Page ${page}:`, data.status, `(${data.listings?.length || 0} items, next: ${data.next_page})`);
-                    
-                    if (data.listings?.length) {
-                        allListings = allListings.concat(data.listings);
-                        document.getElementById('totalCount').textContent = allListings.length;
-                    }
-                    
-                    hasMore = data.next_page === true;
-                    page++;
-                }
-                
-                console.log(`  ✓ Finished loading: ${allListings.length} total items`);
-                document.getElementById('statusText').textContent = 'Ready';
-                applyFilters();
-                
-            } catch (error) {
-                console.error('  ✗ ERROR:', error);
-                document.getElementById('statusText').textContent = 'Error';
-                document.getElementById('listings').innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">❌</div>
-                        <div class="empty-title">Failed to load</div>
-                        <div class="empty-text">${error.message}</div>
-                    </div>
-                `;
-            }
-        }
-        
-        function applyFilters() {
-            if (!allListings.length) return;
-            
-            const f = {
-                username: document.getElementById('filterUsername').value.toLowerCase().trim(),
-                slot: document.getElementById('filterSlot').value,
-                itemClass: document.getElementById('filterItemClass').value.toLowerCase(),
-                itemName: document.getElementById('filterItemName').value,
-                extraProp: document.getElementById('filterExtraProperty').value,
-                minPower: parseFloat(document.getElementById('filterMinPower').value) || 0,
-                maxPower: parseFloat(document.getElementById('filterMaxPower').value) || 999,
-                minRange: parseInt(document.getElementById('filterMinRange').value),
-                maxRange: parseInt(document.getElementById('filterMaxRange').value),
-                maxPlat: parseInt(document.getElementById('filterMaxPlatinum').value),
-                maxGold: parseInt(document.getElementById('filterMaxGold').value),
-                maxGems: parseInt(document.getElementById('filterMaxGems').value),
-                sortBy: document.getElementById('sortBy').value
-            };
-            
-            let filtered = allListings.filter(item => {
-                if (f.username && !item.username.toLowerCase().includes(f.username)) return false;
-                if (f.slot && item.slot !== f.slot) return false;
-                
-                const power = parseFloat(item.power) * 100;
-                if (power < f.minPower || power > f.maxPower) return false;
-                
-                if (!isNaN(f.minRange) || !isNaN(f.maxRange)) {
-                    let range = null;
-                    try { range = JSON.parse(item.extra || '{}').range; } catch(e) {}
-                    if (range === null) return false;
-                    if (!isNaN(f.minRange) && range < f.minRange) return false;
-                    if (!isNaN(f.maxRange) && range > f.maxRange) return false;
-                }
-                
-                // Price filtering with platinum conversion
-                if (!isNaN(f.maxPlat)) {
-                    const platCost = parseInt(item.platinum_cost) || 0;
-                    if (platCost > f.maxPlat) return false;
-                }
-                
-                if (!isNaN(f.maxGold)) {
-                    const totalGold = getTotalGoldValue(item);
-                    if (totalGold > f.maxGold) return false;
-                }
-                
-                if (!isNaN(f.maxGems)) {
-                    const gemCost = parseInt(item.gem_cost) || 0;
-                    if (gemCost > f.maxGems) return false;
-                }
-                
-                if (f.itemName) {
-                    const [id, slot] = f.itemName.split(':');
-                    if (item.base_item_id !== id || item.slot !== slot) return false;
-                }
-                
-                if (f.itemClass && gameItems) {
-                    const gi = gameItems.find(g => String(g.id) === String(item.base_item_id) && g.slot === item.slot);
-                    if (gi?.classes) {
-                        try {
-                            const classes = JSON.parse(gi.classes);
-                            if (!classes.includes(f.itemClass) && !classes.includes('any')) return false;
-                        } catch(e) { return false; }
-                    }
-                }
-                
-                if (f.extraProp) {
-                    const itemStats = getItemStatTypes(item, true); // onlyActual=true for filtering
-                    // Case-insensitive comparison for extra property
-                    const normalizedFilterProp = f.extraProp.toLowerCase();
-                    const hasMatch = itemStats.some(stat => stat.toLowerCase() === normalizedFilterProp);
-                    if (!hasMatch) return false;
-                }
-                
-                return true;
-            });
-            
-            filtered.sort((a,b) => {
-                switch(f.sortBy) {
-                    case 'created_desc': return new Date(b.time_created) - new Date(a.time_created);
-                    case 'created_asc': return new Date(a.time_created) - new Date(b.time_created);
-                    case 'power_desc': return parseFloat(b.power) - parseFloat(a.power);
-                    case 'power_asc': return parseFloat(a.power) - parseFloat(b.power);
-                    case 'price_asc': return getTotalGoldValue(a) - getTotalGoldValue(b);
-                    case 'price_desc': return getTotalGoldValue(b) - getTotalGoldValue(a);
-                    default: return 0;
-                }
-            });
-            
-            document.getElementById('showingCount').textContent = filtered.length;
-            renderListings(filtered);
-        }
-        
-        function renderListings(items) {
-            const container = document.getElementById('listings');
-            
-            if (!items.length) {
-                container.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">🔍</div>
-                        <div class="empty-title">No items found</div>
-                        <div class="empty-text">Try adjusting your filters or search terms</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            if (currentView === 'grid') {
-                container.className = 'items-grid';
-                container.innerHTML = items.map((item, idx) => {
-                    const name = getItemName(item.base_item_id, item.slot) || 'Unknown Item';
-                    const power = (parseFloat(item.power) * 100).toFixed(1);
-                    const type = getPowerType(item);
-                    const range = getRange(item);
-                    const statColor = getStatColor(type);
-                    
-                    return `
-                        <div class="item-card" style="animation-delay: ${idx * 0.03}s">
-                            <div class="card-header">
-                                <div class="item-id">#${item.id}</div>
-                                <div class="slot-badge ${item.slot}">${slotIcons[item.slot] || ''} ${formatSlot(item.slot)}</div>
-                            </div>
-                            <div class="item-name">${escapeHtml(name)}</div>
-                            <div class="item-seller">by ${escapeHtml(item.username)}</div>
-                            <div class="item-stats">
-                                <div class="stat-type" style="color: ${statColor}">${type}</div>
-                                ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.25rem; padding: 0.25rem 0.5rem; background: var(--bg-card); border-radius: 4px; display: inline-block;">⟷ ${range} Range</div>` : ''}
-                                <div class="stat-power" style="background: linear-gradient(135deg, ${statColor}, ${statColor}dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${power}%</div>
-                            </div>
-                            <div class="item-price">
-                                ${formatPrice(item)}
-                            </div>
-                            <div class="card-footer">
-                                <div class="item-time" data-tooltip="${new Date(item.time_created).toLocaleString()}">${formatTime(item.time_created)}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                container.className = 'items-list';
-                container.innerHTML = items.map((item, idx) => {
-                    const name = getItemName(item.base_item_id, item.slot) || 'Unknown Item';
-                    const power = (parseFloat(item.power) * 100).toFixed(1);
-                    const type = getPowerType(item);
-                    const range = getRange(item);
-                    const statColor = getStatColor(type);
-                    
-                    return `
-                        <div class="item-row" style="animation-delay: ${idx * 0.02}s">
-                            <div class="item-id">#${item.id}</div>
-                            <div>
-                                <div class="item-name">${escapeHtml(name)}</div>
-                                <div class="item-seller">by ${escapeHtml(item.username)}</div>
-                            </div>
-                            <div class="slot-badge ${item.slot}">${slotIcons[item.slot] || ''} ${formatSlot(item.slot)}</div>
-                            <div style="text-align: center;">
-                                <div class="stat-type" style="color: ${statColor}">${type}</div>
-                                ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin: 0.25rem 0;">⟷ ${range}</div>` : ''}
-                                <div style="font-family: 'Space Mono', monospace; font-weight: 700; color: ${statColor};">${power}%</div>
-                            </div>
-                            <div>${formatPrice(item)}</div>
-                            <div class="item-time">${formatTime(item.time_created)}</div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-        
-        function setView(view, event) {
-            currentView = view;
-            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            applyFilters();
-        }
-        
-        function clearFilters() {
-            ['filterUsername', 'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
-             'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            applyFilters();
-        }
-        
-        function getItemName(id, slot) {
-            if (!gameItems) return null;
-            return gameItems.find(i => i.id === id && i.slot === slot)?.item_name;
-        }
-        
-        function getPowerType(item) {
-            let attr = null;
-            try { attr = JSON.parse(item.extra || '{}').extra; } catch(e) {}
-            const map = {
-                'weapon': 'Damage',
-                'head': 'HP',
-                'hands': 'Attack Speed',
-                'body': 'HP',
-                'feet': 'Movement Speed',
-                'neck': attr || 'Placeholder',
-                'ring': attr || 'Stat',
-                'off_hand': attr || 'Stat'
-            };
-            return map[item.slot] || 'Power';
-        }
-        
-        // Get all stat types for an item (innate + extra)
-        // If onlyActual=true, only returns stats this specific listing has (for filtering)
-        // If onlyActual=false, returns all possible stats including base item extras (for display)
-        function getItemStatTypes(item, onlyActual = false) {
-            const stats = new Set();
-            
-            // Add innate stat type for slots that HAVE fixed innate stats
-            const innateStats = {
-                'weapon': 'Damage',
-                'head': 'HP',
-                'hands': 'Attack Speed',
-                'body': 'HP',
-                'feet': 'Movement Speed'
-                // neck, ring, off_hand have NO innate stats - they only have extra
-            };
-            
-            if (innateStats[item.slot]) {
-                stats.add(innateStats[item.slot]);
-            }
-            
-            // Add extra property from listing (this is what the item actually has)
-            let hasListingExtra = false;
-            try {
-                const extra = JSON.parse(item.extra || '{}').extra;
-                if (extra && extra.trim()) {
-                    // Normalize A_Speed to Attack Speed
-                    const normalized = extra === 'A_Speed' ? 'Attack Speed' : extra;
-                    stats.add(normalized);
-                    hasListingExtra = true;
-                }
-            } catch(e) {}
-            
-            // Add extra properties from game items (all possible extras)
-            // BUT: for filtering purposes (onlyActual=true), skip this if the listing already has an extra
-            // This prevents rings from matching filters for stats they don't actually have
-            if (!onlyActual || !hasListingExtra) {
-                if (gameItems) {
-                    const gameItem = gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
-                    if (gameItem?.extra) {
-                        gameItem.extra.split(',').forEach(e => {
-                            const trimmed = e.trim();
-                            if (trimmed) {
-                                // Normalize A_Speed to Attack Speed
-                                const normalized = trimmed === 'A_Speed' ? 'Attack Speed' : trimmed;
-                                stats.add(normalized);
-                            }
-                        });
-                    }
-                }
-            }
-            
-            // Filter out any empty strings that might have been added
-            return Array.from(stats).filter(s => s && s.trim());
-        }
-        
-        function getRange(item) {
-            try { return JSON.parse(item.extra || '{}').range; } catch(e) { return null; }
-        }
-        
-        function formatPrice(item) {
-            const plat = parseInt(item.platinum_cost) || 0;
-            const gold = parseInt(item.gold_cost) || 0;
-            const gems = parseInt(item.gem_cost) || 0;
-            const totalGold = getTotalGoldValue(item);
-            
-            let html = '';
-            if (plat) {
-                const goldEquiv = plat * PLATINUM_TO_GOLD;
-                html += `<div class="price-item" data-tooltip="${goldEquiv.toLocaleString()} Gold equivalent"><span class="price-icon">${currencyIcons.platinum}</span><span class="price-value">${plat.toLocaleString()}</span> Platinum</div>`;
-            }
-            if (gold) html += `<div class="price-item"><span class="price-icon">${currencyIcons.gold}</span><span class="price-value">${gold.toLocaleString()}</span> Gold</div>`;
-            if (gems) html += `<div class="price-item"><span class="price-icon">${currencyIcons.gems}</span><span class="price-value">${gems.toLocaleString()}</span> Gems</div>`;
-            
-            // Show total if there are multiple currencies
-            if ((plat && (gold || gems)) || (gold && gems)) {
-                html += `<div class="price-item" style="border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem; color: var(--text-dim);"><span>Total: ${totalGold.toLocaleString()} 🟡</span></div>`;
-            }
-            
-            return html || '<div class="price-item">Free</div>';
-        }
-        
-        function formatTime(date) {
-            const d = new Date(date);
-            const now = new Date();
-            const diff = now - d;
-            const min = Math.floor(diff / 60000);
-            const hr = Math.floor(diff / 3600000);
-            const day = Math.floor(diff / 86400000);
-            if (min < 60) return `${min}m ago`;
-            if (hr < 24) return `${hr}h ago`;
-            return `${day}d ago`;
-        }
-        
-        function formatSlot(slot) {
-            return slot.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('=== Page loaded, starting initialization ===');
-            try {
-                console.log('Step 1: Loading game items...');
-                await loadGameItems();
-                console.log('✓ Game items loaded:', gameItems?.length || 0);
-                
-                console.log('Step 2: Populating filters...');
-                populateFilters();
-                console.log('✓ Filters populated');
-                
-                console.log('Step 3: Setting up listeners...');
-                setupListeners();
-                console.log('✓ Listeners ready');
-                
-                console.log('Step 4: Loading all listings...');
-                await loadAllListings();
-                console.log('✓ All listings loaded:', allListings?.length || 0);
-                
-                console.log('=== Initialization complete ===');
-            } catch(e) {
-                console.error('❌ Initialization error:', e);
-                document.getElementById('statusText').textContent = 'Error';
-            }
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
