@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Listings Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    label { display: block; font-size: 12px; margin-bottom: 6px; color: #333; }
+    input, select { padding: 8px; min-width: 180px; }
+    button { padding: 9px 14px; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; margin-top: 18px; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; }
+    th { background: #f5f5f5; text-align: left; }
+    .meta { margin-top: 12px; color: #444; font-size: 13px; }
+    .error { margin-top: 12px; color: #b00020; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
+<body>
+  <h2>RPG Listings</h2>
+
+  <div class="row">
+    <div>
+      <label>Page</label>
+      <input id="page" type="number" value="1" min="1" />
+    </div>
+
+    <div>
+      <label>Slot</label>
+      <select id="slot">
+        <option value="any">any</option>
+        <option value="weapon">weapon</option>
+        <option value="head">head</option>
+        <option value="body">body</option>
+        <option value="hands">hands</option>
+        <option value="feet">feet</option>
+        <option value="off_hand">off_hand</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Class</label>
+      <input id="class" placeholder="any (or type class)" value="any" />
+    </div>
+
+    <button id="loadBtn">Load</button>
+    <button id="nextBtn" disabled>Next page</button>
+  </div>
+
+  <div id="meta" class="meta"></div>
+  <div id="error" class="error"></div>
+
+  <table id="table" style="display:none;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Slot</th>
+        <th>Power</th>
+        <th>Costs</th>
+        <th>Extra</th>
+        <th>Created</th>
+        <th>Expires</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <details style="margin-top:16px;">
+    <summary>Raw JSON</summary>
+    <pre id="raw" class="mono" style="white-space:pre-wrap;"></pre>
+  </details>
+
+<script>
+  const pageEl = document.getElementById("page");
+  const slotEl = document.getElementById("slot");
+  const classEl = document.getElementById("class");
+  const loadBtn = document.getElementById("loadBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const tbody = document.getElementById("tbody");
+  const table = document.getElementById("table");
+  const meta = document.getElementById("meta");
+  const error = document.getElementById("error");
+  const raw = document.getElementById("raw");
+
+  function costString(item) {
+    return `plat:${item.platinum_cost} gold:${item.gold_cost} gem:${item.gem_cost}`;
+  }
+
+  function safeExtra(extra) {
+    if (extra === null || extra === undefined) return "";
+    // extra is a JSON string sometimes like "{\"range\":5}"
+    try {
+      const obj = JSON.parse(extra);
+      return JSON.stringify(obj);
+    } catch (_) {
+      return String(extra);
+    }
+  }
+
+  async function load() {
+    error.textContent = "";
+    meta.textContent = "Loading...";
+    tbody.innerHTML = "";
+    table.style.display = "none";
+    raw.textContent = "";
+
+    const page = pageEl.value || "1";
+    const slot = slotEl.value || "any";
+    const cls = (classEl.value || "any").trim();
+
+    const qs = new URLSearchParams({ page, slot, class: cls });
+    const res = await fetch(`/api/listings?${qs.toString()}`);
+    const data = await res.json();
+
+    raw.textContent = JSON.stringify(data, null, 2);
+
+    if (!res.ok || data.status !== "success") {
+      meta.textContent = "";
+      error.textContent = data.message || "Request failed.";
+      nextBtn.disabled = true;
+      return;
+    }
+
+    const listings = data.listings || [];
+    meta.textContent = `Status: ${data.status} | Page: ${data.page} | Next page: ${data.next_page}`;
+    nextBtn.disabled = !data.next_page;
+
+    for (const item of listings) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.username}</td>
+        <td>${item.slot}</td>
+        <td>${item.power}</td>
+        <td>${costString(item)}</td>
+        <td>${safeExtra(item.extra)}</td>
+        <td>${item.time_created}</td>
+        <td>${item.time_expires}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    table.style.display = "table";
+  }
+
+  loadBtn.addEventListener("click", load);
+
+  nextBtn.addEventListener("click", () => {
+    pageEl.value = String(Number(pageEl.value || "1") + 1);
+    load();
+  });
+
+  // Auto-load on first open
+  load();
+</script>
+</body>
+</html>
