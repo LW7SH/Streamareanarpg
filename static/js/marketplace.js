@@ -27,8 +27,8 @@ const Marketplace = {
             if (slot && item.slot !== slot) return false;
             
             if (itemClass) {
-                const gameItemClass = Utils.getItemClass(item.base_item_id, item.slot);
-                if (gameItemClass !== itemClass) return false;
+                const gameItemClasses = Utils.getItemClass(item.base_item_id, item.slot); // Now returns array
+                if (!gameItemClasses.includes(itemClass)) return false;
             }
             
             if (extraProp) {
@@ -223,7 +223,7 @@ const Marketplace = {
                 }
                 
                 return `
-                    <div class="item-card" style="animation-delay: ${idx * 0.05}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)}')">
+                    <div class="item-card" style="animation-delay: ${idx * 0.05}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)[0]}')">
                         <div class="card-header">
                             <div>
                                 <div class="item-id">#${item.id}</div>
@@ -375,7 +375,7 @@ const Marketplace = {
                 }
                 
                 return `
-                    <div class="item-row" style="animation-delay: ${idx * 0.02}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)}')">
+                    <div class="item-row" style="animation-delay: ${idx * 0.02}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)[0]}')">
                         <div class="item-id">#${item.id}</div>
                         <div>
                             <div class="item-name">${Utils.escapeHtml(name)}</div>

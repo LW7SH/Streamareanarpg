@@ -7,7 +7,8 @@ const Analysis = {
             const name = Utils.getItemName(listing.base_item_id, listing.slot) || 'Unknown Item';
             const power = parseFloat(listing.power) * 100;
             const totalGold = Utils.getTotalGoldValue(listing);
-            const itemClass = Utils.getItemClass(listing.base_item_id, listing.slot);
+            const itemClasses = Utils.getItemClass(listing.base_item_id, listing.slot); // Now returns array
+            const classDisplay = itemClasses.join(', '); // For display
             
             // Get the actual stats this specific listing has
             const stats = Utils.getItemStatTypes(listing, true); // onlyActual=true
@@ -20,7 +21,8 @@ const Analysis = {
                 itemMap.set(key, {
                     name: name,
                     slot: listing.slot,
-                    class: itemClass,
+                    class: classDisplay,
+                    classes: itemClasses, // Store array for filtering
                     base_item_id: listing.base_item_id,
                     stats: stats,
                     statsDisplay: stats.length > 0 ? stats.join(' + ') : 'No Stats',
@@ -84,7 +86,7 @@ const Analysis = {
         let filtered = State.itemAnalysisData.filter(item => {
             if (nameFilter && !item.name.toLowerCase().includes(nameFilter)) return false;
             if (slotFilter && item.slot !== slotFilter) return false;
-            if (classFilter && item.class !== classFilter) return false;
+            if (classFilter && !item.classes.includes(classFilter)) return false; // Check if class is in array
             if (statFilter && !item.stats.includes(statFilter)) return false;
             return true;
         });

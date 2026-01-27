@@ -2,7 +2,7 @@
 const Utils = {
     getItemClass(baseItemId, slot) {
         const gameItem = State.gameItems.find(gi => gi.id === baseItemId && gi.slot === slot);
-        if (!gameItem) return 'Unknown';
+        if (!gameItem) return ['Unknown'];
         
         // Check all possible fields that might contain class info
         const possibleFields = [
@@ -20,7 +20,7 @@ const Utils = {
             if (field) {
                 // If it's already an array
                 if (Array.isArray(field)) {
-                    return field[0] || 'Unknown';
+                    return field.length > 0 ? field : ['Unknown'];
                 } 
                 // If it's a string
                 else if (typeof field === 'string') {
@@ -28,20 +28,22 @@ const Utils = {
                     try {
                         const parsed = JSON.parse(field);
                         if (Array.isArray(parsed)) {
-                            return parsed[0] || 'Unknown';
-                        } else if (parsed) {
-                            return parsed;
+                            return parsed.length > 0 ? parsed : ['Unknown'];
+                        } else if (parsed && typeof parsed === 'string') {
+                            return [parsed];
                         }
                     } catch {
-                        // Not JSON, clean up brackets and quotes, take first value
-                        const cleaned = field.replace(/[\[\]"']/g, '').split(',')[0].trim();
-                        if (cleaned) return cleaned;
+                        // Not JSON, clean up brackets and quotes, split by comma
+                        const classes = field.replace(/[\[\]"']/g, '').split(',')
+                            .map(cls => cls.trim())
+                            .filter(cls => cls);
+                        if (classes.length > 0) return classes;
                     }
                 }
             }
         }
         
-        return 'Unknown';
+        return ['Unknown'];
     },
     
     getItemName(id, slot) {
