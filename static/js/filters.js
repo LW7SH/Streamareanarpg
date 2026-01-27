@@ -4,14 +4,24 @@ const Filters = {
         console.log('🔍 Sample game item structure:', State.gameItems[0]);
         console.log('🔍 All fields in game item:', Object.keys(State.gameItems[0] || {}));
         
-        // Item names
+        // Item names (for marketplace and inventory)
         const uniqueNames = [...new Set(State.gameItems.map(i => i.item_name))].sort();
         const nameSelect = document.getElementById('filterItemName');
+        const invNameSelect = document.getElementById('invFilterItemName');
+        
         uniqueNames.forEach(name => {
             const opt = document.createElement('option');
             opt.value = name;
             opt.textContent = name;
             nameSelect.appendChild(opt);
+            
+            // Add to inventory filter too
+            if (invNameSelect) {
+                const opt2 = document.createElement('option');
+                opt2.value = name;
+                opt2.textContent = name;
+                invNameSelect.appendChild(opt2);
+            }
         });
         
         // Classes - Extract from game items
@@ -71,6 +81,7 @@ const Filters = {
         const uniqueClasses = Array.from(classesSet).sort();
         const classSelect = document.getElementById('filterItemClass');
         const analysisClassSelect = document.getElementById('analysisFilterClass');
+        const invClassSelect = document.getElementById('invFilterItemClass');
         
         uniqueClasses.forEach(cls => {
             const opt1 = document.createElement('option');
@@ -82,6 +93,14 @@ const Filters = {
             opt2.value = cls;
             opt2.textContent = cls;
             analysisClassSelect.appendChild(opt2);
+            
+            // Add to inventory filter
+            if (invClassSelect) {
+                const opt3 = document.createElement('option');
+                opt3.value = cls;
+                opt3.textContent = cls;
+                invClassSelect.appendChild(opt3);
+            }
         });
         
         console.log('✓ Found classes:', uniqueClasses.length, uniqueClasses);
@@ -108,6 +127,7 @@ const Filters = {
         const sortedProps = Array.from(extraProps).sort();
         const propSelect = document.getElementById('filterExtraProperty');
         const analysisPropSelect = document.getElementById('analysisFilterStat');
+        const invPropSelect = document.getElementById('invFilterExtraProperty');
         
         sortedProps.forEach(prop => {
             const opt1 = document.createElement('option');
@@ -119,6 +139,14 @@ const Filters = {
             opt2.value = prop;
             opt2.textContent = prop;
             analysisPropSelect.appendChild(opt2);
+            
+            // Add to inventory filter
+            if (invPropSelect) {
+                const opt3 = document.createElement('option');
+                opt3.value = prop;
+                opt3.textContent = prop;
+                invPropSelect.appendChild(opt3);
+            }
         });
         
         console.log('✓ Filters populated successfully');
@@ -144,6 +172,18 @@ const Filters = {
             if (el) el.addEventListener('change', () => {
                 if (State.currentTab === 'analysis') {
                     Analysis.applyFilters();
+                }
+            });
+        });
+        
+        // Inventory filters
+        ['invFilterItemName', 'invFilterSlot', 'invFilterItemClass', 'invFilterExtraProperty',
+         'invFilterMinPower', 'invFilterMaxPower', 'invFilterMinRange', 'invFilterMaxRange',
+         'invFilterTwoHanded', 'inventorySortBy'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => {
+                if (State.currentTab === 'inventory') {
+                    Inventory.applyFilters();
                 }
             });
         });

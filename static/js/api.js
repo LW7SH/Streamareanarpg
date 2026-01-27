@@ -43,5 +43,25 @@ const API = {
             document.getElementById('statusText').textContent = 'Error';
             return false;
         }
+    },
+    
+    async getInventory(token, page = 1) {
+        const response = await fetch('/api/inventory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: token,
+                page: page
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to load inventory');
+        }
+        
+        return await response.json();
     }
 };

@@ -15,10 +15,35 @@ function switchTab(tab) {
     } else if (tab === 'analysis') {
         document.getElementById('analysisTab').classList.add('active');
         // Calculate analysis data if not already done
-        if (State.itemAnalysisData.length === 0) {
+        if (State.itemAnalysisData && State.itemAnalysisData.length === 0) {
             Analysis.calculateItemAnalysis();
         }
         Analysis.applyFilters();
+    } else if (tab === 'inventory') {
+        document.getElementById('inventoryTab').classList.add('active');
+        
+        // Check if we have a saved token
+        const savedToken = TokenManager.getToken();
+        console.log('Inventory tab opened. Saved token found:', !!savedToken);
+        console.log('Current inventory items count:', State.inventoryItems ? State.inventoryItems.length : 0);
+        
+        if (savedToken && (!State.inventoryItems || State.inventoryItems.length === 0)) {
+            // Auto-load inventory with saved token
+            console.log('Auto-loading inventory with saved token...');
+            document.getElementById('inventoryToken').value = savedToken;
+            loadInventoryWithToken();
+        } else if (savedToken && State.inventoryItems && State.inventoryItems.length > 0) {
+            // Just show loaded inventory
+            console.log('Inventory already loaded, showing items...');
+            document.querySelector('.token-input-section').style.display = 'none';
+            document.querySelector('.token-loaded-section').style.display = 'flex';
+            Inventory.applyFilters();
+        } else if (!savedToken) {
+            // No saved token, show input section
+            console.log('No saved token found, showing input section');
+            document.querySelector('.token-input-section').style.display = 'block';
+            document.querySelector('.token-loaded-section').style.display = 'none';
+        }
     }
 }
 

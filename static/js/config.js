@@ -40,6 +40,7 @@ const CONFIG = {
 const State = {
     allListings: [],
     gameItems: [],
+    inventoryItems: [],
     currentView: 'grid',
     currentTab: 'marketplace',
     itemAnalysisData: []

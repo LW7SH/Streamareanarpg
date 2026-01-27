@@ -10,6 +10,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    <div class="disclaimer-banner">
+        <div class="disclaimer-content">
+            <div class="disclaimer-icon">ℹ️</div>
+            <div class="disclaimer-text">
+                <strong>Community Tool Notice:</strong> This is an unofficial, community-created tool and is not affiliated with, endorsed by, or associated with Stream Arena RPG or its developers.
+            </div>
+        </div>
+    </div>
+    
     <header class="header">
         <div class="header-content">
             <div class="logo">
@@ -36,6 +45,7 @@
     <div class="tab-navigation">
         <button class="tab-btn active" onclick="switchTab('marketplace')">🛒 Marketplace</button>
         <button class="tab-btn" onclick="switchTab('analysis')">📊 Item Analysis</button>
+        <button class="tab-btn" onclick="switchTab('inventory')">📦 My Inventory</button>
     </div>
     
     <main class="main">
@@ -271,14 +281,173 @@
                 </div>
             </div>
         </div>
+        
+        <!-- INVENTORY TAB -->
+        <div id="inventoryTab" class="tab-content">
+            <aside class="sidebar">
+                <div class="filter-section token-input-section">
+                    <div class="filter-title">🔐 Access Your Inventory</div>
+                    <div class="filter-group">
+                        <label for="inventoryToken">Your Token</label>
+                        <input type="password" id="inventoryToken" placeholder="Enter your token...">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="loadInventoryWithToken()">Load Inventory</button>
+                    </div>
+                    <div id="inventoryLoadStatus" style="margin-top: 0.5rem;"></div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; font-size: 0.85rem; color: var(--text-dim);">
+                        <strong>ℹ️ Privacy:</strong> Your token is stored securely in your browser cookies and never sent to anyone except the game API.
+                    </div>
+                </div>
+                
+                <div class="filter-section token-loaded-section" style="display: none;">
+                    <div class="filter-title">🔐 Token Loaded</div>
+                    <div class="stats" style="margin: 1rem 0;">
+                        <div class="stat-item" style="text-align: center;">
+                            <div class="stat-value" id="totalInventoryItems">0</div>
+                            <div class="stat-label">Total Items</div>
+                        </div>
+                        <div class="stat-item" style="text-align: center;">
+                            <div class="stat-value" id="uniqueInventoryItems">0</div>
+                            <div class="stat-label">Unique</div>
+                        </div>
+                        <div class="status-badge">
+                            <div class="status-dot"></div>
+                            <span id="inventoryStatusText">Ready</span>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="changeInventoryToken()">Change Token</button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-title">Quick Search</div>
+                    <div class="filter-group">
+                        <label for="invFilterItemName">Item Name</label>
+                        <select id="invFilterItemName">
+                            <option value="">All Items</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Item Filters</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="invFilterSlot">Slot</label>
+                                <select id="invFilterSlot">
+                                    <option value="">All</option>
+                                    <option value="weapon">Weapon</option>
+                                    <option value="head">Head</option>
+                                    <option value="body">Body</option>
+                                    <option value="hands">Hands</option>
+                                    <option value="feet">Feet</option>
+                                    <option value="neck">Neck</option>
+                                    <option value="ring">Ring</option>
+                                    <option value="off_hand">Off Hand</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="invFilterItemClass">Class</label>
+                                <select id="invFilterItemClass">
+                                    <option value="">All</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="invFilterExtraProperty">Stat Type</label>
+                            <select id="invFilterExtraProperty">
+                                <option value="">All Stats</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="invFilterTwoHanded">Two Handed</label>
+                            <select id="invFilterTwoHanded">
+                                <option value="">Any</option>
+                                <option value="yes">Two Handed</option>
+                                <option value="no">Not Two Handed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section collapsible">
+                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
+                        <span>Power & Range</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="invFilterMinPower">Min Power (%)</label>
+                                <input type="number" id="invFilterMinPower" placeholder="0" min="0" max="999" step="0.1">
+                            </div>
+                            <div class="filter-group">
+                                <label for="invFilterMaxPower">Max Power (%)</label>
+                                <input type="number" id="invFilterMaxPower" placeholder="Any" min="0" max="999" step="0.1">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="invFilterMinRange">Min Range</label>
+                                <input type="number" id="invFilterMinRange" placeholder="0" min="0">
+                            </div>
+                            <div class="filter-group">
+                                <label for="invFilterMaxRange">Max Range</label>
+                                <input type="number" id="invFilterMaxRange" placeholder="Any" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="clearInventoryFilters()">Clear All</button>
+                </div>
+            </aside>
+            
+            <div class="content">
+                <div class="controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="setView('grid', event)">Grid</button>
+                        <button class="view-btn" onclick="setView('list', event)">List</button>
+                    </div>
+                    <div class="results-info">
+                        Showing <strong id="invFilteredCount">0</strong> of <strong id="invTotalCount">0</strong> items
+                    </div>
+                    <div class="filter-group" style="margin: 0; min-width: 200px;">
+                        <label for="inventorySortBy" style="margin-bottom: 0.25rem;">Sort By</label>
+                        <select id="inventorySortBy" onchange="applyInventoryFilters()">
+                            <option value="time_newest">Newest First</option>
+                            <option value="time_oldest">Oldest First</option>
+                            <option value="power_high">Highest Power</option>
+                            <option value="power_low">Lowest Power</option>
+                            <option value="name">Name (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="inventoryContainer" class="items-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div>Load your inventory using your token to view your items</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
     
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/token-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
     <script src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
     <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

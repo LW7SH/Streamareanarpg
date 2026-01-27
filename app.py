@@ -41,6 +41,18 @@ def get_game_items():
     return r.json()
 
 
+def get_inventory(token, page=1):
+    payload = {
+        "route": "get_inv",
+        "token": token,
+        "page": page
+    }
+
+    r = requests.post(API_URL, json=payload, timeout=15)
+    r.raise_for_status()
+    return r.json()
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -76,6 +88,34 @@ def api_listings():
 def api_items():
     try:
         data = get_game_items()
+        return jsonify(data)
+    except requests.HTTPError as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Upstream API error: {str(e)}"
+        }), 502
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+@app.route("/api/inventory", methods=["POST"])
+def api_inventory():
+    try:
+        req_data = request.get_json()
+        
+        if not req_data or 'token' not in req_data:
+            return jsonify({
+                "status": "error",
+                "message": "Token is required"
+            }), 400
+        
+        token = req_data.get('token')
+        page = req_data.get('page', 1)
+        
+        data = get_inventory(token, page)
         return jsonify(data)
     except requests.HTTPError as e:
         return jsonify({
