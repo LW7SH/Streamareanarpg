@@ -128,7 +128,7 @@ const Filters = {
         // Marketplace filters
         ['filterUsername', 'filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty',
          'filterMinPower', 'filterMaxPower', 'filterMinRange', 'filterMaxRange',
-         'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
+         'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems', 'filterTwoHanded'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', () => {
                 if (State.currentTab === 'marketplace') {
@@ -139,7 +139,7 @@ const Filters = {
         
         // Analysis filters
         ['analysisFilterName', 'analysisFilterSlot', 'analysisFilterClass', 
-         'analysisFilterStat', 'analysisSortBy'].forEach(id => {
+         'analysisFilterStat', 'analysisSortBy', 'analysisFilterTwoHanded'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', () => {
                 if (State.currentTab === 'analysis') {
@@ -168,7 +168,7 @@ function clearFilters() {
      'filterMaxPlatinum', 'filterMaxGold', 'filterMaxGems'].forEach(id => {
         document.getElementById(id).value = '';
     });
-    ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty', 'marketplaceSortBy'].forEach(id => {
+    ['filterItemName', 'filterSlot', 'filterItemClass', 'filterExtraProperty', 'filterTwoHanded', 'marketplaceSortBy'].forEach(id => {
         document.getElementById(id).value = '';
     });
     Marketplace.applyFilters();
@@ -179,6 +179,7 @@ function clearAnalysisFilters() {
     document.getElementById('analysisFilterSlot').value = '';
     document.getElementById('analysisFilterClass').value = '';
     document.getElementById('analysisFilterStat').value = '';
+    document.getElementById('analysisFilterTwoHanded').value = '';
     document.getElementById('analysisSortBy').value = 'name';
     Analysis.applyFilters();
 }

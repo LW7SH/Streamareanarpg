@@ -9,13 +9,14 @@ const Analysis = {
             const totalGold = Utils.getTotalGoldValue(listing);
             const itemClasses = Utils.getItemClass(listing.base_item_id, listing.slot); // Now returns array
             const classDisplay = itemClasses.join(', '); // For display
+            const isTwoHanded = !!Utils.getTwoHanded(listing);
             
             // Get the actual stats this specific listing has
             const stats = Utils.getItemStatTypes(listing, true); // onlyActual=true
             const statsKey = stats.sort().join('+') || 'No Stats';
             
-            // Create unique key: base_item_id + slot + stat combination
-            const key = `${listing.base_item_id}_${listing.slot}_${statsKey}`;
+            // Create unique key: base_item_id + slot + stat combination + two_handed
+            const key = `${listing.base_item_id}_${listing.slot}_${statsKey}_${isTwoHanded}`;
             
             if (!itemMap.has(key)) {
                 itemMap.set(key, {
@@ -26,6 +27,7 @@ const Analysis = {
                     base_item_id: listing.base_item_id,
                     stats: stats,
                     statsDisplay: stats.length > 0 ? stats.join(' + ') : 'No Stats',
+                    isTwoHanded: isTwoHanded,
                     listings: [],
                     powerValues: [],
                     prices: [],
@@ -81,6 +83,7 @@ const Analysis = {
         const slotFilter = document.getElementById('analysisFilterSlot').value;
         const classFilter = document.getElementById('analysisFilterClass').value;
         const statFilter = document.getElementById('analysisFilterStat').value;
+        const twoHandedFilter = document.getElementById('analysisFilterTwoHanded').value;
         const sortBy = document.getElementById('analysisSortBy').value;
         
         let filtered = State.itemAnalysisData.filter(item => {
@@ -88,6 +91,13 @@ const Analysis = {
             if (slotFilter && item.slot !== slotFilter) return false;
             if (classFilter && !item.classes.includes(classFilter)) return false; // Check if class is in array
             if (statFilter && !item.stats.includes(statFilter)) return false;
+            
+            // Two Handed filter
+            if (twoHandedFilter) {
+                if (twoHandedFilter === 'yes' && !item.isTwoHanded) return false;
+                if (twoHandedFilter === 'no' && item.isTwoHanded) return false;
+            }
+            
             return true;
         });
         
@@ -143,6 +153,7 @@ const Analysis = {
                             </div>
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
                                 <div class="slot-badge ${item.slot}">${CONFIG.slotIcons[item.slot] || ''} ${Utils.formatSlot(item.slot)}</div>
+                                ${item.isTwoHanded ? '<span style="background: var(--accent); color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.7rem;">✋ Two Handed</span>' : ''}
                                 <span class="listing-count">${item.count} listing${item.count !== 1 ? 's' : ''}</span>
                             </div>
                         </div>
@@ -206,6 +217,8 @@ function applyAnalysisFilters() {
 function navigateToMarketplace(itemName, slot, itemClass, statsString) {
     // Clear all filters first
     document.getElementById('filterUsername').value = '';
+    document.getElementById('filterSlot').value = '';
+    document.getElementById('filterItemClass').value = '';
     document.getElementById('filterMinPower').value = '';
     document.getElementById('filterMaxPower').value = '';
     document.getElementById('filterMinRange').value = '';
@@ -214,26 +227,14 @@ function navigateToMarketplace(itemName, slot, itemClass, statsString) {
     document.getElementById('filterMaxGold').value = '';
     document.getElementById('filterMaxGems').value = '';
     document.getElementById('filterExtraProperty').value = '';
+    document.getElementById('filterTwoHanded').value = '';
     document.getElementById('marketplaceSortBy').value = 'time_newest';
     
     // Switch to marketplace tab
     switchTab('marketplace');
     
-    // Set filters based on the clicked analysis item
-    // Set item name filter directly
+    // Set only item name filter
     document.getElementById('filterItemName').value = itemName;
-    
-    // Set slot filter
-    document.getElementById('filterSlot').value = slot;
-    
-    // Set class filter
-    document.getElementById('filterItemClass').value = itemClass;
-    
-    // Set stat filter if there's only one stat
-    const stats = statsString.split(',').filter(s => s && s !== 'No Stats');
-    if (stats.length === 1) {
-        document.getElementById('filterExtraProperty').value = stats[0];
-    }
     
     // Apply filters
     applyFilters();

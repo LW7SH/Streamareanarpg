@@ -116,6 +116,31 @@ const Utils = {
         }
     },
     
+    getTwoHanded(item) {
+        // First check if Two_handed is in the listing's extra JSON (like range)
+        try { 
+            const extra = JSON.parse(item.extra || '{}');
+            if (extra.Two_handed || extra.two_handed) {
+                return extra.Two_handed || extra.two_handed;
+            }
+        } catch(e) {}
+        
+        // If not found, check if the game item has Two_handed in its extra field (like stats)
+        if (State.gameItems) {
+            const gameItem = State.gameItems.find(gi => gi.id === item.base_item_id && gi.slot === item.slot);
+            if (gameItem?.extra) {
+                const extraProps = gameItem.extra.split(',').map(e => e.trim());
+                if (extraProps.includes('Two_handed') || extraProps.includes('two_handed')) {
+                    // If the game item has Two_handed as a property, the item has it
+                    // Return a default value to indicate it has the property
+                    return 'Yes';
+                }
+            }
+        }
+        
+        return null;
+    },
+    
     getTotalGoldValue(item) {
         const plat = parseInt(item.platinum_cost) || 0;
         const gold = parseInt(item.gold_cost) || 0;
@@ -250,14 +275,14 @@ const Utils = {
         document.getElementById('uniqueItems').textContent = unique.size;
     },
     
-    getAnalysisForItem(baseItemId, slot, stats) {
+    getAnalysisForItem(baseItemId, slot, stats, isTwoHanded) {
         // Find matching analysis data
         const statsKey = stats.sort().join('+') || 'No Stats';
-        const key = `${baseItemId}_${slot}_${statsKey}`;
+        const key = `${baseItemId}_${slot}_${statsKey}_${isTwoHanded}`;
         
         return State.itemAnalysisData.find(item => {
             const itemStatsKey = item.stats.sort().join('+') || 'No Stats';
-            const itemKey = `${item.base_item_id}_${item.slot}_${itemStatsKey}`;
+            const itemKey = `${item.base_item_id}_${item.slot}_${itemStatsKey}_${item.isTwoHanded}`;
             return itemKey === key;
         });
     },

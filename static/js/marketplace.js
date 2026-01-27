@@ -8,6 +8,7 @@ const Marketplace = {
         const slot = document.getElementById('filterSlot').value;
         const itemClass = document.getElementById('filterItemClass').value;
         const extraProp = document.getElementById('filterExtraProperty').value;
+        const twoHandedFilter = document.getElementById('filterTwoHanded').value;
         const minPower = parseFloat(document.getElementById('filterMinPower').value) || 0;
         const maxPower = parseFloat(document.getElementById('filterMaxPower').value) || 999;
         const minRange = parseFloat(document.getElementById('filterMinRange').value);
@@ -34,6 +35,13 @@ const Marketplace = {
             if (extraProp) {
                 const itemStats = Utils.getItemStatTypes(item, true);
                 if (!itemStats.includes(extraProp)) return false;
+            }
+            
+            // Two Handed filter
+            if (twoHandedFilter) {
+                const twoHanded = Utils.getTwoHanded(item);
+                if (twoHandedFilter === 'yes' && !twoHanded) return false;
+                if (twoHandedFilter === 'no' && twoHanded) return false;
             }
             
             const power = parseFloat(item.power) * 100;
@@ -104,12 +112,14 @@ const Marketplace = {
                 const power = (parseFloat(item.power) * 100).toFixed(1);
                 const type = Utils.getPowerType(item);
                 const range = Utils.getRange(item);
+                const twoHandedValue = Utils.getTwoHanded(item);
                 const statColor = Utils.getStatColor(type);
                 const totalGold = Utils.getTotalGoldValue(item);
                 
                 // Get analysis data for comparison
                 const stats = Utils.getItemStatTypes(item, true);
-                const analysisData = Utils.getAnalysisForItem(item.base_item_id, item.slot, stats);
+                const isTwoHanded = !!twoHandedValue;
+                const analysisData = Utils.getAnalysisForItem(item.base_item_id, item.slot, stats, isTwoHanded);
                 
                 // Get slot-wide analysis (all items in same slot with same power type)
                 const slotAnalysisData = Utils.getSlotAnalysis(item.slot, type);
@@ -223,7 +233,7 @@ const Marketplace = {
                 }
                 
                 return `
-                    <div class="item-card" style="animation-delay: ${idx * 0.05}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)[0]}')">
+                    <div class="item-card" style="animation-delay: ${idx * 0.05}s" onclick="filterToItem('${Utils.escapeHtml(name)}')">
                         <div class="card-header">
                             <div>
                                 <div class="item-id">#${item.id}</div>
@@ -238,6 +248,7 @@ const Marketplace = {
                                 <div class="stat-value-display" style="color: ${statColor}">${power}%</div>
                             </div>
                             ${range ? `<div class="stat-row"><div class="stat-type">Range</div><div class="stat-value-display">${range}</div></div>` : ''}
+                            ${twoHandedValue ? `<div class="stat-row"><div class="stat-type">Two Handed</div><div class="stat-value-display">${twoHandedValue}</div></div>` : ''}
                         </div>
                         <div class="item-price">
                             ${Utils.formatPrice(item)}
@@ -256,12 +267,14 @@ const Marketplace = {
                 const power = (parseFloat(item.power) * 100).toFixed(1);
                 const type = Utils.getPowerType(item);
                 const range = Utils.getRange(item);
+                const twoHandedValue = Utils.getTwoHanded(item);
                 const statColor = Utils.getStatColor(type);
                 const totalGold = Utils.getTotalGoldValue(item);
                 
                 // Get analysis data for comparison
                 const stats = Utils.getItemStatTypes(item, true);
-                const analysisData = Utils.getAnalysisForItem(item.base_item_id, item.slot, stats);
+                const isTwoHanded = !!twoHandedValue;
+                const analysisData = Utils.getAnalysisForItem(item.base_item_id, item.slot, stats, isTwoHanded);
                 
                 // Get slot-wide analysis
                 const slotAnalysisData = Utils.getSlotAnalysis(item.slot, type);
@@ -375,7 +388,7 @@ const Marketplace = {
                 }
                 
                 return `
-                    <div class="item-row" style="animation-delay: ${idx * 0.02}s" onclick="filterToItem('${Utils.escapeHtml(name)}', '${item.slot}', '${Utils.getItemClass(item.base_item_id, item.slot)[0]}')">
+                    <div class="item-row" style="animation-delay: ${idx * 0.02}s" onclick="filterToItem('${Utils.escapeHtml(name)}')">
                         <div class="item-id">#${item.id}</div>
                         <div>
                             <div class="item-name">${Utils.escapeHtml(name)}</div>
@@ -384,7 +397,8 @@ const Marketplace = {
                         <div class="slot-badge ${item.slot}">${CONFIG.slotIcons[item.slot] || ''} ${Utils.formatSlot(item.slot)}</div>
                         <div style="text-align: center;">
                             <div class="stat-type" style="color: ${statColor}">${type}</div>
-                            ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin: 0.25rem 0;">⟷ ${range}</div>` : ''}
+                            ${range ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin: 0.25rem 0;">⟷ Range: ${range}</div>` : ''}
+                            ${twoHandedValue ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin: 0.25rem 0;">✋ Two Handed: ${twoHandedValue}</div>` : ''}
                             <div style="font-family: 'Space Mono', monospace; font-weight: 700; color: ${statColor};">${power}%</div>
                         </div>
                         <div>${Utils.formatPrice(item)}</div>
@@ -409,9 +423,11 @@ function setView(view, event) {
     Marketplace.applyFilters();
 }
 
-function filterToItem(itemName, slot, itemClass) {
+function filterToItem(itemName) {
     // Clear all filters first
     document.getElementById('filterUsername').value = '';
+    document.getElementById('filterSlot').value = '';
+    document.getElementById('filterItemClass').value = '';
     document.getElementById('filterMinPower').value = '';
     document.getElementById('filterMaxPower').value = '';
     document.getElementById('filterMinRange').value = '';
@@ -420,11 +436,11 @@ function filterToItem(itemName, slot, itemClass) {
     document.getElementById('filterMaxGold').value = '';
     document.getElementById('filterMaxGems').value = '';
     document.getElementById('filterExtraProperty').value = '';
+    document.getElementById('filterTwoHanded').value = '';
+    document.getElementById('marketplaceSortBy').value = 'time_newest';
     
-    // Set filters for the clicked item
+    // Set only item name filter
     document.getElementById('filterItemName').value = itemName;
-    document.getElementById('filterSlot').value = slot;
-    document.getElementById('filterItemClass').value = itemClass;
     
     // Apply filters
     Marketplace.applyFilters();
