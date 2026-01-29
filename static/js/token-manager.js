@@ -1,138 +1,72 @@
-// Token Manager - Handles secure token storage in cookies with localStorage fallback
+// Token Manager - Handles secure token storage via server-side HttpOnly cookies
+// 
+// SECURITY:
+// - Tokens are stored in HttpOnly cookies set by the server (prevents JavaScript access/XSS)
+// - Cookies use Secure flag (HTTPS only) to prevent man-in-the-middle attacks
+// - Cookies use SameSite=Strict to prevent CSRF attacks
+// - Server endpoints: /api/token/save, /api/token/get, /api/token/delete
 const TokenManager = {
     COOKIE_NAME: 'rpg_user_token',
-    STORAGE_KEY: 'rpg_user_token',
-    COOKIE_DAYS: 30, // Token expires after 30 days
+    COOKIE_DAYS: 30,
     
-    saveToken(token) {
+    async saveToken(token) {
         if (!token || !token.trim()) {
             console.error('Cannot save empty token');
             return false;
         }
         
-        let cookieSaved = false;
-        let localStorageSaved = false;
-        
-        // Try to save to cookie
         try {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (this.COOKIE_DAYS * 24 * 60 * 60 * 1000));
+            const response = await fetch('/api/token/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: token })
+            });
             
-            const cookieString = `${this.COOKIE_NAME}=${encodeURIComponent(token)};expires=${expires.toUTCString()};path=/`;
-            document.cookie = cookieString;
+            const data = await response.json();
             
-            console.log('✓ Token save to cookie attempted');
-            
-            // Verify cookie was saved
-            const retrieved = this._getTokenFromCookie();
-            if (retrieved) {
-                console.log('✓ Token verified in cookie');
-                cookieSaved = true;
+            if (response.ok && data.status === 'success') {
+                console.log('✓ Token saved to secure HttpOnly cookie');
+                return true;
+            } else {
+                console.error('✗ Token save failed:', data.message);
+                return false;
             }
         } catch (e) {
-            console.warn('Cookie save failed:', e);
-        }
-        
-        // Try to save to localStorage as fallback
-        try {
-            const data = {
-                token: token,
-                expires: new Date().getTime() + (this.COOKIE_DAYS * 24 * 60 * 60 * 1000)
-            };
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-            console.log('✓ Token saved to localStorage as fallback');
-            localStorageSaved = true;
-        } catch (e) {
-            console.warn('localStorage save failed:', e);
-        }
-        
-        if (cookieSaved || localStorageSaved) {
-            console.log(`✓ Token saved successfully (cookie: ${cookieSaved}, localStorage: ${localStorageSaved})`);
-            return true;
-        } else {
-            console.error('✗ Token save completely failed - both cookie and localStorage failed');
-            console.error('Please check if cookies and localStorage are enabled in your browser');
+            console.error('Token save failed:', e);
             return false;
         }
     },
     
-    _getTokenFromCookie() {
+    async hasToken() {
         try {
-            const name = this.COOKIE_NAME + "=";
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const cookieArray = decodedCookie.split(';');
+            const response = await fetch('/api/token/get');
+            const data = await response.json();
+            return data.has_token === true;
+        } catch (e) {
+            console.warn('Error checking token:', e);
+            return false;
+        }
+    },
+    
+    async deleteToken() {
+        try {
+            const response = await fetch('/api/token/delete', {
+                method: 'POST'
+            });
+            const data = await response.json();
             
-            for (let i = 0; i < cookieArray.length; i++) {
-                let cookie = cookieArray[i].trim();
-                if (cookie.indexOf(name) === 0) {
-                    return cookie.substring(name.length, cookie.length);
-                }
+            if (response.ok && data.status === 'success') {
+                console.log('✓ Token deleted from cookie');
+                return true;
+            } else {
+                console.error('✗ Token delete failed:', data.message);
+                return false;
             }
         } catch (e) {
-            console.warn('Error reading cookie:', e);
+            console.warn('Error deleting token:', e);
+            return false;
         }
-        return null;
-    },
-    
-    _getTokenFromLocalStorage() {
-        try {
-            const dataStr = localStorage.getItem(this.STORAGE_KEY);
-            if (!dataStr) return null;
-            
-            const data = JSON.parse(dataStr);
-            
-            // Check if expired
-            if (data.expires && new Date().getTime() > data.expires) {
-                console.log('localStorage token expired, removing...');
-                localStorage.removeItem(this.STORAGE_KEY);
-                return null;
-            }
-            
-            return data.token;
-        } catch (e) {
-            console.warn('Error reading localStorage:', e);
-            return null;
-        }
-    },
-    
-    getToken() {
-        // Try cookie first
-        const cookieToken = this._getTokenFromCookie();
-        if (cookieToken) {
-            console.log('✓ Token found in cookie');
-            return cookieToken;
-        }
-        
-        // Fallback to localStorage
-        const storageToken = this._getTokenFromLocalStorage();
-        if (storageToken) {
-            console.log('✓ Token found in localStorage');
-            return storageToken;
-        }
-        
-        console.log('✗ Token not found in cookie or localStorage');
-        return null;
-    },
-    
-    deleteToken() {
-        // Delete from cookie
-        try {
-            document.cookie = `${this.COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-            console.log('✓ Token deleted from cookie');
-        } catch (e) {
-            console.warn('Error deleting cookie:', e);
-        }
-        
-        // Delete from localStorage
-        try {
-            localStorage.removeItem(this.STORAGE_KEY);
-            console.log('✓ Token deleted from localStorage');
-        } catch (e) {
-            console.warn('Error deleting from localStorage:', e);
-        }
-    },
-    
-    hasToken() {
-        return this.getToken() !== null;
     }
 };

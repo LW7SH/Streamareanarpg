@@ -110,7 +110,11 @@ const Utils = {
     
     getRange(item) {
         try { 
-            return JSON.parse(item.extra || '{}').range; 
+            const range = JSON.parse(item.extra || '{}').range;
+            // Validate range is a safe value (number or null)
+            if (range === null || range === undefined) return null;
+            const numRange = Number(range);
+            return isNaN(numRange) ? null : numRange;
         } catch(e) { 
             return null; 
         }
@@ -121,7 +125,9 @@ const Utils = {
         try { 
             const extra = JSON.parse(item.extra || '{}');
             if (extra.Two_handed || extra.two_handed) {
-                return extra.Two_handed || extra.two_handed;
+                const value = extra.Two_handed || extra.two_handed;
+                // Sanitize the value - only allow safe strings
+                return this.sanitizeValue(value);
             }
         } catch(e) {}
         
@@ -139,6 +145,17 @@ const Utils = {
         }
         
         return null;
+    },
+    
+    // NEW: Sanitize values from JSON to prevent XSS
+    sanitizeValue(value) {
+        if (value === null || value === undefined) return null;
+        if (typeof value === 'number') return value;
+        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+        // For strings, only allow alphanumeric, spaces, and common safe characters
+        const str = String(value);
+        const safe = str.replace(/[^a-zA-Z0-9\s\-_.,%]/g, '');
+        return safe || null;
     },
     
     getTotalGoldValue(item) {
@@ -261,9 +278,22 @@ const Utils = {
     },
     
     escapeHtml(text) {
+        if (text === null || text === undefined) return '';
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = String(text);
         return div.innerHTML;
+    },
+    
+    // NEW: Escape for use in JavaScript string context (inside onclick, etc.)
+    escapeJs(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t');
     },
     
     calculateUniqueItems() {
@@ -340,5 +370,13 @@ const Utils = {
             avgCostPerPower: avgPrice / avgPower,
             count: slotListings.length
         };
+    },
+    
+    formatNumber(num) {
+        // Format number with commas (e.g., 1234567 -> 1,234,567)
+        if (typeof num !== 'number') {
+            num = parseInt(num) || 0;
+        }
+        return num.toLocaleString('en-US');
     }
 };

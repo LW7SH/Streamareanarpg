@@ -3,3 +3,5 @@
 .idea/modules.xml
 .idea/vcs.xml
 .idea/Streamareanarpg.iml
+/api_tester.py
+/app_test.py

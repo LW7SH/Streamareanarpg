@@ -1,0 +1,652 @@
+{
+  "status": "success",
+  "user": {
+    "id": "77",
+    "username": "LW7SH",
+    "gold": "594397",
+    "platinum": "9",
+    "gems": "500",
+    "active_slot": "4",
+    "max_slots": "5",
+    "titles": null,
+    "cosmetics": "{\"shaders\":[\"PinkMist\"],\"back_items\":[4]}",
+    "date_created": "2026-01-21 12:48:59",
+    "last_updated": "2026-01-29 16:19:03",
+    "banned": null,
+    "inventory_slots": "140"
+  },
+  "player_items": [
+    {
+      "id": "6544",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "8",
+      "power": "0.674282",
+      "extra": "{\"range\":6}"
+    },
+    {
+      "id": "10892",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "2",
+      "power": "0.295792",
+      "extra": "{\"extra\":\"Mana\"}"
+    },
+    {
+      "id": "11476",
+      "username": "lw7sh",
+      "slot": "head",
+      "base_item_id": "2",
+      "power": "0.337514",
+      "extra": null
+    },
+    {
+      "id": "11531",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "12",
+      "power": "0.541414",
+      "extra": "{\"range\":26}"
+    },
+    {
+      "id": "11970",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "1.42905",
+      "extra": null
+    },
+    {
+      "id": "12147",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "1.42375",
+      "extra": null
+    },
+    {
+      "id": "16913",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "3",
+      "power": "1.56038",
+      "extra": null
+    },
+    {
+      "id": "17589",
+      "username": "lw7sh",
+      "slot": "ring",
+      "base_item_id": "0",
+      "power": "0.0394463",
+      "extra": "{\"extra\":\"Regen\"}"
+    },
+    {
+      "id": "17951",
+      "username": "lw7sh",
+      "slot": "ring",
+      "base_item_id": "0",
+      "power": "0.0867849",
+      "extra": "{\"extra\":\"Mana\"}"
+    },
+    {
+      "id": "18019",
+      "username": "lw7sh",
+      "slot": "hands",
+      "base_item_id": "1",
+      "power": "0.791745",
+      "extra": null
+    },
+    {
+      "id": "18120",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.42866",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "18221",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "1",
+      "power": "0.491768",
+      "extra": null
+    },
+    {
+      "id": "18416",
+      "username": "lw7sh",
+      "slot": "ring",
+      "base_item_id": "0",
+      "power": "0.0735168",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "18879",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "1",
+      "power": "0.696557",
+      "extra": null
+    },
+    {
+      "id": "18980",
+      "username": "lw7sh",
+      "slot": "head",
+      "base_item_id": "1",
+      "power": "0.601511",
+      "extra": null
+    },
+    {
+      "id": "19276",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "3",
+      "power": "0.122307",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "19396",
+      "username": "lw7sh",
+      "slot": "hands",
+      "base_item_id": "1",
+      "power": "0.777579",
+      "extra": null
+    },
+    {
+      "id": "19965",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "1",
+      "power": "0.168098",
+      "extra": "{\"extra\":\"Damage\"}"
+    },
+    {
+      "id": "19968",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "2",
+      "power": "0.320113",
+      "extra": "{\"extra\":\"Mana\"}"
+    },
+    {
+      "id": "19992",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "3",
+      "power": "0.341455",
+      "extra": "{\"range\":27}"
+    },
+    {
+      "id": "19996",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "1",
+      "power": "0.275482",
+      "extra": null
+    },
+    {
+      "id": "20011",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "14",
+      "power": "0.39677",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20028",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "4",
+      "power": "1.04501",
+      "extra": "{\"range\":9}"
+    },
+    {
+      "id": "20081",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "5",
+      "power": "0.562507",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20148",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "2",
+      "power": "0.29093",
+      "extra": "{\"range\":25}"
+    },
+    {
+      "id": "20152",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "14",
+      "power": "0.286027",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20154",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "1",
+      "power": "0.161916",
+      "extra": "{\"extra\":\"Damage\"}"
+    },
+    {
+      "id": "20163",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "2",
+      "power": "0.129621",
+      "extra": "{\"extra\":\"Mana\"}"
+    },
+    {
+      "id": "20180",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "5",
+      "power": "0.405245",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20187",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "4",
+      "power": "0.91681",
+      "extra": "{\"range\":9}"
+    },
+    {
+      "id": "20195",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "5",
+      "power": "0.333376",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20650",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.339752",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "20657",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "14",
+      "power": "0.496954",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20666",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "1",
+      "power": "0.101726",
+      "extra": "{\"extra\":\"Damage\"}"
+    },
+    {
+      "id": "20692",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "5",
+      "power": "0.167886",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "20756",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "1",
+      "power": "0.106212",
+      "extra": "{\"extra\":\"Damage\"}"
+    },
+    {
+      "id": "20762",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "1",
+      "power": "0.182547",
+      "extra": "{\"extra\":\"Damage\"}"
+    },
+    {
+      "id": "20828",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "2",
+      "power": "0.39523",
+      "extra": "{\"range\":25}"
+    },
+    {
+      "id": "21067",
+      "username": "lw7sh",
+      "slot": "hands",
+      "base_item_id": "1",
+      "power": "0.336346",
+      "extra": null
+    },
+    {
+      "id": "21110",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.0933686",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21112",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.251134",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21113",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.264882",
+      "extra": null
+    },
+    {
+      "id": "21115",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.70488",
+      "extra": null
+    },
+    {
+      "id": "21116",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.682059",
+      "extra": null
+    },
+    {
+      "id": "21117",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.255727",
+      "extra": null
+    },
+    {
+      "id": "21121",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.292415",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "21122",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.0289519",
+      "extra": null
+    },
+    {
+      "id": "21125",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.298679",
+      "extra": null
+    },
+    {
+      "id": "21126",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.113866",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21127",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.127523",
+      "extra": null
+    },
+    {
+      "id": "21128",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.055603",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21129",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.185817",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "21164",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.476709",
+      "extra": null
+    },
+    {
+      "id": "21174",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.235356",
+      "extra": null
+    },
+    {
+      "id": "21177",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.0474466",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21178",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.21524",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "21179",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.40203",
+      "extra": null
+    },
+    {
+      "id": "21180",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.118308",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "21184",
+      "username": "lw7sh",
+      "slot": "head",
+      "base_item_id": "1",
+      "power": "0.0843944",
+      "extra": null
+    },
+    {
+      "id": "21188",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "2",
+      "power": "0.304043",
+      "extra": "{\"range\":25}"
+    },
+    {
+      "id": "21651",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.263434",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21653",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.771427",
+      "extra": null
+    },
+    {
+      "id": "21654",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.06126",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21657",
+      "username": "lw7sh",
+      "slot": "body",
+      "base_item_id": "0",
+      "power": "0.145506",
+      "extra": null
+    },
+    {
+      "id": "21658",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.0251823",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21663",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "3",
+      "power": "0.185672",
+      "extra": "{\"range\":27}"
+    },
+    {
+      "id": "21680",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.166492",
+      "extra": "{\"range\":30}"
+    },
+    {
+      "id": "21682",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.394816",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21683",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.399312",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21686",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.149375",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21688",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.248496",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21691",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.0818592",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "21695",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.401001",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "21697",
+      "username": "lw7sh",
+      "slot": "feet",
+      "base_item_id": "0",
+      "power": "0.0429087",
+      "extra": null
+    },
+    {
+      "id": "21744",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "5",
+      "power": "0.521891",
+      "extra": "{\"range\":4}"
+    },
+    {
+      "id": "21745",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.210595",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "22393",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "0",
+      "power": "0.206225",
+      "extra": "{\"range\":5}"
+    },
+    {
+      "id": "22394",
+      "username": "lw7sh",
+      "slot": "off_hand",
+      "base_item_id": "0",
+      "power": "0.022006",
+      "extra": "{\"extra\":\"Armor\"}"
+    },
+    {
+      "id": "22395",
+      "username": "lw7sh",
+      "slot": "weapon",
+      "base_item_id": "1",
+      "power": "0.181314",
+      "extra": "{\"range\":30}"
+    }
+  ]
+}

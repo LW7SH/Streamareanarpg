@@ -79,23 +79,19 @@ const Analysis = {
     },
     
     applyFilters() {
-        const nameFilter = document.getElementById('analysisFilterName').value.toLowerCase();
-        const slotFilter = document.getElementById('analysisFilterSlot').value;
-        const classFilter = document.getElementById('analysisFilterClass').value;
-        const statFilter = document.getElementById('analysisFilterStat').value;
-        const twoHandedFilter = document.getElementById('analysisFilterTwoHanded').value;
-        const sortBy = document.getElementById('analysisSortBy').value;
+        const filters = FilterEngine.getAnalysisFilters();
+        const sortBy = document.getElementById('analysisSortBy')?.value || 'name';
         
         let filtered = State.itemAnalysisData.filter(item => {
-            if (nameFilter && !item.name.toLowerCase().includes(nameFilter)) return false;
-            if (slotFilter && item.slot !== slotFilter) return false;
-            if (classFilter && !item.classes.includes(classFilter)) return false; // Check if class is in array
-            if (statFilter && !item.stats.includes(statFilter)) return false;
+            if (filters.name && !item.name.toLowerCase().includes(filters.name)) return false;
+            if (filters.slot && item.slot !== filters.slot) return false;
+            if (filters.itemClass && !item.classes.includes(filters.itemClass)) return false;
+            if (filters.stat && !item.stats.includes(filters.stat)) return false;
             
             // Two Handed filter
-            if (twoHandedFilter) {
-                if (twoHandedFilter === 'yes' && !item.isTwoHanded) return false;
-                if (twoHandedFilter === 'no' && item.isTwoHanded) return false;
+            if (filters.twoHanded) {
+                if (filters.twoHanded === 'yes' && !item.isTwoHanded) return false;
+                if (filters.twoHanded === 'no' && item.isTwoHanded) return false;
             }
             
             return true;
@@ -113,8 +109,7 @@ const Analysis = {
             }
         });
         
-        document.getElementById('analysisTotalCount').textContent = State.itemAnalysisData.length;
-        document.getElementById('analysisFilteredCount').textContent = filtered.length;
+        DOMHelpers.updateCounts('analysisTotalCount', 'analysisFilteredCount', State.itemAnalysisData.length, filtered.length);
         
         this.renderAnalysis(filtered);
     },
@@ -123,12 +118,7 @@ const Analysis = {
         const container = document.getElementById('analysisContainer');
         
         if (!items || items.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📊</div>
-                    <div>No items match your filters</div>
-                </div>
-            `;
+            container.innerHTML = UIComponents.renderEmptyState('📊', 'No items match your filters');
             return;
         }
         
@@ -143,16 +133,22 @@ const Analysis = {
             const powerPercentile = powerRange > 0 ? ((item.maxPower - item.minPower) / powerRange * 100) : 100;
             const tier = Utils.getTierFromPercentile(powerPercentile >= 90 ? 100 : item.maxPower, item.count); // Use count for generosity
             
+            // Escape all values properly for onclick handler (JavaScript context)
+            const escapedName = Utils.escapeJs(item.name);
+            const escapedSlot = Utils.escapeJs(item.slot);
+            const escapedClass = Utils.escapeJs(item.class);
+            const escapedStats = item.stats.map(s => Utils.escapeJs(s)).join(',');
+            
             return `
-                <div class="analysis-card clickable" style="animation-delay: ${idx * 0.05}s" onclick="navigateToMarketplace('${Utils.escapeHtml(item.name)}', '${item.slot}', '${item.class}', '${item.stats.join(',')}')">
+                <div class="analysis-card clickable" style="animation-delay: ${idx * 0.05}s" onclick="navigateToMarketplace('${escapedName}', '${escapedSlot}', '${escapedClass}', '${escapedStats}')">
                     <div class="analysis-header">
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
                                 <div class="analysis-name">${Utils.escapeHtml(item.name)}</div>
-                                <div style="background: ${tier.color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace; white-space: nowrap;">${tier.tier}</div>
+                                <div style="background: ${tier.color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace; white-space: nowrap;">${Utils.escapeHtml(tier.tier)}</div>
                             </div>
                             <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
-                                <div class="slot-badge ${item.slot}">${CONFIG.slotIcons[item.slot] || ''} ${Utils.formatSlot(item.slot)}</div>
+                                <div class="slot-badge ${Utils.escapeHtml(item.slot)}">${CONFIG.slotIcons[item.slot] || ''} ${Utils.escapeHtml(Utils.formatSlot(item.slot))}</div>
                                 ${item.isTwoHanded ? '<span style="background: var(--accent); color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.7rem;">✋ Two Handed</span>' : ''}
                                 <span class="listing-count">${item.count} listing${item.count !== 1 ? 's' : ''}</span>
                             </div>
@@ -164,11 +160,11 @@ const Analysis = {
                             <div class="stat-group-title">📈 Stats & Class</div>
                             <div class="stat-detail">
                                 <span class="stat-label">Stat Type(s)</span>
-                                <span class="stat-value-number ${Utils.getStatClass(statTypes)}" style="font-size: 0.85rem;">${statTypes}</span>
+                                <span class="stat-value-number ${Utils.getStatClass(statTypes)}" style="font-size: 0.85rem;">${Utils.escapeHtml(statTypes)}</span>
                             </div>
                             <div class="stat-detail">
                                 <span class="stat-label">Class</span>
-                                <span class="stat-value-number" style="font-size: 0.85rem;">${item.class}</span>
+                                <span class="stat-value-number" style="font-size: 0.85rem;">${Utils.escapeHtml(item.class)}</span>
                             </div>
                         </div>
                         
@@ -192,11 +188,11 @@ const Analysis = {
                             <div class="stat-group-title">💰 Price Range</div>
                             <div class="stat-detail">
                                 <span class="stat-label">Cheapest (${minPowerForPrice}% power)</span>
-                                <span class="stat-value-number" style="color: var(--success); font-size: 0.85rem;">${Utils.formatPriceBreakdown(item.minPrice)}</span>
+                                <span class="stat-value-number" style="color: var(--success); font-size: 0.85rem;">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.minPrice))}</span>
                             </div>
                             <div class="stat-detail">
                                 <span class="stat-label">Most Expensive (${maxPowerForPrice}% power)</span>
-                                <span class="stat-value-number" style="color: var(--danger); font-size: 0.85rem;">${Utils.formatPriceBreakdown(item.maxPrice)}</span>
+                                <span class="stat-value-number" style="color: var(--danger); font-size: 0.85rem;">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.maxPrice))}</span>
                             </div>
                         </div>
                     </div>
@@ -209,36 +205,6 @@ const Analysis = {
     }
 };
 
-// Global functions (called from HTML)
 function applyAnalysisFilters() {
     Analysis.applyFilters();
-}
-
-function navigateToMarketplace(itemName, slot, itemClass, statsString) {
-    // Clear all filters first
-    document.getElementById('filterUsername').value = '';
-    document.getElementById('filterSlot').value = '';
-    document.getElementById('filterItemClass').value = '';
-    document.getElementById('filterMinPower').value = '';
-    document.getElementById('filterMaxPower').value = '';
-    document.getElementById('filterMinRange').value = '';
-    document.getElementById('filterMaxRange').value = '';
-    document.getElementById('filterMaxPlatinum').value = '';
-    document.getElementById('filterMaxGold').value = '';
-    document.getElementById('filterMaxGems').value = '';
-    document.getElementById('filterExtraProperty').value = '';
-    document.getElementById('filterTwoHanded').value = '';
-    document.getElementById('marketplaceSortBy').value = 'time_newest';
-    
-    // Switch to marketplace tab
-    switchTab('marketplace');
-    
-    // Set only item name filter
-    document.getElementById('filterItemName').value = itemName;
-    
-    // Apply filters
-    applyFilters();
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }

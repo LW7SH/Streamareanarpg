@@ -178,7 +178,7 @@
                     <div class="filter-group" style="margin: 0; min-width: 200px;">
                         <label for="marketplaceSortBy" style="margin-bottom: 0.25rem;">Sort By</label>
                         <select id="marketplaceSortBy" onchange="applyFilters()">
-                            <option value="time_newest">Newest First</option>
+                            <option value="time_newest" selected>Newest First</option>
                             <option value="time_oldest">Oldest First</option>
                             <option value="power_high">Highest Power</option>
                             <option value="power_low">Lowest Power</option>
@@ -285,42 +285,6 @@
         <!-- INVENTORY TAB -->
         <div id="inventoryTab" class="tab-content">
             <aside class="sidebar">
-                <div class="filter-section token-input-section">
-                    <div class="filter-title">🔐 Access Your Inventory</div>
-                    <div class="filter-group">
-                        <label for="inventoryToken">Your Token</label>
-                        <input type="password" id="inventoryToken" placeholder="Enter your token...">
-                    </div>
-                    <div class="button-group">
-                        <button class="btn-primary" onclick="loadInventoryWithToken()">Load Inventory</button>
-                    </div>
-                    <div id="inventoryLoadStatus" style="margin-top: 0.5rem;"></div>
-                    <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; font-size: 0.85rem; color: var(--text-dim);">
-                        <strong>ℹ️ Privacy:</strong> Your token is stored securely in your browser cookies and never sent to anyone except the game API.
-                    </div>
-                </div>
-                
-                <div class="filter-section token-loaded-section" style="display: none;">
-                    <div class="filter-title">🔐 Token Loaded</div>
-                    <div class="stats" style="margin: 1rem 0;">
-                        <div class="stat-item" style="text-align: center;">
-                            <div class="stat-value" id="totalInventoryItems">0</div>
-                            <div class="stat-label">Total Items</div>
-                        </div>
-                        <div class="stat-item" style="text-align: center;">
-                            <div class="stat-value" id="uniqueInventoryItems">0</div>
-                            <div class="stat-label">Unique</div>
-                        </div>
-                        <div class="status-badge">
-                            <div class="status-dot"></div>
-                            <span id="inventoryStatusText">Ready</span>
-                        </div>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn-secondary" onclick="changeInventoryToken()">Change Token</button>
-                    </div>
-                </div>
-                
                 <div class="filter-section">
                     <div class="filter-title">Quick Search</div>
                     <div class="filter-group">
@@ -411,6 +375,85 @@
             </aside>
             
             <div class="content">
+                <!-- Token Input Section -->
+                <div class="inventory-header-section token-input-section">
+                    <div class="inventory-auth-card">
+                        <div class="inventory-auth-icon">🔐</div>
+                        <div class="inventory-auth-content">
+                            <h2 class="inventory-auth-title">Access Your Inventory</h2>
+                            <p class="inventory-auth-subtitle">Enter your token to view your items</p>
+                            <div class="inventory-auth-form">
+                                <input type="password" id="inventoryToken" class="inventory-token-input" placeholder="Enter your token...">
+                                <button class="btn-primary" onclick="loadInventoryWithToken()">Load Inventory</button>
+                            </div>
+                            <div id="inventoryLoadStatus" class="inventory-load-status"></div>
+                            <div class="inventory-auth-notice">
+                                <strong>ℹ️ Privacy:</strong> Your token is stored securely in your browser cookies and never sent to anyone except the game API.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Profile Section -->
+                <div class="inventory-header-section user-profile-header-section" style="display: none;">
+                    <div class="inventory-profile-wrapper">
+                        <div class="inventory-profile-card">
+                            <div class="inventory-profile-main">
+                                <div class="user-profile-header">
+                                    <div class="user-profile-name" id="userProfileName">-</div>
+                                </div>
+                                <div class="user-profile-stats-grid">
+                                    <div class="user-profile-stat">
+                                        <span class="user-profile-icon">💰</span>
+                                        <div class="user-profile-stat-info">
+                                            <div class="user-profile-stat-label">Gold</div>
+                                            <div class="user-profile-stat-value" id="userGold">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="user-profile-stat">
+                                        <span class="user-profile-icon">⚪</span>
+                                        <div class="user-profile-stat-info">
+                                            <div class="user-profile-stat-label">Platinum</div>
+                                            <div class="user-profile-stat-value" id="userPlatinum">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="user-profile-stat">
+                                        <span class="user-profile-icon">💎</span>
+                                        <div class="user-profile-stat-info">
+                                            <div class="user-profile-stat-label">Gems</div>
+                                            <div class="user-profile-stat-value" id="userGems">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="user-profile-stat">
+                                        <span class="user-profile-icon">📦</span>
+                                        <div class="user-profile-stat-info">
+                                            <div class="user-profile-stat-label">Inventory Slots</div>
+                                            <div class="user-profile-stat-value" id="userInventorySlots">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="inventory-profile-sidebar">
+                                <div class="inventory-profile-stats">
+                                    <div class="inventory-profile-stat-item">
+                                        <div class="stat-value" id="totalInventoryItems">0</div>
+                                        <div class="stat-label">Total Items</div>
+                                    </div>
+                                    <div class="inventory-profile-stat-item">
+                                        <div class="stat-value" id="uniqueInventoryItems">0</div>
+                                        <div class="stat-label">Unique Items</div>
+                                    </div>
+                                </div>
+                                <div class="status-badge">
+                                    <div class="status-dot"></div>
+                                    <span id="inventoryStatusText">Ready</span>
+                                </div>
+                                <button class="btn-secondary btn-full-width" onclick="changeInventoryToken()">Change Token</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="controls">
                     <div class="view-toggle">
                         <button class="view-btn active" onclick="setView('grid', event)">Grid</button>
@@ -422,7 +465,7 @@
                     <div class="filter-group" style="margin: 0; min-width: 200px;">
                         <label for="inventorySortBy" style="margin-bottom: 0.25rem;">Sort By</label>
                         <select id="inventorySortBy" onchange="applyInventoryFilters()">
-                            <option value="time_newest">Newest First</option>
+                            <option value="time_newest" selected>Newest First</option>
                             <option value="time_oldest">Oldest First</option>
                             <option value="power_high">Highest Power</option>
                             <option value="power_low">Lowest Power</option>
@@ -442,8 +485,11 @@
     
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
     <script src="{{ url_for('static', filename='js/token-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui-components.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filter-engine.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dom-helpers.js') }}"></script>
     <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
     <script src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
     <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>

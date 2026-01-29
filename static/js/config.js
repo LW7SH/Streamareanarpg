@@ -43,5 +43,6 @@ const State = {
     inventoryItems: [],
     currentView: 'grid',
     currentTab: 'marketplace',
-    itemAnalysisData: []
+    itemAnalysisData: [],
+    userData: null
 };

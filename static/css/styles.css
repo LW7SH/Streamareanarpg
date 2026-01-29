@@ -1065,3 +1065,236 @@ button {
     margin-top: 0.5rem;
 }
 
+/* Inventory Header Sections */
+.inventory-header-section {
+    margin-bottom: 2rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Token Input in Content Area */
+.inventory-auth-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.inventory-auth-icon {
+    font-size: 4rem;
+    flex-shrink: 0;
+}
+
+.inventory-auth-content {
+    flex: 1;
+}
+
+.inventory-auth-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--text);
+}
+
+.inventory-auth-subtitle {
+    color: var(--text-dim);
+    margin: 0 0 1.5rem 0;
+    font-size: 1rem;
+}
+
+.inventory-auth-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.inventory-token-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.2s ease;
+}
+
+.inventory-token-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.inventory-load-status {
+    min-height: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.inventory-auth-notice {
+    padding: 1rem;
+    background: var(--bg-elevated);
+    border-left: 3px solid var(--primary);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 1rem;
+}
+
+/* User Profile in Content Area */
+.inventory-profile-wrapper {
+    width: 100%;
+}
+
+.inventory-profile-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    gap: 0;
+}
+
+.inventory-profile-main {
+    flex: 1;
+}
+
+.user-profile-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    padding: 1.5rem 2rem;
+    text-align: left;
+}
+
+.user-profile-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.user-profile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--border);
+}
+
+.user-profile-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 2rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s ease;
+}
+
+.user-profile-stat:hover {
+    background: var(--bg-hover);
+}
+
+.user-profile-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 48px;
+    text-align: center;
+}
+
+.user-profile-stat-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.user-profile-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.user-profile-stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.inventory-profile-sidebar {
+    background: var(--bg-elevated);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 200px;
+    border-left: 2px solid var(--border);
+}
+
+.inventory-profile-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.inventory-profile-stat-item {
+    text-align: center;
+}
+
+.btn-full-width {
+    width: 100%;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .inventory-profile-card {
+        flex-direction: column;
+    }
+    
+    .inventory-profile-sidebar {
+        border-left: none;
+        border-top: 2px solid var(--border);
+        min-width: auto;
+    }
+    
+    .user-profile-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .inventory-auth-card {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+    
+    .inventory-auth-icon {
+        font-size: 3rem;
+    }
+    
+    .inventory-auth-form {
+        flex-direction: column;
+    }
+    
+    .user-profile-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
