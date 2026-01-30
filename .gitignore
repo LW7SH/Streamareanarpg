@@ -3,6 +3,12 @@
 .idea/modules.xml
 .idea/vcs.xml
 .idea/Streamareanarpg.iml
-/api_tester.py
+/api_extractor.py
 /app_test.py
 /test_mode/
+/tests/
+/requirements-dev.txt
+/run_tests.py
+/test_equipped_logic.py
+/parse_character_data.py
+/pytest.ini
