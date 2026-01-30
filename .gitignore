@@ -12,3 +12,6 @@
 /test_equipped_logic.py
 /parse_character_data.py
 /pytest.ini
+__pycache__/
+*.pyc
+.idea/

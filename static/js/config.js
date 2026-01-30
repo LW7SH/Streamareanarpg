@@ -44,5 +44,18 @@ const State = {
     currentView: 'grid',
     currentTab: 'marketplace',
     itemAnalysisData: [],
-    userData: null
+    userData: null,
+    // New state for additional features
+    characters: [],
+    myListings: [],
+    topPlayers: [],
+    topPlayersEquipment: [],
+    friends: [],
+    pendingFriendsIn: [],
+    pendingFriendsOut: [],
+    shaders: [],
+    backs: [],
+    chests: [],
+    playerChests: [],
+    allSkills: {}  // keyed by class name
 };

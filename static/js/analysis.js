@@ -131,7 +131,7 @@ const Analysis = {
             // Calculate tier based on max power for this item
             const powerRange = item.maxPower - item.minPower;
             const powerPercentile = powerRange > 0 ? ((item.maxPower - item.minPower) / powerRange * 100) : 100;
-            const tier = Utils.getTierFromPercentile(powerPercentile >= 90 ? 100 : item.maxPower, item.count); // Use count for generosity
+            const tier = Utils.getTierFromPercentile(powerPercentile >= 90 ? 100 : item.maxPower, item.count);
             
             // Escape all values properly for onclick handler (JavaScript context)
             const escapedName = Utils.escapeJs(item.name);
@@ -140,64 +140,78 @@ const Analysis = {
             const escapedStats = item.stats.map(s => Utils.escapeJs(s)).join(',');
             
             return `
-                <div class="analysis-card clickable" style="animation-delay: ${idx * 0.05}s" onclick="navigateToMarketplace('${escapedName}', '${escapedSlot}', '${escapedClass}', '${escapedStats}')">
-                    <div class="analysis-header">
-                        <div style="flex: 1;">
-                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
-                                <div class="analysis-name">${Utils.escapeHtml(item.name)}</div>
-                                <div style="background: ${tier.color}; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.7rem; font-family: 'Space Mono', monospace; white-space: nowrap;">${Utils.escapeHtml(tier.tier)}</div>
+                <div class="analysis-card-new clickable" style="animation-delay: ${idx * 0.05}s" onclick="navigateToMarketplace('${escapedName}', '${escapedSlot}', '${escapedClass}', '${escapedStats}')">
+                    <div class="analysis-card-header">
+                        <div class="analysis-card-title-row">
+                            <h3 class="analysis-card-name">${Utils.escapeHtml(item.name)}</h3>
+                            <div class="analysis-tier-badge" style="background: ${tier.color};">
+                                ${Utils.escapeHtml(tier.tier)}
                             </div>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
-                                <div class="slot-badge ${Utils.escapeHtml(item.slot)}">${CONFIG.slotIcons[item.slot] || ''} ${Utils.escapeHtml(Utils.formatSlot(item.slot))}</div>
-                                ${item.isTwoHanded ? '<span style="background: var(--accent); color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.7rem;">✋ Two Handed</span>' : ''}
-                                <span class="listing-count">${item.count} listing${item.count !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="analysis-card-badges">
+                            <span class="slot-badge-new ${Utils.escapeHtml(item.slot)}">
+                                ${CONFIG.slotIcons[item.slot] || ''} ${Utils.escapeHtml(Utils.formatSlot(item.slot))}
+                            </span>
+                            ${item.isTwoHanded ? '<span class="two-handed-badge">✋ Two Handed</span>' : ''}
+                            <span class="listings-badge">${item.count} listing${item.count !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-card-body">
+                        <div class="analysis-info-grid">
+                            <div class="analysis-info-item">
+                                <span class="info-label">Stats</span>
+                                <span class="info-value ${Utils.getStatClass(statTypes)}">${Utils.escapeHtml(statTypes)}</span>
+                            </div>
+                            <div class="analysis-info-item">
+                                <span class="info-label">Class</span>
+                                <span class="info-value">${Utils.escapeHtml(item.class)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-card-label">Power Range</div>
+                                <div class="stat-card-values">
+                                    <div class="stat-row">
+                                        <span class="stat-key">Min</span>
+                                        <span class="stat-val">${item.minPower.toFixed(1)}%</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-key">Avg</span>
+                                        <span class="stat-val">${avgPower}%</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-key">Max</span>
+                                        <span class="stat-val">${item.maxPower.toFixed(1)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-card-label">Price Range</div>
+                                <div class="stat-card-values">
+                                    <div class="stat-row">
+                                        <span class="stat-key">Cheapest</span>
+                                        <span class="stat-val price-low">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.minPrice))}</span>
+                                    </div>
+                                    <div class="stat-row small-text">
+                                        <span class="stat-key">${minPowerForPrice}% power</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-key">Most Expensive</span>
+                                        <span class="stat-val price-high">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.maxPrice))}</span>
+                                    </div>
+                                    <div class="stat-row small-text">
+                                        <span class="stat-key">${maxPowerForPrice}% power</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="analysis-stats">
-                        <div class="stat-group">
-                            <div class="stat-group-title">📈 Stats & Class</div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Stat Type(s)</span>
-                                <span class="stat-value-number ${Utils.getStatClass(statTypes)}" style="font-size: 0.85rem;">${Utils.escapeHtml(statTypes)}</span>
-                            </div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Class</span>
-                                <span class="stat-value-number" style="font-size: 0.85rem;">${Utils.escapeHtml(item.class)}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-group">
-                            <div class="stat-group-title">🎯 Power Range</div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Minimum</span>
-                                <span class="stat-value-number">${item.minPower.toFixed(1)}%</span>
-                            </div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Average</span>
-                                <span class="stat-value-number">${avgPower}%</span>
-                            </div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Maximum</span>
-                                <span class="stat-value-number">${item.maxPower.toFixed(1)}%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-group">
-                            <div class="stat-group-title">💰 Price Range</div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Cheapest (${minPowerForPrice}% power)</span>
-                                <span class="stat-value-number" style="color: var(--success); font-size: 0.85rem;">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.minPrice))}</span>
-                            </div>
-                            <div class="stat-detail">
-                                <span class="stat-label">Most Expensive (${maxPowerForPrice}% power)</span>
-                                <span class="stat-value-number" style="color: var(--danger); font-size: 0.85rem;">${Utils.escapeHtml(Utils.formatPriceBreakdown(item.maxPrice))}</span>
-                            </div>
-                        </div>
-                    </div>
                     <div class="analysis-card-footer">
-                        <span style="color: var(--primary); font-size: 0.75rem; font-weight: 600;">🔍 Click to view in marketplace</span>
+                        <span class="view-marketplace-link">🔍 Click to view in marketplace</span>
                     </div>
                 </div>
             `;

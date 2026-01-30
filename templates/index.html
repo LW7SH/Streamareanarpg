@@ -7,7 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- IMPORTANT: Design System CSS - Load First! -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-tokens.css') }}">
+    
+    <!-- Application Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/redesigned-styles.css') }}">
 </head>
 <body>
     <div class="disclaimer-banner">
@@ -25,6 +31,36 @@
                 <div class="logo-icon">⚔️</div>
                 <span>Stream Arena RPG Market</span>
             </div>
+            
+            <!-- Global Authentication Section -->
+            <div class="header-auth-section">
+                <div id="authSection">
+                    <input type="password" id="authTokenInput" placeholder="Enter your token...">
+                    <button class="btn-primary" onclick="authenticateWithToken()">Sign In</button>
+                </div>
+                
+                <div id="userSection" style="display: none;">
+                    <div class="header-user-info">
+                        <div class="header-username" id="headerUsername">Player</div>
+                        <div class="header-currency-group">
+                            <div class="header-currency">
+                                <span class="header-currency-icon">🟡</span>
+                                <span class="header-currency-value" id="headerGold">0</span>
+                            </div>
+                            <div class="header-currency">
+                                <span class="header-currency-icon">⚪</span>
+                                <span class="header-currency-value" id="headerPlatinum">0</span>
+                            </div>
+                            <div class="header-currency">
+                                <span class="header-currency-icon">💎</span>
+                                <span class="header-currency-value" id="headerGems">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="signOut()">Sign Out</button>
+                </div>
+            </div>
+            
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-value" id="totalListings">0</div>
@@ -42,14 +78,42 @@
         </div>
     </header>
     
+    <div id="authStatus"></div>
+    
+    <!-- REDESIGNED TAB NAVIGATION - Organized by User Intent -->
     <div class="tab-navigation">
-        <button class="tab-btn active" onclick="switchTab('marketplace')">🛒 Marketplace</button>
-        <button class="tab-btn" onclick="switchTab('analysis')">📊 Item Analysis</button>
-        <button class="tab-btn" onclick="switchTab('inventory')">📦 My Inventory</button>
+        <!-- PUBLIC TABS (No Auth Required) -->
+        <div class="tab-section">
+            <div class="tab-section-label">Market</div>
+            <button class="tab-btn active" onclick="switchTab('marketplace')">🛒 Browse</button>
+            <button class="tab-btn" onclick="switchTab('analysis')">📊 Price Analysis</button>
+            <button class="tab-btn" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
+        </div>
+        
+        <!-- MY ACCOUNT TABS (Requires Auth) -->
+        <div class="tab-section">
+            <div class="tab-section-label">My Account</div>
+            <button class="tab-btn" onclick="switchTab('overview')">👤 Overview</button>
+            <button class="tab-btn" onclick="switchTab('characters')">🎮 Characters</button>
+            <button class="tab-btn" onclick="switchTab('inventory')">📦 Inventory & Items</button>
+            <button class="tab-btn" onclick="switchTab('cosmetics')">✨ Cosmetics</button>
+        </div>
+        
+        <!-- TRADING TABS (Requires Auth) -->
+        <div class="tab-section">
+            <div class="tab-section-label">Trading</div>
+            <button class="tab-btn" onclick="switchTab('mylistings')">📤 My Listings</button>
+        </div>
+        
+        <!-- SOCIAL TABS -->
+        <div class="tab-section">
+            <div class="tab-section-label">Social</div>
+            <button class="tab-btn" onclick="switchTab('friends')">👥 Friends</button>
+        </div>
     </div>
     
     <main class="main">
-        <!-- MARKETPLACE TAB -->
+        <!-- MARKETPLACE TAB (unchanged) -->
         <div id="marketplaceTab" class="tab-content active">
             <aside class="sidebar">
                 <div class="filter-section">
@@ -117,143 +181,105 @@
                         <span class="collapse-icon">▼</span>
                     </div>
                     <div class="collapsible-content">
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="filterMinPower">Min Power (%)</label>
-                                <input type="number" id="filterMinPower" placeholder="0" min="0" max="999" step="0.1">
-                            </div>
-                            <div class="filter-group">
-                                <label for="filterMaxPower">Max Power (%)</label>
-                                <input type="number" id="filterMaxPower" placeholder="Any" min="0" max="999" step="0.1">
-                            </div>
+                        <div class="filter-group">
+                            <label for="filterMinPower">Min Power</label>
+                            <input type="number" id="filterMinPower" placeholder="Min">
                         </div>
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="filterMinRange">Min Range</label>
-                                <input type="number" id="filterMinRange" placeholder="0" min="0">
-                            </div>
-                            <div class="filter-group">
-                                <label for="filterMaxRange">Max Range</label>
-                                <input type="number" id="filterMaxRange" placeholder="Any" min="0">
-                            </div>
+                        <div class="filter-group">
+                            <label for="filterMaxPower">Max Power</label>
+                            <input type="number" id="filterMaxPower" placeholder="Max">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMinPrice">Min Price (Gold)</label>
+                            <input type="number" id="filterMinPrice" placeholder="Min">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMaxPrice">Max Price (Gold)</label>
+                            <input type="number" id="filterMaxPrice" placeholder="Max">
                         </div>
                     </div>
                 </div>
                 
-                <div class="filter-section collapsible">
-                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
-                        <span>Price Limits</span>
-                        <span class="collapse-icon">▼</span>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="filter-group">
-                            <label for="filterMaxPlatinum">Max Platinum</label>
-                            <input type="number" id="filterMaxPlatinum" placeholder="Any" min="0">
-                        </div>
-                        <div class="filter-group">
-                            <label for="filterMaxGold">Max Gold</label>
-                            <input type="number" id="filterMaxGold" placeholder="Any" min="0">
-                        </div>
-                        <div class="filter-group">
-                            <label for="filterMaxGems">Max Gems</label>
-                            <input type="number" id="filterMaxGems" placeholder="Any" min="0">
-                        </div>
+                <div class="filter-section">
+                    <div class="filter-title">Sort & Display</div>
+                    <div class="filter-group">
+                        <label for="sortBy">Sort By</label>
+                        <select id="sortBy">
+                            <option value="time_newest">Newest First</option>
+                            <option value="time_oldest">Oldest First</option>
+                            <option value="power_high">Highest Power</option>
+                            <option value="power_low">Lowest Power</option>
+                            <option value="price_high">Highest Price</option>
+                            <option value="price_low">Lowest Price</option>
+                            <option value="value_best">Best Value (Power/Price)</option>
+                        </select>
                     </div>
                 </div>
                 
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="clearFilters()">Clear All</button>
+                <div class="filter-actions">
+                    <button class="btn-primary" onclick="Marketplace.applyFilters()">Apply</button>
+                    <button class="btn-secondary" onclick="Marketplace.clearFilters()">Clear All</button>
                 </div>
             </aside>
             
             <div class="content">
                 <div class="controls">
-                    <div class="view-toggle">
-                        <button class="view-btn active" onclick="setView('grid', event)">Grid</button>
-                        <button class="view-btn" onclick="setView('list', event)">List</button>
-                    </div>
                     <div class="results-info">
-                        Showing <strong id="filteredCount">0</strong> of <strong id="totalCount">0</strong> items
-                    </div>
-                    <div class="filter-group" style="margin: 0; min-width: 200px;">
-                        <label for="marketplaceSortBy" style="margin-bottom: 0.25rem;">Sort By</label>
-                        <select id="marketplaceSortBy" onchange="applyFilters()">
-                            <option value="time_newest" selected>Newest First</option>
-                            <option value="time_oldest">Oldest First</option>
-                            <option value="power_high">Highest Power</option>
-                            <option value="power_low">Lowest Power</option>
-                            <option value="price_low">Lowest Price</option>
-                            <option value="price_high">Highest Price</option>
-                        </select>
+                        Showing <strong id="filteredCount">0</strong> of <strong id="totalCount">0</strong> listings
                     </div>
                 </div>
-                <div id="itemsContainer" class="items-grid">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <div>Loading market data...</div>
-                    </div>
-                </div>
+                
+                <div id="listingsContainer" class="items-grid"></div>
             </div>
         </div>
-        
-        <!-- ANALYSIS TAB -->
+
+        <!-- ANALYSIS TAB (unchanged) -->
         <div id="analysisTab" class="tab-content">
             <aside class="sidebar">
                 <div class="filter-section">
-                    <div class="filter-title">Quick Search</div>
+                    <div class="filter-title">Analysis Filters</div>
                     <div class="filter-group">
-                        <label for="analysisFilterName">Item Name</label>
-                        <input type="text" id="analysisFilterName" placeholder="Search...">
+                        <label for="analysisFilterSlot">Slot</label>
+                        <select id="analysisFilterSlot">
+                            <option value="">All</option>
+                            <option value="weapon">Weapon</option>
+                            <option value="head">Head</option>
+                            <option value="body">Body</option>
+                            <option value="hands">Hands</option>
+                            <option value="feet">Feet</option>
+                            <option value="neck">Neck</option>
+                            <option value="ring">Ring</option>
+                            <option value="off_hand">Off Hand</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="analysisFilterClass">Class</label>
+                        <select id="analysisFilterClass">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="analysisMinListings">Min Listings</label>
+                        <input type="number" id="analysisMinListings" placeholder="e.g., 5" value="3">
                     </div>
                 </div>
                 
-                <div class="filter-section collapsible">
-                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
-                        <span>Filters</span>
-                        <span class="collapse-icon">▼</span>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="analysisFilterSlot">Slot</label>
-                                <select id="analysisFilterSlot">
-                                    <option value="">All</option>
-                                    <option value="weapon">Weapon</option>
-                                    <option value="head">Head</option>
-                                    <option value="body">Body</option>
-                                    <option value="hands">Hands</option>
-                                    <option value="feet">Feet</option>
-                                    <option value="neck">Neck</option>
-                                    <option value="ring">Ring</option>
-                                    <option value="off_hand">Off Hand</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="analysisFilterClass">Class</label>
-                                <select id="analysisFilterClass">
-                                    <option value="">All</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="filter-group">
-                            <label for="analysisFilterStat">Stat Type</label>
-                            <select id="analysisFilterStat">
-                                <option value="">All Stats</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="analysisFilterTwoHanded">Two Handed</label>
-                            <select id="analysisFilterTwoHanded">
-                                <option value="">Any</option>
-                                <option value="yes">Two Handed</option>
-                                <option value="no">Not Two Handed</option>
-                            </select>
-                        </div>
+                <div class="filter-section">
+                    <div class="filter-title">Sort & Display</div>
+                    <div class="filter-group">
+                        <label for="analysisSortBy">Sort By</label>
+                        <select id="analysisSortBy">
+                            <option value="listings">Most Listings</option>
+                            <option value="avg_power">Highest Avg Power</option>
+                            <option value="avg_price">Highest Avg Price</option>
+                            <option value="min_price">Lowest Min Price</option>
+                        </select>
                     </div>
                 </div>
                 
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="clearAnalysisFilters()">Clear All</button>
+                <div class="filter-actions">
+                    <button class="btn-primary" onclick="Analysis.applyFilters()">Apply</button>
+                    <button class="btn-secondary" onclick="Analysis.clearFilters()">Clear All</button>
                 </div>
             </aside>
             
@@ -262,238 +288,445 @@
                     <div class="results-info">
                         Showing <strong id="analysisFilteredCount">0</strong> of <strong id="analysisTotalCount">0</strong> unique items
                     </div>
-                    <div class="filter-group" style="margin: 0; min-width: 200px;">
-                        <label for="analysisSortBy" style="margin-bottom: 0.25rem;">Sort By</label>
-                        <select id="analysisSortBy" onchange="applyAnalysisFilters()">
-                            <option value="name">Name (A-Z)</option>
-                            <option value="listings">Most Listings</option>
-                            <option value="maxPower">Highest Max Power</option>
-                            <option value="minPrice">Lowest Price</option>
-                            <option value="maxPrice">Highest Price</option>
-                        </select>
+                </div>
+                
+                <div id="analysisContainer" class="items-grid"></div>
+            </div>
+        </div>
+
+        <!-- NEW: OVERVIEW TAB - Unified view of player data -->
+        <div id="overviewTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>👤 Account Overview</h2>
+                </div>
+                
+                <!-- Quick Stats Grid -->
+                <div class="overview-stats-grid">
+                    <div class="overview-stat-card">
+                        <div class="overview-stat-icon">🎮</div>
+                        <div class="overview-stat-value" id="overviewCharacterCount">0</div>
+                        <div class="overview-stat-label">Characters</div>
+                    </div>
+                    <div class="overview-stat-card">
+                        <div class="overview-stat-icon">📦</div>
+                        <div class="overview-stat-value" id="overviewInventoryCount">0</div>
+                        <div class="overview-stat-label">Items</div>
+                    </div>
+                    <div class="overview-stat-card">
+                        <div class="overview-stat-icon">📤</div>
+                        <div class="overview-stat-value" id="overviewListingsCount">0</div>
+                        <div class="overview-stat-label">Active Listings</div>
+                    </div>
+                    <div class="overview-stat-card">
+                        <div class="overview-stat-icon">✨</div>
+                        <div class="overview-stat-value" id="overviewCosmeticsCount">0</div>
+                        <div class="overview-stat-label">Cosmetics Owned</div>
+                    </div>
+                    <div class="overview-stat-card">
+                        <div class="overview-stat-icon">👥</div>
+                        <div class="overview-stat-value" id="overviewFriendsCount">0</div>
+                        <div class="overview-stat-label">Friends</div>
                     </div>
                 </div>
-                <div id="analysisContainer" class="analysis-grid">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <div>Analyzing market data...</div>
+                
+                <!-- Active Character Display -->
+                <div class="overview-section">
+                    <h3>🎯 Active Character</h3>
+                    <div id="overviewActiveCharacter">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎮</div>
+                            <div>No active character data</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Equipment Breakdown by Character -->
+                <div class="overview-section">
+                    <div id="overviewEquipmentBreakdown">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚔️</div>
+                            <div>No equipment data available</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Summary -->
+                <div class="overview-section">
+                    <div id="overviewInventorySummary">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>No inventory data available</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Listings -->
+                <div class="overview-section">
+                    <h3>📤 Recent Listings</h3>
+                    <div id="overviewRecentListings">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📤</div>
+                            <div>No active listings</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- INVENTORY TAB -->
-        <div id="inventoryTab" class="tab-content">
-            <aside class="sidebar">
-                <div class="filter-section">
-                    <div class="filter-title">Quick Search</div>
-                    <div class="filter-group">
-                        <label for="invFilterItemName">Item Name</label>
-                        <select id="invFilterItemName">
-                            <option value="">All Items</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="filter-section collapsible">
-                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
-                        <span>Item Filters</span>
-                        <span class="collapse-icon">▼</span>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="invFilterSlot">Slot</label>
-                                <select id="invFilterSlot">
-                                    <option value="">All</option>
-                                    <option value="weapon">Weapon</option>
-                                    <option value="head">Head</option>
-                                    <option value="body">Body</option>
-                                    <option value="hands">Hands</option>
-                                    <option value="feet">Feet</option>
-                                    <option value="neck">Neck</option>
-                                    <option value="ring">Ring</option>
-                                    <option value="off_hand">Off Hand</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="invFilterItemClass">Class</label>
-                                <select id="invFilterItemClass">
-                                    <option value="">All</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="filter-group">
-                            <label for="invFilterExtraProperty">Stat Type</label>
-                            <select id="invFilterExtraProperty">
-                                <option value="">All Stats</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="invFilterTwoHanded">Two Handed</label>
-                            <select id="invFilterTwoHanded">
-                                <option value="">Any</option>
-                                <option value="yes">Two Handed</option>
-                                <option value="no">Not Two Handed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="filter-section collapsible">
-                    <div class="filter-title collapsible-header" onclick="toggleSection(this)">
-                        <span>Power & Range</span>
-                        <span class="collapse-icon">▼</span>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="invFilterMinPower">Min Power (%)</label>
-                                <input type="number" id="invFilterMinPower" placeholder="0" min="0" max="999" step="0.1">
-                            </div>
-                            <div class="filter-group">
-                                <label for="invFilterMaxPower">Max Power (%)</label>
-                                <input type="number" id="invFilterMaxPower" placeholder="Any" min="0" max="999" step="0.1">
-                            </div>
-                        </div>
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label for="invFilterMinRange">Min Range</label>
-                                <input type="number" id="invFilterMinRange" placeholder="0" min="0">
-                            </div>
-                            <div class="filter-group">
-                                <label for="invFilterMaxRange">Max Range</label>
-                                <input type="number" id="invFilterMaxRange" placeholder="Any" min="0">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="clearInventoryFilters()">Clear All</button>
-                </div>
-            </aside>
-            
-            <div class="content">
-                <!-- Token Input Section -->
-                <div class="inventory-header-section token-input-section">
-                    <div class="inventory-auth-card">
-                        <div class="inventory-auth-icon">🔐</div>
-                        <div class="inventory-auth-content">
-                            <h2 class="inventory-auth-title">Access Your Inventory</h2>
-                            <p class="inventory-auth-subtitle">Enter your token to view your items</p>
-                            <div class="inventory-auth-form">
-                                <input type="password" id="inventoryToken" class="inventory-token-input" placeholder="Enter your token...">
-                                <button class="btn-primary" onclick="loadInventoryWithToken()">Load Inventory</button>
-                            </div>
-                            <div id="inventoryLoadStatus" class="inventory-load-status"></div>
-                            <div class="inventory-auth-notice">
-                                <strong>ℹ️ Privacy:</strong> Your token is stored securely in your browser cookies and never sent to anyone except the game API.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- User Profile Section -->
-                <div class="inventory-header-section user-profile-header-section" style="display: none;">
-                    <div class="inventory-profile-wrapper">
-                        <div class="inventory-profile-card">
-                            <div class="inventory-profile-main">
-                                <div class="user-profile-header">
-                                    <div class="user-profile-name" id="userProfileName">-</div>
-                                </div>
-                                <div class="user-profile-stats-grid">
-                                    <div class="user-profile-stat">
-                                        <span class="user-profile-icon">💰</span>
-                                        <div class="user-profile-stat-info">
-                                            <div class="user-profile-stat-label">Gold</div>
-                                            <div class="user-profile-stat-value" id="userGold">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="user-profile-stat">
-                                        <span class="user-profile-icon">⚪</span>
-                                        <div class="user-profile-stat-info">
-                                            <div class="user-profile-stat-label">Platinum</div>
-                                            <div class="user-profile-stat-value" id="userPlatinum">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="user-profile-stat">
-                                        <span class="user-profile-icon">💎</span>
-                                        <div class="user-profile-stat-info">
-                                            <div class="user-profile-stat-label">Gems</div>
-                                            <div class="user-profile-stat-value" id="userGems">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="user-profile-stat">
-                                        <span class="user-profile-icon">📦</span>
-                                        <div class="user-profile-stat-info">
-                                            <div class="user-profile-stat-label">Inventory Slots</div>
-                                            <div class="user-profile-stat-value" id="userInventorySlots">0</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="inventory-profile-sidebar">
-                                <div class="inventory-profile-stats">
-                                    <div class="inventory-profile-stat-item">
-                                        <div class="stat-value" id="totalInventoryItems">0</div>
-                                        <div class="stat-label">Total Items</div>
-                                    </div>
-                                    <div class="inventory-profile-stat-item">
-                                        <div class="stat-value" id="uniqueInventoryItems">0</div>
-                                        <div class="stat-label">Unique Items</div>
-                                    </div>
-                                </div>
-                                <div class="status-badge">
-                                    <div class="status-dot"></div>
-                                    <span id="inventoryStatusText">Ready</span>
-                                </div>
-                                <button class="btn-secondary btn-full-width" onclick="changeInventoryToken()">Change Token</button>
-                            </div>
-                        </div>
+
+        <!-- CHARACTERS TAB (Enhanced) -->
+        <div id="charactersTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>🎮 My Characters</h2>
+                    <div class="tab-header-info">
+                        View and manage all your characters, their equipment, and skills
                     </div>
                 </div>
                 
                 <div class="controls">
-                    <div class="view-toggle">
-                        <button class="view-btn active" onclick="setView('grid', event)">Grid</button>
-                        <button class="view-btn" onclick="setView('list', event)">List</button>
-                    </div>
                     <div class="results-info">
-                        Showing <strong id="invFilteredCount">0</strong> of <strong id="invTotalCount">0</strong> items
-                    </div>
-                    <div class="filter-group" style="margin: 0; min-width: 200px;">
-                        <label for="inventorySortBy" style="margin-bottom: 0.25rem;">Sort By</label>
-                        <select id="inventorySortBy" onchange="applyInventoryFilters()">
-                            <option value="time_newest" selected>Newest First</option>
-                            <option value="time_oldest">Oldest First</option>
-                            <option value="power_high">Highest Power</option>
-                            <option value="power_low">Lowest Power</option>
-                            <option value="name">Name (A-Z)</option>
-                        </select>
+                        Showing <strong id="charFilteredCount">0</strong> of <strong id="charTotalCount">0</strong> characters
                     </div>
                 </div>
+                
+                <div class="filters-row">
+                    <select id="charFilterClass" onchange="Characters.applyFilters()">
+                        <option value="">All Classes</option>
+                        <option value="barbarian">Barbarian</option>
+                        <option value="tank">Tank</option>
+                        <option value="rogue">Rogue</option>
+                        <option value="healer">Healer</option>
+                        <option value="mage">Mage</option>
+                        <option value="summoner">Summoner</option>
+                        <option value="ranger">Ranger</option>
+                    </select>
+                    <input type="number" id="charFilterMinLevel" placeholder="Min Level" onchange="Characters.applyFilters()">
+                    <input type="number" id="charFilterMaxLevel" placeholder="Max Level" onchange="Characters.applyFilters()">
+                    <select id="charSortBy" onchange="Characters.applyFilters()">
+                        <option value="level">Highest Level</option>
+                        <option value="experience">Most Experience</option>
+                        <option value="playtime">Most Playtime</option>
+                        <option value="slot">Slot Order</option>
+                    </select>
+                    <button class="btn-secondary" onclick="Characters.clearFilters()">Clear</button>
+                </div>
+                
+                <div id="charactersContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎮</div>
+                        <div>Load your characters using the button above</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVENTORY TAB (Enhanced with listings integration) -->
+        <div id="inventoryTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>📦 My Inventory & Items</h2>
+                    <div class="tab-header-info">
+                        All your items including equipped gear and marketplace listings
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="results-info">
+                        Total: <strong id="totalInventoryItems">0</strong> items 
+                        (<strong id="uniqueInventoryItems">0</strong> unique) | 
+                        Listed: <strong id="inventoryListedCount">0</strong> | 
+                        Equipped: <strong id="inventoryEquippedCount">0</strong>
+                    </div>
+                </div>
+                
+                <div class="filters-row">
+                    <select id="invFilterSlot" onchange="Inventory.applyFilters()">
+                        <option value="">All Slots</option>
+                        <option value="weapon">Weapon</option>
+                        <option value="head">Head</option>
+                        <option value="body">Body</option>
+                        <option value="hands">Hands</option>
+                        <option value="feet">Feet</option>
+                        <option value="neck">Neck</option>
+                        <option value="ring">Ring</option>
+                        <option value="off_hand">Off Hand</option>
+                    </select>
+                    <select id="invFilterStatus" onchange="Inventory.applyFilters()">
+                        <option value="">All Items</option>
+                        <option value="available">Available (Not Listed/Equipped)</option>
+                        <option value="listed">Listed on Market</option>
+                        <option value="equipped">Equipped on Character</option>
+                    </select>
+                    <input type="number" id="invFilterMinPower" placeholder="Min Power" onchange="Inventory.applyFilters()">
+                    <select id="invSortBy" onchange="Inventory.applyFilters()">
+                        <option value="power">Highest Power</option>
+                        <option value="recent">Recently Acquired</option>
+                        <option value="slot">By Slot</option>
+                    </select>
+                    <button class="btn-secondary" onclick="Inventory.clearFilters()">Clear</button>
+                </div>
+                
                 <div id="inventoryContainer" class="items-grid">
                     <div class="empty-state">
                         <div class="empty-state-icon">📦</div>
-                        <div>Load your inventory using your token to view your items</div>
+                        <div>Load your inventory using the button above</div>
+                    </div>
+                </div>
+                
+                <!-- Loot Chests Section in Inventory -->
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border);">
+                    <h3 style="margin-bottom: 1rem;">📦 Loot Chests</h3>
+                    <p style="color: var(--text-dim); margin-bottom: 1rem;">You own <strong id="inventoryChestsCount">0</strong> chests</p>
+                    <div id="inventoryChests" class="cosmetics-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>No chests owned</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: COSMETICS TAB - Dedicated cosmetics view -->
+        <div id="cosmeticsTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>✨ My Cosmetics Collection</h2>
+                    <div class="tab-header-info">
+                        View your owned skins, back items, and collectibles
+                    </div>
+                </div>
+                
+                <!-- Equipped Cosmetics Overview - MOVED TO TOP -->
+                <div class="cosmetics-section">
+                    <h3>👕 Currently Equipped</h3>
+                    <div id="cosmeticsEquipped" class="cosmetics-equipped-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👤</div>
+                            <div>No cosmetics equipped</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Character Skins Section -->
+                <div class="cosmetics-section">
+                    <div class="cosmetics-section-header">
+                        <h3>🎨 Character Skins (Shaders)</h3>
+                        <div class="cosmetics-count">
+                            Owned: <strong id="ownedShadersCount">0</strong> / <strong id="totalShadersCount">0</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="cosmetics-filters">
+                        <label class="cosmetics-filter-toggle">
+                            <input type="checkbox" id="shadersShowOwnedOnly" onchange="Cosmetics.applyFilters()">
+                            <span>Show owned only</span>
+                        </label>
+                    </div>
+                    
+                    <div id="cosmeticsShaders" class="cosmetics-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎨</div>
+                            <div>Loading shaders...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Back Items Section -->
+                <div class="cosmetics-section">
+                    <div class="cosmetics-section-header">
+                        <h3>🎒 Back Items</h3>
+                        <div class="cosmetics-count">
+                            Owned: <strong id="ownedBacksCount">0</strong> / <strong id="totalBacksCount">0</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="cosmetics-filters">
+                        <label class="cosmetics-filter-toggle">
+                            <input type="checkbox" id="backsShowOwnedOnly" onchange="Cosmetics.applyFilters()">
+                            <span>Show owned only</span>
+                        </label>
+                    </div>
+                    
+                    <div id="cosmeticsBackItems" class="cosmetics-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎒</div>
+                            <div>Loading back items...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MY LISTINGS TAB (Enhanced) -->
+        <div id="mylistingsTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>📤 My Active Listings</h2>
+                    <div class="tab-header-info">
+                        Manage your marketplace listings and track their performance
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="results-info">
+                        Showing <strong id="myListingsFilteredCount">0</strong> of <strong id="myListingsTotalCount">0</strong> listings
+                    </div>
+                </div>
+                
+                <div class="filters-row">
+                    <select id="myListingsFilterSlot" onchange="MyListings.applyFilters()">
+                        <option value="">All Slots</option>
+                        <option value="weapon">Weapon</option>
+                        <option value="head">Head</option>
+                        <option value="body">Body</option>
+                        <option value="hands">Hands</option>
+                        <option value="feet">Feet</option>
+                        <option value="off_hand">Off Hand</option>
+                        <option value="ring">Ring</option>
+                    </select>
+                    <select id="myListingsFilterExpiring" onchange="MyListings.applyFilters()">
+                        <option value="">All</option>
+                        <option value="1h">Expiring in 1 hour</option>
+                        <option value="24h">Expiring in 24 hours</option>
+                        <option value="3d">Expiring in 3 days</option>
+                    </select>
+                    <input type="number" id="myListingsFilterMinPrice" placeholder="Min Price (gold)" onchange="MyListings.applyFilters()">
+                    <select id="myListingsSortBy" onchange="MyListings.applyFilters()">
+                        <option value="time_newest">Newest First</option>
+                        <option value="time_oldest">Oldest First</option>
+                        <option value="power_high">Highest Power</option>
+                        <option value="price_high">Highest Price</option>
+                        <option value="price_low">Lowest Price</option>
+                    </select>
+                    <button class="btn-secondary" onclick="MyListings.clearFilters()">Clear</button>
+                </div>
+                
+                <div id="myListingsContainer" class="items-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📤</div>
+                        <div>No active listings</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD TAB (unchanged) -->
+        <div id="leaderboardTab" class="tab-content">
+            <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>🏆 Top Players Leaderboard</h2>
+                </div>
+                
+                <div class="controls" style="margin-bottom: 2rem;">
+                    <div class="results-info">
+                        Showing <strong id="leaderboardFilteredCount">0</strong> of <strong id="leaderboardTotalCount">0</strong> players
+                    </div>
+                    
+                    <div class="filter-group" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="leaderboardFilterUsername" placeholder="Search username..." class="filter-input" style="min-width: 180px;">
+                        
+                        <select id="leaderboardFilterClass" class="filter-select" style="min-width: 150px;">
+                            <option value="">All Classes</option>
+                        </select>
+                        
+                        <input type="number" id="leaderboardFilterMinLevel" placeholder="Min Level" class="filter-input" style="width: 120px;">
+                        <input type="number" id="leaderboardFilterMaxLevel" placeholder="Max Level" class="filter-input" style="width: 120px;">
+                        
+                        <select id="leaderboardSortBy" class="filter-select" style="min-width: 150px;">
+                            <option value="rank">Sort by Rank</option>
+                            <option value="level">Sort by Level</option>
+                            <option value="experience">Sort by Experience</option>
+                            <option value="playtime">Sort by Playtime</option>
+                        </select>
+                        
+                        <button class="btn-primary" onclick="applyLeaderboardFilters()">Apply</button>
+                        <button class="btn-secondary" onclick="clearLeaderboardFilters()">Clear</button>
+                    </div>
+                </div>
+                
+                <div id="leaderboardContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏆</div>
+                        <div>Loading leaderboard...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FRIENDS TAB (unchanged) -->
+        <div id="friendsTab" class="tab-content">
+            <div class="content" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+                <div class="tab-header">
+                    <h2>👥 My Friends</h2>
+                </div>
+                
+                <div class="controls">
+                    <div class="results-info">
+                        Showing <strong id="friendsFilteredCount">0</strong> of <strong id="friendsTotalCount">0</strong> friends
+                    </div>
+                </div>
+                
+                <div class="filters-row">
+                    <select id="friendsFilterClass" onchange="Friends.applyFilters()">
+                        <option value="">All Classes</option>
+                        <option value="barbarian">Barbarian</option>
+                        <option value="tank">Tank</option>
+                        <option value="rogue">Rogue</option>
+                        <option value="healer">Healer</option>
+                        <option value="mage">Mage</option>
+                        <option value="summoner">Summoner</option>
+                        <option value="ranger">Ranger</option>
+                    </select>
+                    <input type="number" id="friendsFilterMinLevel" placeholder="Min Level" onchange="Friends.applyFilters()">
+                    <select id="friendsSortBy" onchange="Friends.applyFilters()">
+                        <option value="level">Highest Level</option>
+                        <option value="name">Name (A-Z)</option>
+                        <option value="recent">Recently Active</option>
+                    </select>
+                    <button class="btn-secondary" onclick="Friends.clearFilters()">Clear</button>
+                </div>
+                
+                <div id="friendsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <div>No friends loaded</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
     
+    <!-- Early initialization - must load first to prevent inline onclick errors -->
+    <script src="{{ url_for('static', filename='js/early-init.js') }}"></script>
+    
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data/store.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/system/api-client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data/data-service.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/status.js') }}"></script>
     <script src="{{ url_for('static', filename='js/token-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/design-system.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/models/item-model.js') }}"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ui-components.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui-components-enhanced.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/list-renderer.js') }}"></script>
     <script src="{{ url_for('static', filename='js/filter-engine.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dom-helpers.js') }}"></script>
     <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
     <script src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
     <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
     <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/characters.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/my-listings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/leaderboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/friends.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/shop.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cosmetics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/overview.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

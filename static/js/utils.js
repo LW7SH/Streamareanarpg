@@ -67,6 +67,7 @@ const Utils = {
             'ring': attr || 'Stat',
             'off_hand': attr || 'Stat'
         };
+
         return map[item.slot] || 'Power';
     },
     
@@ -247,34 +248,52 @@ const Utils = {
         if (sampleSize <= 2) {
             // With 2 or fewer items, only use B/C tiers (no extremes)
             if (percentile >= 50) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+
             return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+
         }
         
         if (sampleSize <= 5) {
             // With 3-5 items, use A/B/C/D (no S or F)
             if (percentile >= 80) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+
             if (percentile >= 60) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+
             if (percentile >= 40) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+
             return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+
         }
         
         if (sampleSize <= 10) {
             // With 6-10 items, slightly more generous thresholds
             if (percentile >= 85) return { tier: 'S', color: '#ffd700', label: 'S Tier - Elite' };
+
             if (percentile >= 70) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+
             if (percentile >= 45) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+
             if (percentile >= 30) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+
             if (percentile >= 15) return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+
             return { tier: 'F', color: '#991b1b', label: 'F Tier - Poor' };
+
         }
         
         // Standard tier system for larger sample sizes (11+)
         if (percentile >= 90) return { tier: 'S', color: '#ffd700', label: 'S Tier - Elite' };
+
         if (percentile >= 75) return { tier: 'A', color: '#22c55e', label: 'A Tier - Excellent' };
+
         if (percentile >= 50) return { tier: 'B', color: '#3b82f6', label: 'B Tier - Good' };
+
         if (percentile >= 25) return { tier: 'C', color: '#f59e0b', label: 'C Tier - Average' };
+
         if (percentile >= 10) return { tier: 'D', color: '#ef4444', label: 'D Tier - Below Average' };
+
         return { tier: 'F', color: '#991b1b', label: 'F Tier - Poor' };
+
     },
     
     escapeHtml(text) {
@@ -327,7 +346,8 @@ const Utils = {
         
         if (slotListings.length === 0) return null;
         
-        console.log(`[Slot Analysis] ${slot} (${powerType}): Found ${slotListings.length} items`);
+        // Reduced logging to keep console clean
+        // console.log(`[Slot Analysis] ${slot} (${powerType}): Found ${slotListings.length} items`);
         
         // Calculate min/max/avg power and price
         let minPower = Infinity;
@@ -342,12 +362,7 @@ const Utils = {
             const price = this.getTotalGoldValue(listing);
             
             if (power < minPower) minPower = power;
-            if (power > maxPower) {
-                maxPower = power;
-                if (power > 105) {
-                    console.log(`[Warning] Unusually high power: ${power}% for item`, listing);
-                }
-            }
+            if (power > maxPower) maxPower = power;
             if (price < minPrice) minPrice = price;
             if (price > maxPrice) maxPrice = price;
             
@@ -355,7 +370,7 @@ const Utils = {
             totalPrice += price;
         });
         
-        console.log(`[Slot Analysis] Power range: ${minPower.toFixed(1)}% - ${maxPower.toFixed(1)}%`);
+        // console.log(`[Slot Analysis] Power range: ${minPower.toFixed(1)}% - ${maxPower.toFixed(1)}%`);
         
         const avgPower = totalPower / slotListings.length;
         const avgPrice = totalPrice / slotListings.length;
@@ -370,6 +385,7 @@ const Utils = {
             avgCostPerPower: avgPrice / avgPower,
             count: slotListings.length
         };
+
     },
     
     formatNumber(num) {
@@ -379,4 +395,193 @@ const Utils = {
         }
         return num.toLocaleString('en-US');
     }
+
+
+,// ----------------------------
+// User data normalization
+// ----------------------------
+normalizeUserData(user) {
+    if (!user || typeof user !== 'object') return user;
+    const normalized = { ...user };
+
+    // cosmetics can be an object or a JSON string in some backends
+    let cosmeticsRaw = normalized.cosmetics;
+    let cosmeticsObj = null;
+    try {
+        if (typeof cosmeticsRaw === 'string') cosmeticsObj = JSON.parse(cosmeticsRaw);
+        else if (cosmeticsRaw && typeof cosmeticsRaw === 'object') cosmeticsObj = cosmeticsRaw;
+    } catch (e) {
+        cosmeticsObj = null;
+    }
+    cosmeticsObj = cosmeticsObj || {};
+
+    // Standardize keys:
+    // shaders: array of shader names
+    const shaders = Array.isArray(cosmeticsObj.shaders) ? cosmeticsObj.shaders : [];
+    // back items can be stored as back_items or backs
+    const backItems = Array.isArray(cosmeticsObj.back_items) ? cosmeticsObj.back_items :
+                      (Array.isArray(cosmeticsObj.backs) ? cosmeticsObj.backs : []);
+
+    normalized.cosmetics = {
+        ...cosmeticsObj,
+        shaders,
+        back_items: backItems,
+    };
+
+    // active slot can be stored as active_slot (string) or activeSlot
+    normalized.active_slot = (normalized.active_slot ?? normalized.activeSlot ?? normalized.active_character_slot ?? normalized.active_character ?? "0");
+    return normalized;
+},
+
+getActiveSlot(userData) {
+    const u = userData || {};
+
+    // IMPORTANT: do not default to "0".
+    // If user data isn't loaded yet, returning "0" makes the UI incorrectly assume
+    // slot 0 is the active slot and then it looks like "no active character".
+    const raw = (u.active_slot ?? u.activeSlot ?? u.active_character_slot ?? u.active_character ?? null);
+    if (raw == null) return null;
+
+    // Normalize numeric-ish values ("4" -> 4) but keep as string if not numeric.
+    const asNum = Number(raw);
+    return Number.isFinite(asNum) && String(raw).trim() !== '' ? String(asNum) : String(raw);
+},
+
+// ----------------------------
+// Inventory status helpers
+// ----------------------------
+buildEquippedItemMap(characters) {
+    const map = {};
+    
+    console.log('🔍 Building equipped item map from characters:', characters?.length || 0);
+
+    if (!characters || characters.length === 0) {
+        console.warn('⚠️ No characters provided to buildEquippedItemMap');
+        State.equippedItemMap = map;
+        return map;
+    }
+
+    // Dynamically discover equipment slot fields from the first character
+    // This ensures we catch all equipment slots regardless of game updates
+    const sampleChar = characters[0];
+    const equipmentSlots = Object.keys(sampleChar || {})
+        .filter(key => key.endsWith('_equip'))
+        .filter(key => key !== 'back_equip'); // Back is cosmetic, not equipment
+    
+    console.log('📋 Discovered equipment slots:', equipmentSlots);
+    console.log('📋 Sample character:', {
+        class: sampleChar.class,
+        slot: sampleChar.slot,
+        fields: Object.keys(sampleChar).filter(k => k.includes('equip'))
+    });
+
+    (characters || []).forEach((c, idx) => {
+        console.log(`Character ${idx + 1}/${characters.length}: ${c.class} (slot ${c.slot}):`);
+        
+        // Check each discovered equipment slot
+        equipmentSlots.forEach((slotKey) => {
+            const v = String(c[slotKey] ?? '');
+            if (v && v !== '-1' && v !== '0' && v !== '') {
+                map[v] = true;
+                console.log(`  ✓ ${slotKey}: Item ID ${v}`);
+            } else {
+                console.log(`  ✗ ${slotKey}: empty (value: "${v}")`);
+            }
+        });
+    });
+    
+    console.log('📋 Equipped item map built:', Object.keys(map).length, 'items');
+    console.log('📋 Item IDs in map:', Object.keys(map).slice(0, 10).join(', '), '...');
+    State.equippedItemMap = map;
+    return map;
+},
+
+buildListedItemMap(myListings) {
+    const map = {};
+
+    (myListings || []).forEach((l) => {
+        // different backends may use different keys
+        // In StreamArena RPG, listings often reuse the player_item id as `id`.
+        const id = l.player_item_id ?? l.item_id ?? l.inventory_item_id ?? l.playerItemId ?? l.id ?? null;
+        if (id != null) map[String(id)] = true;
+    });
+    State.listedItemMap = map;
+    return map;
+},
+
+getItemStatus(item) {
+    const itemId = String(item?.id ?? '');
+    const isEquipped = !!(State.equippedItemMap && State.equippedItemMap[itemId]);
+    const isListed = !!(State.listedItemMap && State.listedItemMap[itemId]);
+    
+    if (isListed) return 'listed';
+    if (isEquipped) return 'equipped';
+    return 'available';
+},
+
+getItemEquippedBy(item) {
+    const itemId = String(item?.id ?? '');
+    
+    if (!State.characters || !State.equippedItemMap || !State.equippedItemMap[itemId]) {
+        return null;
+    }
+    
+    // Find which character has this item equipped and in which slot
+    for (const char of State.characters) {
+        const equipmentSlots = Object.keys(char).filter(key => key.endsWith('_equip'));
+        
+        for (const slotKey of equipmentSlots) {
+            if (String(char[slotKey]) === itemId) {
+                const slotName = slotKey.replace('_equip', '');
+                return {
+                    character: char,
+                    slotKey: slotKey,
+                    slotName: slotName,
+                    slotLabel: Utils.formatSlot(slotName)
+                };
+            }
+        }
+    }
+    
+    return null;
+},
+
+formatGameTime(seconds) {
+    // Convert seconds to hours and minutes
+    const gameTime = parseInt(seconds) || 0;
+    const hours = Math.floor(gameTime / 3600);
+    const minutes = Math.floor((gameTime % 3600) / 60);
+    
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    } else {
+        return `${minutes}m`;
+    }
+},
+
+getSkillName(skillId, preferredClass = null) {
+    if (!skillId || skillId === '-1' || skillId === -1) return null;
+    
+    // First try the preferred class if provided
+    if (preferredClass && State.allSkills && State.allSkills[preferredClass]) {
+        const skill = State.allSkills[preferredClass].find(s => String(s.id) === String(skillId));
+        if (skill) {
+            return skill.name || skill.skill_name || skill.display_name || `Skill ${skillId}`;
+        }
+    }
+    
+    // Fallback: search all loaded classes
+    if (State.allSkills) {
+        for (const className in State.allSkills) {
+            const skill = State.allSkills[className].find(s => String(s.id) === String(skillId));
+            if (skill) {
+                return skill.name || skill.skill_name || skill.display_name || `Skill ${skillId}`;
+            }
+        }
+    }
+    
+    // If still not found, return null (will show as number)
+    return null;
+}
+
 };

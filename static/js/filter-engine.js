@@ -2,7 +2,30 @@
 const FilterEngine = {
     // Apply filters to items array
     applyItemFilters(items, filterConfig) {
-        return items.filter(item => {
+        // Log filter config when status filter is active
+        if (filterConfig.status) {
+            console.log('🔍 Filtering items by status:', filterConfig.status);
+            console.log('  Total items to filter:', items.length);
+            console.log('  Equipped item map size:', Object.keys(State.equippedItemMap || {}).length);
+            
+            if (filterConfig.status === 'equipped') {
+                // Show the equipped map IDs
+                const equippedIds = Object.keys(State.equippedItemMap || {});
+                console.log('  Equipped IDs in map:', equippedIds.slice(0, 10).join(', '), equippedIds.length > 10 ? '...' : '');
+                
+                // Show sample inventory IDs
+                const invIds = items.slice(0, 10).map(i => i.id);
+                console.log('  Sample inventory IDs:', invIds.join(', '));
+                
+                // Check for type mismatch
+                const firstEquippedId = equippedIds[0];
+                const firstInvId = items[0]?.id;
+                console.log('  Type check - Equipped ID type:', typeof firstEquippedId, 'value:', firstEquippedId);
+                console.log('  Type check - Inventory ID type:', typeof firstInvId, 'value:', firstInvId);
+            }
+        }
+        
+        const filtered = items.filter(item => {
             // Username filter
             if (filterConfig.username && !item.username.toLowerCase().includes(filterConfig.username)) {
                 return false;
@@ -52,6 +75,24 @@ const FilterEngine = {
             if (!isNaN(filterConfig.maxRange) && (!range || range > filterConfig.maxRange)) {
                 return false;
             }
+
+            // Status filter (inventory): available / listed / equipped
+            if (filterConfig.status) {
+                const status = Utils.getItemStatus(item);
+                
+                // DIAGNOSTIC: Log first equipped item check to see what's happening
+                if (filterConfig.status === 'equipped' && items.indexOf(item) < 3) {
+                    console.log(`Checking item ${item.id} (${item.slot}):`, {
+                        status,
+                        inMap: State.equippedItemMap && item.id in State.equippedItemMap,
+                        mapHasId: State.equippedItemMap && State.equippedItemMap[item.id]
+                    });
+                }
+                
+                if (filterConfig.status === 'available' && status !== 'available') return false;
+                if (filterConfig.status === 'listed' && status !== 'listed') return false;
+                if (filterConfig.status === 'equipped' && status !== 'equipped') return false;
+            }
             
             // Price filters (if provided)
             if (filterConfig.maxPlatinum !== undefined) {
@@ -79,6 +120,19 @@ const FilterEngine = {
             
             return true;
         });
+        
+        if (filterConfig.status) {
+            console.log('  ✓ Filtered to', filtered.length, 'items with status:', filterConfig.status);
+            if (filtered.length > 0 && filtered.length < 20) {
+                console.log('  First few filtered items:', filtered.slice(0, 5).map(i => ({
+                    id: i.id,
+                    slot: i.slot,
+                    name: Utils.getItemName(i.base_item_id, i.slot)
+                })));
+            }
+        }
+        
+        return filtered;
     },
     
     // Sort items array
@@ -150,7 +204,8 @@ const FilterEngine = {
             minPower: parseFloat(document.getElementById('invFilterMinPower')?.value) || 0,
             maxPower: parseFloat(document.getElementById('invFilterMaxPower')?.value) || 999,
             minRange: parseFloat(document.getElementById('invFilterMinRange')?.value) || 0,
-            maxRange: parseFloat(document.getElementById('invFilterMaxRange')?.value) || Infinity
+            maxRange: parseFloat(document.getElementById('invFilterMaxRange')?.value) || Infinity,
+            status: document.getElementById('invFilterStatus')?.value || ''
         };
     },
     
@@ -165,3 +220,4 @@ const FilterEngine = {
         };
     }
 };
+

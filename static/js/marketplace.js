@@ -21,27 +21,15 @@ const Marketplace = {
     },
     
     renderItems(items) {
-        const container = document.getElementById('itemsContainer');
-        
-        if (!items || items.length === 0) {
-            container.innerHTML = UIComponents.renderEmptyState('🔍', 'No items match your filters');
-            return;
-        }
-        
-        if (State.currentView === 'grid') {
-            container.className = 'items-grid';
-            container.innerHTML = items.map((item, idx) => 
-                UIComponents.renderItemCard(item, idx, true)
-            ).join('');
-        } else {
-            container.className = 'items-list';
-            container.innerHTML = items.map((item, idx) => 
-                UIComponents.renderItemRow(item, idx, true, 'filterToItem')
-            ).join('');
-        }
+        UIListRenderer.render('listingsContainer', items, {
+            emptyIcon: '🔍',
+            emptyText: 'No items match your filters',
+            card: (item, idx) => UIComponents.renderItemCard(item, idx, true),
+            row:  (item, idx) => UIComponents.renderItemRow(item, idx, true, 'filterToItem')
+        });
     }
+        
 };
-
 // Global functions (called from HTML)
 function applyFilters() {
     Marketplace.applyFilters();

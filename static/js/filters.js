@@ -135,10 +135,13 @@ const Filters = {
             opt1.textContent = prop;
             propSelect.appendChild(opt1);
             
-            const opt2 = document.createElement('option');
-            opt2.value = prop;
-            opt2.textContent = prop;
-            analysisPropSelect.appendChild(opt2);
+            // Only add to analysis if element exists
+            if (analysisPropSelect) {
+                const opt2 = document.createElement('option');
+                opt2.value = prop;
+                opt2.textContent = prop;
+                analysisPropSelect.appendChild(opt2);
+            }
             
             // Add to inventory filter
             if (invPropSelect) {

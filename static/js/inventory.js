@@ -1,12 +1,16 @@
 // Inventory Tab Functions
 const Inventory = {
     async loadInventory(token) {
+        // If no token is provided, try cookie-based auth flow
+        if (!token) {
+            return this.loadInventoryAuth();
+        }
         if (!token || !token.trim()) {
             throw new Error('Token is required');
         }
         
-        document.getElementById('inventoryStatusText').textContent = 'Loading...';
-        State.inventoryItems = [];
+        UIStatus.setInventoryStatus('Loading...');
+        Store.resetArray('inventoryItems');
         
         try {
             // Load first page
@@ -20,14 +24,14 @@ const Inventory = {
             
             // Store user data
             if (firstPage.user) {
-                State.userData = firstPage.user;
+                Store.set('userData', firstPage.user);
                 this.displayUserProfile(firstPage.user);
             }
             
-            State.inventoryItems = firstPage.player_items;
+            Store.set('inventoryItems', firstPage.player_items || []);
             const totalPages = firstPage.total_pages || 1;
             
-            document.getElementById('totalInventoryItems').textContent = firstPage.player_items.length;
+            UIStatus.setText('totalInventoryItems', (firstPage.player_items || []).length);
             
             // Load remaining pages
             const remaining = [];
@@ -38,16 +42,25 @@ const Inventory = {
             if (remaining.length > 0) {
                 const results = await Promise.all(remaining);
                 results.forEach(data => {
-                    if (data.player_items) State.inventoryItems.push(...data.player_items);
+                    if (data.player_items) Store.pushMany('inventoryItems', data.player_items);
                 });
             }
             
-            document.getElementById('inventoryStatusText').textContent = 'Loaded';
-            console.log('✓ Inventory loaded:', State.inventoryItems.length, 'items');
+            // Load characters data to build equipped item map
+            if (!State.characters || State.characters.length === 0) {
+                console.log('Loading characters for equipped item tracking...');
+                await Characters.loadCharacters();
+            } else {
+                // Rebuild equipped map with existing characters
+                Utils.buildEquippedItemMap(State.characters);
+            }
+            
+            UIStatus.setInventoryStatus('Loaded');
+            console.log('✓ Inventory loaded:', Store.get('inventoryItems').length, 'items');
             
             // Update unique count
             const uniqueInv = new Set();
-            State.inventoryItems.forEach(item => {
+            Store.get('inventoryItems').forEach(item => {
                 const key = `${item.base_item_id}_${item.slot}`;
                 uniqueInv.add(key);
             });
@@ -84,45 +97,169 @@ const Inventory = {
     },
     
     applyFilters() {
+        // Use State.inventoryItems directly (Store is just a wrapper around State)
+        const inventoryItems = State.inventoryItems || [];
+        
+        // CRITICAL: Rebuild equipped item map if we have characters but no map
+        if (State.characters && State.characters.length > 0) {
+            if (!State.equippedItemMap || Object.keys(State.equippedItemMap).length === 0) {
+                console.log('⚠️ Rebuilding equipped item map in inventory filter');
+                Utils.buildEquippedItemMap(State.characters);
+            }
+        }
+        
         // Get filters from DOM
         const filterConfig = FilterEngine.getInventoryFilters();
         
         // Apply filters
-        let filtered = FilterEngine.applyItemFilters(State.inventoryItems, filterConfig);
+        let filtered = FilterEngine.applyItemFilters(inventoryItems, filterConfig);
         
         // Apply sorting
-        const sortBy = document.getElementById('inventorySortBy')?.value || 'time_newest';
+        const sortBy = document.getElementById('invSortBy')?.value || document.getElementById('inventorySortBy')?.value || 'time_newest';
         filtered = FilterEngine.sortItems(filtered, sortBy);
         
-        // Update counts
-        DOMHelpers.updateCounts('invTotalCount', 'invFilteredCount', State.inventoryItems.length, filtered.length);
-        
+// Update counts
+const totalEl = document.getElementById('totalInventoryItems');
+if (totalEl) totalEl.textContent = inventoryItems.length;
+
+const filteredEl = document.getElementById('filteredInventoryItems');
+if (filteredEl) filteredEl.textContent = filtered.length;
+
+// Unique count (by item name + slot + power type)
+const uniqueSet = new Set(filtered.map(it => `${Utils.getItemName(it.base_item_id, it.slot)}|${it.slot}|${Utils.getPowerType(it)}`));
+const uniqueEl = document.getElementById('uniqueInventoryItems');
+if (uniqueEl) uniqueEl.textContent = uniqueSet.size;
+
+// Listed / Equipped counts within current view
+let listedCount = 0;
+let equippedCount = 0;
+filtered.forEach(it => {
+    const s = Utils.getItemStatus(it);
+    if (s === 'listed') listedCount += 1;
+    if (s === 'equipped') equippedCount += 1;
+});
+
+const listedEl = document.getElementById('inventoryListedCount');
+if (listedEl) listedEl.textContent = listedCount;
+
+const equippedEl = document.getElementById('inventoryEquippedCount');
+if (equippedEl) equippedEl.textContent = equippedCount;
+
         // Render items
         this.renderInventory(filtered);
     },
     
     renderInventory(items) {
-        const container = document.getElementById('inventoryContainer');
+        UIListRenderer.render('inventoryContainer', items, {
+            emptyIcon: '📦',
+            emptyText: 'No items in your inventory match the current filters',
+            card: (item, idx) => UIComponents.renderItemCard(item, idx, false),
+            row:  (item, idx) => UIComponents.renderItemRow(item, idx, false, null)
+        });
         
-        if (!items || items.length === 0) {
-            container.innerHTML = UIComponents.renderEmptyState('📦', 'No items in your inventory match the current filters');
+        // Also render chests when rendering inventory
+        this.renderChests();
+    },
+    
+    renderChests() {
+        const container = document.getElementById('inventoryChests');
+        const countEl = document.getElementById('inventoryChestsCount');
+        
+        if (!container) return;
+        
+        if (!State.playerChests || State.playerChests.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <div>No chests owned</div>
+                </div>
+            `;
+            if (countEl) countEl.textContent = '0';
             return;
         }
         
-        if (State.currentView === 'grid') {
-            container.className = 'items-grid';
-            container.innerHTML = items.map((item, idx) => 
-                UIComponents.renderItemCard(item, idx, false)
-            ).join('');
-        } else {
-            container.className = 'items-list';
-            container.innerHTML = items.map((item, idx) => 
-                UIComponents.renderItemRow(item, idx, false, null)
-            ).join('');
+        if (countEl) countEl.textContent = State.playerChests.length;
+        
+        // Count chests by type
+        const chestCounts = {};
+        State.playerChests.forEach(chest => {
+            const chestId = chest.loot_chest_type_id || chest.chest_id || 'unknown';
+            chestCounts[chestId] = (chestCounts[chestId] || 0) + 1;
+        });
+        
+        // Get chest details
+        const chestTypes = State.chestTypes || [];
+        
+        const html = Object.entries(chestCounts).map(([chestId, count]) => {
+            const chestType = chestTypes.find(c => String(c.id) === String(chestId));
+            const chestName = chestType?.name || `Chest ${chestId}`;
+            const rarity = chestType?.rarity || 'common';
+            
+            return `
+                <div class="chest-card" data-rarity="${rarity}">
+                    <div class="chest-icon">📦</div>
+                    <div class="chest-name">${Utils.escapeHtml(chestName)}</div>
+                    <div class="chest-count">×${count}</div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = html;
+    },
+    
+    async loadInventoryAuth() {
+        UIStatus.setInventoryStatus('Loading...');
+        Store.resetArray('inventoryItems');
+        State.inventoryItems = [];
+        try {
+            const fetchPage = async (page) => {
+                const r = await fetch('/api/inventory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ page })
+                });
+                if (!r.ok) throw new Error('Failed to load inventory (HTTP ' + r.status + ')');
+                return r.json();
+            };
+            const first = await fetchPage(1);
+            const items = Array.isArray(first.player_items) ? first.player_items.slice() : [];
+            const totalPages = parseInt(first.total_pages || 1);
+            if (totalPages > 1) {
+                const rest = await Promise.all(Array.from({length: totalPages-1}, (_,i)=>fetchPage(i+2)));
+                rest.forEach(d => { if (Array.isArray(d.player_items)) items.push(...d.player_items); });
+            }
+            State.inventoryItems = items;
+            Store.set('inventoryItems', items);
+            if (first.user) {
+                State.userData = Utils.normalizeUserData(first.user);
+                Store.set('userData', first.user);
+                this.displayUserProfile(first.user);
+            }
+            
+            // Load characters data to build equipped item map
+            if (!State.characters || State.characters.length === 0) {
+                console.log('Loading characters for equipped item tracking...');
+                await Characters.loadCharacters();
+            } else {
+                // Rebuild equipped map with existing characters
+                Utils.buildEquippedItemMap(State.characters);
+            }
+            
+            if (Array.isArray(State.myListings) && State.myListings.length) {
+                Utils.buildListedItemMap(State.myListings);
+            }
+            UIStatus.setInventoryStatus('Live');
+            console.log('✓ Inventory (auth) loaded:', items.length);
+            return true;
+        } catch (e) {
+            console.error('✗ Inventory auth load failed:', e);
+            UIStatus.setInventoryStatus('Error');
+            return false;
         }
     }
+        
 };
-
 // Global functions (called from HTML)
 function applyInventoryFilters() {
     Inventory.applyFilters();
@@ -194,3 +331,5 @@ function changeInventoryToken() {
     // Clear user data
     State.userData = null;
 }
+
+

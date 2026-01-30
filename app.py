@@ -1,8 +1,20 @@
 import os
 import requests
 from flask import Flask, render_template, request, jsonify, make_response
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+try:
+    from flask_limiter import Limiter
+    from flask_limiter.util import get_remote_address
+except ModuleNotFoundError:
+    # Optional dependency: allow running in minimal environments (and unit tests)
+    class Limiter:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            self.enabled = False
+        def limit(self, *args, **kwargs):
+            def decorator(fn):
+                return fn
+            return decorator
+    def get_remote_address():  # type: ignore
+        return '127.0.0.1'
 import logging
 
 # Configure logging
@@ -299,6 +311,333 @@ def delete_token():
     
     logger.info(f"Token deleted for IP: {request.remote_addr}")
     return response
+
+
+@app.route("/api/udata", methods=["POST"])
+@limiter.limit("10 per minute")
+def api_user_data():
+    """Get complete user data including all characters"""
+    try:
+        token = request.cookies.get('rpg_user_token')
+        if not token:
+            req_data = request.get_json() or {}
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        payload = {
+            "route": "get_udata",  # FIXED: was "udata"
+            "token": token,
+            "version": "1.0.0"
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"User data error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/my-listings", methods=["POST"])
+@limiter.limit("10 per minute")
+def api_my_listings():
+    """Get user's active marketplace listings"""
+    try:
+        token = request.cookies.get('rpg_user_token')
+        if not token:
+            req_data = request.get_json() or {}
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        payload = {
+            "route": "my_listings",  # FIXED: was "get_my_listings"
+            "token": token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"My listings error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/top-players")
+@limiter.limit("30 per minute")
+def api_top_players():
+    """Get leaderboard"""
+    if not TOKEN:
+        return jsonify({
+            "status": "error",
+            "message": "Service configuration error"
+        }), 500
+    
+    try:
+        payload = {
+            "route": "get_top_players",
+            "token": TOKEN
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Top players error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/friends", methods=["POST"])
+@limiter.limit("10 per minute")
+def api_friends():
+    """Get friends list"""
+    try:
+        token = request.cookies.get('rpg_user_token')
+        if not token:
+            req_data = request.get_json() or {}
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        payload = {
+            "route": "get_friend_list",  # FIXED: was "get_friends_list" (no 's')
+            "token": token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Friends error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/shaders")
+@limiter.limit("30 per minute")
+def api_shaders():
+    """Get available shaders"""
+    if not TOKEN:
+        return jsonify({
+            "status": "error",
+            "message": "Service configuration error"
+        }), 500
+    
+    try:
+        payload = {
+            "route": "get_shaders",
+            "token": TOKEN  # Use admin token, not user token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Shaders error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/backs")
+@limiter.limit("30 per minute")
+def api_backs():
+    """Get available back items"""
+    if not TOKEN:
+        return jsonify({
+            "status": "error",
+            "message": "Service configuration error"
+        }), 500
+    
+    try:
+        payload = {
+            "route": "get_backs",
+            "token": TOKEN  # Use admin token, not user token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Back items error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/chests")
+@limiter.limit("30 per minute")
+def api_chests():
+    """Get available chests"""
+    if not TOKEN:
+        return jsonify({
+            "status": "error",
+            "message": "Service configuration error"
+        }), 500
+    
+    try:
+        payload = {
+            "route": "get_chests",
+            "token": TOKEN  # Use admin token, not user token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Chests error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/player-chests", methods=["POST"])
+@limiter.limit("10 per minute")
+def api_player_chests():
+    """Get player's owned chests"""
+    try:
+        token = request.cookies.get('rpg_user_token')
+        if not token:
+            req_data = request.get_json() or {}
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        payload = {
+            "route": "get_player_chest",
+            "token": token
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Player chests error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/skills", methods=["POST"])
+@limiter.limit("30 per minute")
+def api_skills():
+    """Get skills for a class"""
+    try:
+        token = request.cookies.get('rpg_user_token')
+        req_data = request.get_json() or {}
+        
+        if not token:
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        char_class = req_data.get('class', 'barbarian')
+        
+        payload = {
+            "route": "get_skills",
+            "token": token,
+            "class": char_class
+        }
+        
+        r = requests.post(API_URL, json=payload, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.HTTPError as e:
+        logger.error(f"Upstream API error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Service temporarily unavailable"
+        }), 502
+    except Exception as e:
+        logger.error(f"Skills error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred"
+        }), 500
 
 
 if __name__ == "__main__":

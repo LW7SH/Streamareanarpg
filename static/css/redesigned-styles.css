@@ -1,0 +1,891 @@
+/* ========================================
+   TAB-SPECIFIC STYLES
+   Design System v1.0.0 - Standardized
+   ======================================== */
+
+/* ========================================
+   OVERVIEW TAB STYLES
+   ======================================== */
+
+.overview-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.overview-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+    transition: transform var(--duration-base), box-shadow var(--duration-base);
+}
+
+.overview-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.overview-stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-2);
+}
+
+.overview-stat-value {
+    font-size: var(--text-stat);
+    font-weight: var(--font-bold);
+    color: var(--primary);
+    margin-bottom: var(--space-1);
+    font-family: var(--font-mono);
+}
+
+.overview-stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+}
+
+.overview-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.overview-section h3 {
+    margin: 0 0 var(--space-4) 0;
+    font-size: var(--text-xl);
+    color: var(--text);
+    font-weight: var(--font-bold);
+}
+
+/* ========================================
+   ACTIVE CHARACTER DISPLAY
+   ======================================== */
+
+.overview-active-character {
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+}
+
+.overview-char-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.overview-char-icon {
+    font-size: 3rem;
+}
+
+.overview-char-info {
+    flex: 1;
+}
+
+.overview-char-class {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--text);
+    text-transform: capitalize;
+}
+
+.overview-char-level {
+    font-size: var(--text-base);
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+}
+
+.overview-char-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-4);
+}
+
+.overview-char-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+}
+
+.overview-char-stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    margin-bottom: var(--space-2);
+}
+
+.overview-char-stat-value {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text);
+    font-family: var(--font-mono);
+}
+
+/* Equipment list in overview */
+.overview-equipment-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.overview-equip-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+}
+
+.overview-equip-slot.empty {
+    opacity: 0.5;
+}
+
+.overview-equip-slot.filled {
+    border-left: 3px solid var(--primary);
+}
+
+/* Skills list in overview */
+.overview-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.overview-skill-badge {
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-card);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--primary);
+}
+
+/* Chest cards */
+.chest-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+    transition: transform var(--duration-base), box-shadow var(--duration-base);
+}
+
+.chest-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.chest-card[data-rarity="legendary"] {
+    border-color: #ff8c00;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.05), rgba(255, 140, 0, 0.1));
+}
+
+.chest-card[data-rarity="epic"] {
+    border-color: #a855f7;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(168, 85, 247, 0.1));
+}
+
+.chest-card[data-rarity="rare"] {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
+}
+
+.chest-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-3);
+}
+
+.chest-name {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    color: var(--text);
+    margin-bottom: var(--space-2);
+}
+
+.chest-count {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--primary);
+    font-family: var(--font-mono);
+}
+
+
+/* ========================================
+   RECENT LISTINGS
+   ======================================== */
+
+.overview-listings-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.overview-listing-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-elevated);
+    border-left: var(--border-width-thicker) solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    transition: transform var(--duration-base);
+}
+
+.overview-listing-card:hover {
+    transform: translateX(4px);
+}
+
+.overview-listing-card.legendary {
+    border-left-color: var(--rarity-legendary);
+}
+
+.overview-listing-card.epic {
+    border-left-color: var(--rarity-epic);
+}
+
+.overview-listing-card.rare {
+    border-left-color: var(--rarity-rare);
+}
+
+.overview-listing-card.uncommon {
+    border-left-color: var(--rarity-uncommon);
+}
+
+.overview-listing-card.common {
+    border-left-color: var(--rarity-common);
+}
+
+.overview-listing-info {
+    flex: 1;
+}
+
+.overview-listing-name {
+    font-weight: var(--font-semibold);
+    color: var(--text);
+    margin-bottom: var(--space-1);
+}
+
+.overview-listing-details {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+}
+
+.overview-listing-slot {
+    text-transform: capitalize;
+}
+
+.overview-listing-power {
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+}
+
+.overview-listing-price {
+    text-align: right;
+}
+
+.overview-listing-price-value {
+    font-weight: var(--font-bold);
+    color: var(--text);
+    margin-bottom: var(--space-1);
+    font-family: var(--font-mono);
+}
+
+.overview-listing-expiry {
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+}
+
+/* ========================================
+   QUICK ACTIONS GRID
+   ======================================== */
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    color: var(--text);
+    font-size: var(--text-base);
+    cursor: pointer;
+    transition: all var(--duration-base);
+}
+
+.quick-action-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.quick-action-icon {
+    font-size: 1.5rem;
+}
+
+.quick-action-text {
+    flex: 1;
+    text-align: left;
+    font-weight: var(--font-medium);
+}
+
+/* ========================================
+   COSMETICS TAB STYLES
+   ======================================== */
+
+.cosmetics-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.cosmetics-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.cosmetics-section h3 {
+    margin: 0;
+    font-size: var(--text-xl);
+    color: var(--text);
+    font-weight: var(--font-bold);
+}
+
+.cosmetics-count {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+}
+
+.cosmetics-count strong {
+    color: var(--primary);
+    font-weight: var(--font-bold);
+}
+
+.cosmetics-section-info {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+    margin-bottom: var(--space-4);
+}
+
+.cosmetics-filters {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.cosmetics-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    user-select: none;
+}
+
+.cosmetics-filter-toggle input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+.cosmetics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-4);
+}
+
+/* ========================================
+   COSMETIC CARDS
+   ======================================== */
+
+.cosmetic-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all var(--duration-base);
+}
+
+.cosmetic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.cosmetic-card.owned {
+    border-color: var(--success);
+}
+
+.cosmetic-card.not-owned {
+    opacity: 0.7;
+}
+
+.cosmetic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4);
+    background: var(--bg-card);
+}
+
+.cosmetic-name {
+    font-weight: var(--font-semibold);
+    color: var(--text);
+}
+
+.cosmetic-owned-badge {
+    font-size: var(--text-xs);
+    color: var(--success);
+    font-weight: var(--font-semibold);
+}
+
+.cosmetic-preview {
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.cosmetic-shader-preview,
+.cosmetic-back-preview {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cosmetic-shader-icon,
+.cosmetic-back-icon {
+    font-size: 3rem;
+}
+
+.cosmetic-footer {
+    padding: var(--space-4);
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+}
+
+.cosmetic-price {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+}
+
+/* ========================================
+   COSMETIC CHESTS
+   ======================================== */
+
+.cosmetic-chest-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+}
+
+.cosmetic-chest-icon {
+    font-size: 2.5rem;
+}
+
+.cosmetic-chest-info {
+    flex: 1;
+}
+
+.cosmetic-chest-type {
+    font-weight: var(--font-semibold);
+    color: var(--text);
+    margin-bottom: var(--space-1);
+}
+
+.cosmetic-chest-count {
+    font-size: var(--text-xl);
+    color: var(--primary);
+    font-weight: var(--font-bold);
+    font-family: var(--font-mono);
+}
+
+/* ========================================
+   EQUIPPED COSMETICS
+   ======================================== */
+
+.cosmetics-equipped-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-4);
+}
+
+.cosmetic-equipped-item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+}
+
+.cosmetic-equipped-label {
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    margin-bottom: var(--space-2);
+}
+
+.cosmetic-equipped-value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--font-semibold);
+    color: var(--text);
+}
+
+.cosmetic-equipped-icon {
+    font-size: 1.5rem;
+}
+
+/* ========================================
+   INVENTORY ENHANCEMENTS
+   ======================================== */
+
+.controls {
+    margin-bottom: var(--space-4);
+}
+
+.results-info {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+}
+
+.results-info strong {
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+}
+
+/* Item Status Badges */
+.item-status-badge {
+    display: inline-block;
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-semibold);
+    margin-top: var(--space-2);
+}
+
+.item-status-badge.listed {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.item-status-badge.equipped {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+}
+
+.item-status-badge.available {
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+}
+
+/* ========================================
+   ANALYSIS TAB STYLES
+   ======================================== */
+
+.analysis-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    transition: all var(--duration-base);
+}
+
+.analysis-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.analysis-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text);
+}
+
+.analysis-value {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    font-family: var(--font-mono);
+    color: var(--primary);
+}
+
+.analysis-description {
+    font-size: var(--text-sm);
+    color: var(--text-dim);
+    line-height: var(--leading-relaxed);
+}
+
+/* New Modern Analysis Cards */
+.analysis-card-new {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.analysis-card-new:hover {
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.analysis-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to bottom, var(--bg-card) 0%, rgba(0, 0, 0, 0.02) 100%);
+}
+
+.analysis-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.analysis-card-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.analysis-tier-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    color: #000;
+    white-space: nowrap;
+}
+
+.analysis-card-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.slot-badge-new {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.two-handed-badge {
+    background: var(--accent);
+    color: #000;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.listings-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-dim);
+}
+
+.analysis-card-body {
+    padding: 1.5rem;
+}
+
+.analysis-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.analysis-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.analysis-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stat-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.stat-card-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+}
+
+.stat-card-values {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-row.small-text {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: -0.25rem;
+}
+
+.stat-key {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.stat-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    color: var(--text);
+}
+
+.price-low {
+    color: var(--success) !important;
+}
+
+.price-high {
+    color: var(--danger) !important;
+}
+
+.analysis-card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.view-marketplace-link {
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .analysis-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analysis-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .overview-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .overview-char-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cosmetics-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .cosmetics-equipped-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .overview-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .overview-char-stats {
+        grid-template-columns: 1fr;
+    }
+}
