@@ -79,6 +79,21 @@ const Overview = {
             }
             
             console.log('  💰 Listings loaded:', State.myListings?.length || 0);
+            
+            // Load skills if not loaded
+            if (!State.allSkills || Object.keys(State.allSkills).length === 0) {
+                if (Characters && Characters.loadAllSkills) {
+                    try {
+                        console.log('  → Loading skills for overview...');
+                        await Characters.loadAllSkills();
+                        needsReload = true;
+                    } catch (e) {
+                        console.warn('  ⚠ Could not load skills:', e);
+                    }
+                }
+            }
+            
+            console.log('  ✨ Skills loaded:', Object.keys(State.allSkills || {}).length, 'classes');
         }
         
         console.log('  🎨 Rendering all sections...');

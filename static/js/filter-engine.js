@@ -130,6 +130,21 @@ const FilterEngine = {
                     name: Utils.getItemName(i.base_item_id, i.slot)
                 })));
             }
+            
+            // CRITICAL DEBUG: Show why items are being excluded
+            if (filterConfig.status === 'equipped' && filtered.length < Object.keys(State.equippedItemMap || {}).length) {
+                console.log('  ⚠️ MISMATCH: Equipped map has', Object.keys(State.equippedItemMap).length, 'items but filter only found', filtered.length);
+                console.log('  ⚠️ Checking all items to find the mismatch...');
+                
+                // Check a sample of items to see why they're not passing
+                items.slice(0, 30).forEach(item => {
+                    const status = Utils.getItemStatus(item);
+                    const inMap = State.equippedItemMap && State.equippedItemMap[item.id];
+                    if (inMap && status !== 'equipped') {
+                        console.log('  ⚠️ Item', item.id, 'is in map but status is:', status, '| Item object:', item);
+                    }
+                });
+            }
         }
         
         return filtered;
@@ -202,7 +217,7 @@ const FilterEngine = {
             extraProp: document.getElementById('invFilterExtraProperty')?.value || '',
             twoHanded: document.getElementById('invFilterTwoHanded')?.value || '',
             minPower: parseFloat(document.getElementById('invFilterMinPower')?.value) || 0,
-            maxPower: parseFloat(document.getElementById('invFilterMaxPower')?.value) || 999,
+            maxPower: parseFloat(document.getElementById('invFilterMaxPower')?.value) || Infinity,  // FIXED: was 999, now Infinity
             minRange: parseFloat(document.getElementById('invFilterMinRange')?.value) || 0,
             maxRange: parseFloat(document.getElementById('invFilterMaxRange')?.value) || Infinity,
             status: document.getElementById('invFilterStatus')?.value || ''
