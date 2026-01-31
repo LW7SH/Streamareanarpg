@@ -16,6 +16,7 @@ except ModuleNotFoundError:
     def get_remote_address():  # type: ignore
         return '127.0.0.1'
 import logging
+from data_cache import get_cache
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +37,11 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://"
 )
+
+# Initialize and start data cache
+cache = get_cache()
+cache.start()
+logger.info("Data cache initialized and started")
 
 # Detect environment
 IS_PRODUCTION = os.environ.get('FLASK_ENV') == 'production'
@@ -168,6 +174,14 @@ def api_listings():
 @limiter.limit("10 per minute")
 def api_items():
     try:
+        # Try to get from cache first
+        data = cache.get('items')
+        if data:
+            logger.debug("Serving items from cache")
+            return jsonify(data)
+        
+        # Fallback to direct API call if cache is empty
+        logger.warning("Cache miss for items, fetching from API")
         data = get_game_items()
         return jsonify(data)
     except requests.HTTPError as e:
@@ -486,6 +500,14 @@ def api_shaders():
         }), 500
     
     try:
+        # Try to get from cache first
+        data = cache.get('shaders')
+        if data:
+            logger.debug("Serving shaders from cache")
+            return jsonify(data)
+        
+        # Fallback to direct API call if cache is empty
+        logger.warning("Cache miss for shaders, fetching from API")
         payload = {
             "route": "get_shaders",
             "token": TOKEN  # Use admin token, not user token
@@ -519,6 +541,14 @@ def api_backs():
         }), 500
     
     try:
+        # Try to get from cache first
+        data = cache.get('backs')
+        if data:
+            logger.debug("Serving backs from cache")
+            return jsonify(data)
+        
+        # Fallback to direct API call if cache is empty
+        logger.warning("Cache miss for backs, fetching from API")
         payload = {
             "route": "get_backs",
             "token": TOKEN  # Use admin token, not user token
@@ -552,6 +582,14 @@ def api_chests():
         }), 500
     
     try:
+        # Try to get from cache first
+        data = cache.get('chests')
+        if data:
+            logger.debug("Serving chests from cache")
+            return jsonify(data)
+        
+        # Fallback to direct API call if cache is empty
+        logger.warning("Cache miss for chests, fetching from API")
         payload = {
             "route": "get_chests",
             "token": TOKEN  # Use admin token, not user token
@@ -639,6 +677,18 @@ def api_skills():
         char_class = req_data.get('class', 'barbarian')
         page = req_data.get('page', 1)
         
+        # Try to get from cache first (only for page 1)
+        if page == 1 or not page:
+            cache_key = f'skills:{char_class}'
+            data = cache.get(cache_key)
+            if data:
+                logger.debug(f"Serving skills for {char_class} from cache")
+                return jsonify(data)
+        
+        # Fallback to direct API call if cache is empty or page > 1
+        if page == 1 or not page:
+            logger.warning(f"Cache miss for skills:{char_class}, fetching from API")
+        
         payload = {
             "route": "get_skills",
             "token": token,
@@ -663,6 +713,25 @@ def api_skills():
         return jsonify({
             "status": "error",
             "message": "An error occurred"
+        }), 500
+
+
+@app.route("/api/cache/status")
+@limiter.limit("10 per minute")
+def api_cache_status():
+    """Get cache statistics for monitoring"""
+    try:
+        stats = cache.get_cache_stats()
+        return jsonify({
+            "status": "ok",
+            "cache_stats": stats,
+            "refresh_interval_seconds": cache.refresh_interval
+        })
+    except Exception as e:
+        logger.error(f"Cache status error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Unable to retrieve cache stats"
         }), 500
 
 
