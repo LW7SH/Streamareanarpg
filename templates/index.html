@@ -441,6 +441,12 @@
                 </div>
                 
                 <div class="filters-row">
+                    <!-- Item Name Filter -->
+                    <select id="invFilterItemName" onchange="Inventory.applyFilters()">
+                        <option value="">All Items</option>
+                    </select>
+                    
+                    <!-- Slot Filter -->
                     <select id="invFilterSlot" onchange="Inventory.applyFilters()">
                         <option value="">All Slots</option>
                         <option value="weapon">Weapon</option>
@@ -452,19 +458,58 @@
                         <option value="ring">Ring</option>
                         <option value="off_hand">Off Hand</option>
                     </select>
+                    
+                    <!-- Class Filter -->
+                    <select id="invFilterItemClass" onchange="Inventory.applyFilters()">
+                        <option value="">All Classes</option>
+                    </select>
+                    
+                    <!-- Status Filter -->
                     <select id="invFilterStatus" onchange="Inventory.applyFilters()">
                         <option value="">All Items</option>
                         <option value="available">Available (Not Listed/Equipped)</option>
                         <option value="listed">Listed on Market</option>
                         <option value="equipped">Equipped on Character</option>
                     </select>
-                    <input type="number" id="invFilterMinPower" placeholder="Min Power" onchange="Inventory.applyFilters()">
-                    <select id="invSortBy" onchange="Inventory.applyFilters()">
-                        <option value="power">Highest Power</option>
-                        <option value="recent">Recently Acquired</option>
-                        <option value="slot">By Slot</option>
+                </div>
+                
+                <div class="filters-row">
+                    <!-- Stat Type Filter -->
+                    <select id="invFilterExtraProperty" onchange="Inventory.applyFilters()">
+                        <option value="">All Stats</option>
                     </select>
-                    <button class="btn-secondary" onclick="Inventory.clearFilters()">Clear</button>
+                    
+                    <!-- Two Handed Filter -->
+                    <select id="invFilterTwoHanded" onchange="Inventory.applyFilters()">
+                        <option value="">Any</option>
+                        <option value="yes">Two Handed</option>
+                        <option value="no">Not Two Handed</option>
+                    </select>
+                    
+                    <!-- Min Power -->
+                    <input type="number" id="invFilterMinPower" placeholder="Min Power" onchange="Inventory.applyFilters()">
+                    
+                    <!-- Max Power -->
+                    <input type="number" id="invFilterMaxPower" placeholder="Max Power" onchange="Inventory.applyFilters()">
+                    
+                    <!-- Min Range -->
+                    <input type="number" id="invFilterMinRange" placeholder="Min Range" onchange="Inventory.applyFilters()">
+                    
+                    <!-- Max Range -->
+                    <input type="number" id="invFilterMaxRange" placeholder="Max Range" onchange="Inventory.applyFilters()">
+                </div>
+                
+                <div class="filters-row">
+                    <!-- Sort By -->
+                    <select id="invSortBy" onchange="Inventory.applyFilters()">
+                        <option value="time_newest">Newest First</option>
+                        <option value="time_oldest">Oldest First</option>
+                        <option value="power_high">Highest Power</option>
+                        <option value="power_low">Lowest Power</option>
+                        <option value="name">By Name</option>
+                    </select>
+                    
+                    <button class="btn-secondary" onclick="Inventory.clearFilters()">Clear All Filters</button>
                 </div>
                 
                 <div id="inventoryContainer" class="items-grid">

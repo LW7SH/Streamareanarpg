@@ -276,6 +276,40 @@ const Inventory = {
             UIStatus.setInventoryStatus('Error');
             return false;
         }
+    },
+    
+    clearFilters() {
+        // Clear all filter inputs
+        const filterIds = [
+            'invFilterItemName',
+            'invFilterSlot', 
+            'invFilterItemClass',
+            'invFilterStatus',
+            'invFilterExtraProperty',
+            'invFilterTwoHanded',
+            'invFilterMinPower',
+            'invFilterMaxPower',
+            'invFilterMinRange',
+            'invFilterMaxRange'
+        ];
+        
+        filterIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                } else if (element.tagName === 'INPUT') {
+                    element.value = '';
+                }
+            }
+        });
+        
+        // Reset sort to default
+        const sortBy = document.getElementById('invSortBy');
+        if (sortBy) sortBy.value = 'time_newest';
+        
+        // Reapply filters (which are now cleared)
+        this.applyFilters();
     }
         
 };
