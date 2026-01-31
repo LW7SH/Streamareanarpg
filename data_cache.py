@@ -135,18 +135,44 @@ class DataCache:
             return None
     
     def _fetch_skills(self, class_name):
-        """Fetch skills for a specific class from API."""
+        """Fetch skills for a specific class from API using admin token."""
         payload = {
             "route": "get_skills",
-            "token": self.token,
+            "token": self.token,  # Use admin token
             "class": class_name
         }
         try:
+            logger.info(f"Attempting to fetch skills for {class_name}...")
             r = requests.post(self.api_url, json=payload, timeout=15)
+            
+            logger.info(f"  Response status code: {r.status_code}")
+            
+            # If 404, the class might not support skills with admin token
+            if r.status_code == 404:
+                logger.warning(f"  Skills not available for {class_name} - 404 Not Found")
+                return None
+            
             r.raise_for_status()
-            return r.json()
+            result = r.json()
+            
+            logger.info(f"  Response data keys: {list(result.keys())}")
+            
+            # Check if response has error
+            if result.get('error'):
+                logger.warning(f"  API returned error for {class_name}: {result.get('error')}")
+                return None
+            
+            # Check if response has skills
+            if result.get('skills'):
+                logger.info(f"  ✓ Found {len(result.get('skills'))} skills for {class_name}")
+                return result
+            else:
+                logger.warning(f"  No 'skills' field in response for {class_name}")
+                logger.warning(f"  Full response: {result}")
+                return None
+                
         except Exception as e:
-            logger.error(f"Error fetching skills for {class_name}: {e}")
+            logger.error(f"  Exception fetching skills for {class_name}: {type(e).__name__}: {e}")
             return None
     
     def _fetch_listings(self, page=1, slot=None, class_=None):
@@ -172,15 +198,12 @@ class DataCache:
         """Refresh all cached data."""
         logger.info("Starting data refresh cycle...")
         
-        # List of all classes for skills caching
-        classes = ['barbarian', 'mage', 'ranger', 'priest', 'necromancer']
-        
         refreshed = []
         
-        # Refresh items
-        data = self._fetch_items()
-        if data:
-            self._set_cache('items', data)
+        # Refresh items FIRST - we need this to get the class list
+        items_data = self._fetch_items()
+        if items_data:
+            self._set_cache('items', items_data)
             refreshed.append('items')
         
         # Refresh shaders
@@ -201,23 +224,91 @@ class DataCache:
             self._set_cache('chests', data)
             refreshed.append('chests')
         
-        # Refresh skills for each class
-        for class_name in classes:
-            data = self._fetch_skills(class_name)
-            if data:
-                cache_key = f'skills:{class_name}'
-                self._set_cache(cache_key, data)
-                refreshed.append(cache_key)
+        # NOTE: Skills cannot be cached here because they require user authentication
+        # and the API returns 404 when using the admin token. Skills will be fetched
+        # on-demand when users request them via the /api/skills endpoint.
         
         # Optionally refresh first page of listings (marketplace overview)
-        # Note: You might want to skip this if listings change too frequently
-        # or make this refresh more frequently than hourly
         data = self._fetch_listings(page=1)
         if data:
             self._set_cache('listings:page1', data)
             refreshed.append('listings:page1')
         
         logger.info(f"Data refresh complete. Refreshed: {', '.join(refreshed)}")
+    
+    def _extract_classes_from_items(self, items_data):
+        """
+        Extract unique class names from items data.
+        Uses the same logic as filters.js to ensure consistency.
+        """
+        if not items_data:
+            return []
+        
+        classes_set = set()
+        
+        # Handle different possible response structures
+        items_list = []
+        if isinstance(items_data, dict):
+            # Could be {'items': [...]} or {'game_items': [...]} or direct list
+            items_list = items_data.get('items', items_data.get('game_items', []))
+            if not items_list and 'item_name' in items_data:
+                # Single item wrapped in dict
+                items_list = [items_data]
+        elif isinstance(items_data, list):
+            items_list = items_data
+        
+        # Extract classes from each item (same logic as filters.js)
+        for item in items_list:
+            if not isinstance(item, dict):
+                continue
+            
+            # Check all possible fields (same as filters.js line 32-41)
+            possible_fields = [
+                item.get('class'),
+                item.get('item_class'),
+                item.get('Class'),
+                item.get('classes'),
+                item.get('wearable'),
+                item.get('wearable_by'),
+                item.get('usable_by'),
+                item.get('restricted_to')
+            ]
+            
+            for field in possible_fields:
+                if not field:
+                    continue
+                
+                # If it's already a list
+                if isinstance(field, list):
+                    for cls in field:
+                        if cls and isinstance(cls, str) and cls.strip():
+                            classes_set.add(cls.strip())
+                
+                # If it's a string
+                elif isinstance(field, str):
+                    # Try to parse as JSON array first
+                    try:
+                        import json as json_module
+                        parsed = json_module.loads(field)
+                        if isinstance(parsed, list):
+                            for cls in parsed:
+                                if cls and isinstance(cls, str) and cls.strip():
+                                    classes_set.add(cls.strip())
+                        elif parsed and isinstance(parsed, str) and parsed.strip():
+                            classes_set.add(parsed.strip())
+                    except:
+                        # Not JSON, try comma-separated
+                        for cls in field.split(','):
+                            # Remove brackets and quotes
+                            clean = cls.strip().replace('[', '').replace(']', '').replace('"', '').replace("'", '')
+                            if clean:
+                                classes_set.add(clean)
+        
+        # Convert to sorted list for consistency
+        result = sorted(list(classes_set))
+        logger.info(f"Extracted {len(result)} classes from items: {result}")
+        return result
+    
     
     def _set_cache(self, key, data):
         """Set cache data with timestamp."""

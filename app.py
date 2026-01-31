@@ -17,6 +17,7 @@ except ModuleNotFoundError:
         return '127.0.0.1'
 import logging
 from data_cache import get_cache
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configure logging
 logging.basicConfig(
@@ -325,6 +326,164 @@ def delete_token():
     
     logger.info(f"Token deleted for IP: {request.remote_addr}")
     return response
+
+
+@app.route("/api/prefetch-user-data", methods=["POST"])
+@limiter.limit("10 per minute")
+def prefetch_user_data():
+    """
+    Prefetch all user data for all tabs at once using parallel requests.
+    This is called when a token is loaded (login or from cookies)
+    to populate all tabs without waiting for user clicks.
+    """
+    try:
+        token = request.cookies.get('rpg_user_token')
+        if not token:
+            req_data = request.get_json() or {}
+            token = req_data.get('token')
+        
+        if not token:
+            return jsonify({
+                "status": "error",
+                "message": "Authentication required"
+            }), 400
+        
+        # Define all fetches
+        def fetch_udata():
+            try:
+                payload = {"route": "get_udata", "token": token, "version": "1.0.0"}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                return ('udata', r.json(), None)
+            except Exception as e:
+                return ('udata', None, str(e))
+        
+        def fetch_inventory():
+            try:
+                payload = {"route": "get_inv", "token": token, "page": 1}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                return ('inventory', r.json(), None)
+            except Exception as e:
+                return ('inventory', None, str(e))
+        
+        def fetch_my_listings():
+            try:
+                payload = {"route": "my_listings", "token": token}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                return ('my_listings', r.json(), None)
+            except Exception as e:
+                return ('my_listings', None, str(e))
+        
+        def fetch_friends():
+            try:
+                payload = {"route": "get_friend_list", "token": token}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                return ('friends', r.json(), None)
+            except Exception as e:
+                return ('friends', None, str(e))
+        
+        def fetch_player_chests():
+            try:
+                payload = {"route": "get_player_chest", "token": token}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                return ('player_chests', r.json(), None)
+            except Exception as e:
+                return ('player_chests', None, str(e))
+        
+        # Execute all fetches in parallel
+        results = {}
+        errors = []
+        
+        # First, fetch udata to get character classes
+        udata_result = None
+        try:
+            payload = {"route": "get_udata", "token": token, "version": "1.0.0"}
+            r = requests.post(API_URL, json=payload, timeout=15)
+            r.raise_for_status()
+            udata_result = r.json()
+            results['udata'] = udata_result
+        except Exception as e:
+            errors.append(f"udata: {str(e)}")
+            results['udata'] = None
+        
+        # Extract classes from udata for skills fetching
+        character_classes = set()
+        if udata_result and udata_result.get('characters'):
+            for char in udata_result['characters']:
+                if char.get('class'):
+                    character_classes.add(char['class'])
+        
+        # Define skill fetcher for a specific class
+        def fetch_skills_for_class(class_name):
+            try:
+                payload = {"route": "get_skills", "token": token, "class": class_name}
+                r = requests.post(API_URL, json=payload, timeout=15)
+                r.raise_for_status()
+                skill_data = r.json()
+                if skill_data.get('skills'):
+                    return (class_name, skill_data['skills'], None)
+                return (class_name, None, "No skills in response")
+            except Exception as e:
+                return (class_name, None, str(e))
+        
+        # Now fetch everything else + skills in parallel
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [
+                executor.submit(fetch_inventory),
+                executor.submit(fetch_my_listings),
+                executor.submit(fetch_friends),
+                executor.submit(fetch_player_chests)
+            ]
+            
+            # Add skill fetches for each class
+            for class_name in character_classes:
+                futures.append(executor.submit(fetch_skills_for_class, class_name))
+            
+            all_skills = {}
+            for future in as_completed(futures):
+                result = future.result()
+                
+                # Handle regular data fetches (inventory, friends, etc)
+                if len(result) == 3 and result[0] in ['inventory', 'my_listings', 'friends', 'player_chests']:
+                    key, data, error = result
+                    results[key] = data
+                    if error:
+                        errors.append(f"{key}: {error}")
+                # Handle skill fetches (class_name, skills, error)
+                elif len(result) == 3 and isinstance(result[0], str) and result[0] not in ['inventory', 'my_listings', 'friends', 'player_chests']:
+                    class_name, skills, error = result
+                    if skills:
+                        all_skills[class_name] = skills
+                    elif error:
+                        errors.append(f"skills:{class_name}: {error}")
+            
+            # Store all skills together
+            results['skills'] = all_skills if all_skills else None
+        
+        # Return all results
+        response_data = {
+            "status": "success",
+            "data": results
+        }
+        
+        if errors:
+            response_data["warnings"] = errors
+            logger.warning(f"Prefetch completed with errors: {', '.join(errors)}")
+        else:
+            logger.info(f"Prefetch completed successfully for IP: {request.remote_addr}")
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        logger.error(f"Prefetch error: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred during prefetch"
+        }), 500
 
 
 @app.route("/api/udata", methods=["POST"])

@@ -15,16 +15,15 @@ const AuthManager = {
         const hasToken = await TokenManager.hasToken();
         
         if (hasToken) {
-            console.log('✓ Saved token found, attempting to load user data...');
+            console.log('✓ Saved token found, prefetching all user data...');
             
-            // CRITICAL FIX: Actually try to load user data with the saved token
-            const loaded = await this.loadUserData();
-            
-            if (loaded) {
+            try {
+                // Prefetch all user data at once
+                await this.prefetchAllUserData();
                 this.isAuthenticated = true;
                 console.log('✓ Authentication restored from saved token');
-            } else {
-                console.warn('⚠ Token exists but user data could not be loaded');
+            } catch (e) {
+                console.warn('⚠ Token exists but user data could not be loaded:', e.message);
                 this.isAuthenticated = false;
                 // Token might be invalid, clear it
                 await TokenManager.deleteToken();
@@ -154,6 +153,131 @@ const AuthManager = {
         }
     },
     
+    // Prefetch all user data in one API call
+    async prefetchAllUserData() {
+        try {
+            const response = await fetch('/api/prefetch-user-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Prefetch request failed');
+            }
+            
+            const result = await response.json();
+            
+            if (result.status !== 'success') {
+                throw new Error('Prefetch failed');
+            }
+            
+            const data = result.data;
+            
+            // Store user data (overview, characters)
+            if (data.udata) {
+                // Extract user object from udata (udata contains: {user: {...}, characters: [...], ...})
+                if (data.udata.user) {
+                    this.userData = data.udata.user;
+                    State.userData = Utils.normalizeUserData(data.udata.user);
+                    console.log('  ✓ User data loaded');
+                }
+                
+                if (data.udata.characters) {
+                    State.characters = data.udata.characters;
+                    Utils.buildEquippedItemMap(State.characters);
+                    console.log('  ✓ Characters loaded:', State.characters.length);
+                }
+                
+                if (data.udata.player_items) {
+                    // Store from udata if available
+                    State.inventoryItems = data.udata.player_items;
+                    console.log('  ✓ Inventory from udata:', State.inventoryItems.length, 'items');
+                }
+            }
+            
+            // Store inventory
+            if (data.inventory && data.inventory.player_items) {
+                State.inventoryItems = data.inventory.player_items;
+                console.log('  ✓ Inventory loaded:', State.inventoryItems.length, 'items');
+            }
+            
+            // Store my listings
+            if (data.my_listings && data.my_listings.listings) {
+                State.myListings = data.my_listings.listings;
+                console.log('  ✓ My listings loaded:', State.myListings.length);
+            }
+            
+            // Store friends
+            if (data.friends && data.friends.friends) {
+                State.friends = data.friends.friends;
+                console.log('  ✓ Friends loaded:', State.friends.length);
+            }
+            
+            // Store player chests
+            if (data.player_chests && data.player_chests.chests) {
+                State.playerChests = data.player_chests.chests;
+                console.log('  ✓ Player chests loaded:', State.playerChests.length);
+            }
+            
+            // Store skills for all classes
+            if (data.skills) {
+                State.allSkills = data.skills;
+                const classCount = Object.keys(data.skills).length;
+                console.log('  ✓ Skills loaded for', classCount, 'classes');
+            }
+            
+            if (result.warnings && result.warnings.length > 0) {
+                console.warn('  ⚠ Some data failed to load:', result.warnings);
+            }
+            
+            console.log('✓ All user data prefetched successfully');
+            
+            // Debug: Log what we have in State
+            console.log('  📊 State after prefetch:');
+            console.log('    - userData:', State.userData ? '✓' : '✗');
+            console.log('    - characters:', State.characters?.length || 0);
+            console.log('    - inventoryItems:', State.inventoryItems?.length || 0);
+            console.log('    - myListings:', State.myListings?.length || 0);
+            console.log('    - friends:', State.friends?.length || 0);
+            
+            // CRITICAL: Update UI after data is loaded
+            this.displayUserInfo(); // Update header with money/gems
+            
+            // Always render overview since user will be switched there after login
+            if (typeof Overview !== 'undefined' && Overview.render) {
+                console.log('  → Pre-rendering overview tab with prefetched data');
+                await Overview.render();
+            }
+            
+            // Also render current tab if it's different from overview
+            const currentTab = State.currentTab;
+            if (currentTab && currentTab !== 'overview') {
+                if (currentTab === 'inventory' && typeof Inventory !== 'undefined' && Inventory.render) {
+                    console.log('  → Refreshing inventory tab with prefetched data');
+                    await Inventory.render();
+                }
+                else if (currentTab === 'characters' && typeof Characters !== 'undefined' && Characters.render) {
+                    console.log('  → Refreshing characters tab with prefetched data');
+                    await Characters.render();
+                }
+                else if (currentTab === 'mylistings' && typeof MyListings !== 'undefined' && MyListings.render) {
+                    console.log('  → Refreshing my listings tab with prefetched data');
+                    await MyListings.render();
+                }
+                else if (currentTab === 'friends' && typeof Friends !== 'undefined' && Friends.render) {
+                    console.log('  → Refreshing friends tab with prefetched data');
+                    await Friends.render();
+                }
+            }
+            
+            return true;
+        } catch (e) {
+            console.error('  ✗ Error prefetching data:', e);
+            throw new Error('Failed to load user data - token may be invalid');
+        }
+    },
+    
     // Authenticate with token
     async authenticate(token) {
         if (!token || !token.trim()) {
@@ -170,84 +294,16 @@ const AuthManager = {
             }
             console.log('  ✓ Token saved');
             
-            // Load user data
-            const loaded = await this.loadUserData();
-            if (!loaded) {
-                throw new Error('Failed to load user data - token may be invalid');
-            }
-            console.log('  ✓ User data loaded');
+            // Prefetch ALL user data at once (instead of loading one by one)
+            console.log('🔄 Prefetching all user data...');
+            await this.prefetchAllUserData();
             
             this.isAuthenticated = true;
             this.updateAuthUI();
             
-            console.log('✓ Authentication successful');
+            console.log('✓ Authentication successful - all data loaded');
             
-            // Auto-load all authenticated data
-            console.log('🔄 Auto-loading authenticated data...');
-            
-            // Load inventory
-            try {
-                console.log('  → Loading inventory...');
-                const invResponse = await fetch('/api/inventory', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ page: 1 }),
-                    credentials: 'include'
-                });
-                if (invResponse.ok) {
-                    const invData = await invResponse.json();
-                    if (invData.player_items) {
-                        State.inventoryItems = invData.player_items;
-                        
-                        // Load all pages
-                        const totalPages = invData.total_pages || 1;
-                        if (totalPages > 1) {
-                            const remaining = [];
-                            for (let p = 2; p <= totalPages; p++) {
-                                remaining.push(
-                                    fetch('/api/inventory', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ page: p }),
-                                        credentials: 'include'
-                                    }).then(r => r.json())
-                                );
-                            }
-                            
-                            const results = await Promise.all(remaining);
-                            results.forEach(data => {
-                                if (data.player_items) State.inventoryItems.push(...data.player_items);
-                            });
-                        }
-                        
-                        console.log('  ✓ Inventory loaded:', State.inventoryItems.length, 'items');
-                    }
-                }
-            } catch (e) {
-                console.warn('  ⚠ Could not load inventory:', e.message);
-            }
-            
-            // Load characters
-            try {
-                console.log('  → Loading characters...');
-                if (typeof Characters !== 'undefined' && Characters.loadCharacters) {
-                    await Characters.loadCharacters();
-                    console.log('  ✓ Characters loaded:', State.characters?.length || 0);
-                }
-            } catch (e) {
-                console.warn('  ⚠ Could not load characters:', e.message);
-            }
-            
-            // Load my listings
-            try {
-                console.log('  → Loading my listings...');
-                if (typeof MyListings !== 'undefined' && MyListings.loadMyListings) {
-                    await MyListings.loadMyListings();
-                    console.log('  ✓ My listings loaded:', State.myListings?.length || 0);
-                }
-            } catch (e) {
-                console.warn('  ⚠ Could not load my listings:', e.message);
-            }
+            return true;
             
             // Load friends
             try {
