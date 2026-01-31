@@ -330,7 +330,7 @@ def api_user_data():
             }), 400
         
         payload = {
-            "route": "get_udata",  # FIXED: was "udata"
+            "route": "get_udata",
             "token": token,
             "version": "1.0.0"
         }
@@ -368,10 +368,17 @@ def api_my_listings():
                 "message": "Authentication required"
             }), 400
         
+        req_data = request.get_json() or {}
+        page = req_data.get('page', 1)
+        
         payload = {
-            "route": "my_listings",  # FIXED: was "get_my_listings"
+            "route": "my_listings",
             "token": token
         }
+        
+        # Only add page if backend supports it (test by checking response for total_pages)
+        if page and page > 1:
+            payload["page"] = page
         
         r = requests.post(API_URL, json=payload, timeout=15)
         r.raise_for_status()
@@ -439,10 +446,17 @@ def api_friends():
                 "message": "Authentication required"
             }), 400
         
+        req_data = request.get_json() or {}
+        page = req_data.get('page', 1)
+        
         payload = {
-            "route": "get_friend_list",  # FIXED: was "get_friends_list" (no 's')
+            "route": "get_friend_list",
             "token": token
         }
+        
+        # Only add page if backend supports it
+        if page and page > 1:
+            payload["page"] = page
         
         r = requests.post(API_URL, json=payload, timeout=15)
         r.raise_for_status()
@@ -576,10 +590,17 @@ def api_player_chests():
                 "message": "Authentication required"
             }), 400
         
+        req_data = request.get_json() or {}
+        page = req_data.get('page', 1)
+        
         payload = {
             "route": "get_player_chest",
             "token": token
         }
+        
+        # Only add page if backend supports it
+        if page and page > 1:
+            payload["page"] = page
         
         r = requests.post(API_URL, json=payload, timeout=15)
         r.raise_for_status()
@@ -616,12 +637,17 @@ def api_skills():
             }), 400
         
         char_class = req_data.get('class', 'barbarian')
+        page = req_data.get('page', 1)
         
         payload = {
             "route": "get_skills",
             "token": token,
             "class": char_class
         }
+        
+        # Only add page if backend supports it
+        if page and page > 1:
+            payload["page"] = page
         
         r = requests.post(API_URL, json=payload, timeout=15)
         r.raise_for_status()

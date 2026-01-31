@@ -461,37 +461,73 @@ buildEquippedItemMap(characters) {
         return map;
     }
 
-    // Dynamically discover equipment slot fields from the first character
-    // This ensures we catch all equipment slots regardless of game updates
-    const sampleChar = characters[0];
-    const equipmentSlots = Object.keys(sampleChar || {})
-        .filter(key => key.endsWith('_equip'))
-        .filter(key => key !== 'back_equip'); // Back is cosmetic, not equipment
-    
-    console.log('📋 Discovered equipment slots:', equipmentSlots);
-    console.log('📋 Sample character:', {
-        class: sampleChar.class,
-        slot: sampleChar.slot,
-        fields: Object.keys(sampleChar).filter(k => k.includes('equip'))
+    // Dynamically discover equipment slot fields from ALL characters (not just first)
+    // This ensures we catch all equipment slots even if first character has empty slots
+    const allEquipmentSlots = new Set();
+    characters.forEach(char => {
+        Object.keys(char || {})
+            .filter(key => key.endsWith('_equip'))
+            .filter(key => key !== 'back_equip') // Back is cosmetic, not equipment
+            .forEach(key => allEquipmentSlots.add(key));
     });
+    
+    const equipmentSlots = Array.from(allEquipmentSlots);
+    
+    console.log('📋 Discovered equipment slots from ALL characters:', equipmentSlots);
+    console.log('📋 Total unique slot types:', equipmentSlots.length);
 
     (characters || []).forEach((c, idx) => {
-        console.log(`Character ${idx + 1}/${characters.length}: ${c.class} (slot ${c.slot}):`);
+        console.log(`\n--- Character ${idx + 1}/${characters.length}: ${c.class} (slot ${c.slot}) ---`);
+        
+        // Show ALL fields that contain 'equip' for debugging
+        const allEquipFields = Object.keys(c).filter(k => k.includes('equip'));
+        console.log(`All *equip fields in character:`, allEquipFields);
         
         // Check each discovered equipment slot
+        let equippedCountThisChar = 0;
         equipmentSlots.forEach((slotKey) => {
+            const rawValue = c[slotKey];
             const v = String(c[slotKey] ?? '');
             if (v && v !== '-1' && v !== '0' && v !== '') {
                 map[v] = true;
-                console.log(`  ✓ ${slotKey}: Item ID ${v}`);
+                equippedCountThisChar++;
+                console.log(`  ✓ ${slotKey}: Item ID ${v} (type: ${typeof rawValue}, raw: ${rawValue})`);
             } else {
-                console.log(`  ✗ ${slotKey}: empty (value: "${v}")`);
+                console.log(`  ✗ ${slotKey}: empty (value: "${v}", raw: ${rawValue})`);
             }
         });
+        console.log(`Character ${idx + 1} total equipped: ${equippedCountThisChar} items`);
     });
     
-    console.log('📋 Equipped item map built:', Object.keys(map).length, 'items');
-    console.log('📋 Item IDs in map:', Object.keys(map).slice(0, 10).join(', '), '...');
+    console.log('\n📋 Equipped item map built:', Object.keys(map).length, 'items');
+    console.log('📋 All Item IDs in map:', Object.keys(map).join(', '));
+    
+    // DIAGNOSTIC: Compare with inventory items if available
+    if (State.inventoryItems && State.inventoryItems.length > 0) {
+        const invIds = State.inventoryItems.slice(0, 10).map(item => ({
+            id: item.id,
+            idType: typeof item.id,
+            idString: String(item.id),
+            slot: item.slot
+        }));
+        console.log('📋 Sample inventory item IDs:', invIds);
+        
+        // Check if any inventory items match the equipped map
+        const matchCount = State.inventoryItems.filter(item => {
+            const itemId = String(item?.id ?? '');
+            return itemId in map;
+        }).length;
+        console.log(`📋 Matched ${matchCount}/${Object.keys(map).length} equipped items in inventory`);
+        
+        // Show which equipped IDs are NOT in inventory
+        const missingIds = Object.keys(map).filter(equippedId => {
+            return !State.inventoryItems.some(item => String(item.id) === equippedId);
+        });
+        if (missingIds.length > 0) {
+            console.warn(`⚠️ ${missingIds.length} equipped item IDs not found in inventory:`, missingIds);
+        }
+    }
+    
     State.equippedItemMap = map;
     return map;
 },
@@ -514,6 +550,10 @@ getItemStatus(item) {
     const isEquipped = !!(State.equippedItemMap && State.equippedItemMap[itemId]);
     const isListed = !!(State.listedItemMap && State.listedItemMap[itemId]);
     
+    // If item is both listed AND equipped, return 'equipped' for equipped filter
+    // and 'listed' for listed filter - this way it shows in both views
+    // For now, prioritize equipped state since equipped items can still be listed
+    if (isEquipped && isListed) return 'equipped-listed';  // New composite state
     if (isListed) return 'listed';
     if (isEquipped) return 'equipped';
     return 'available';

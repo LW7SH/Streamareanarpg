@@ -67,31 +67,54 @@ const FilterEngine = {
                 return false;
             }
             
-            // Range filter
-            const range = Utils.getRange(item);
-            if (!isNaN(filterConfig.minRange) && (!range || range < filterConfig.minRange)) {
-                return false;
+            // Range filter - ONLY apply if user has explicitly set range filters
+            // Non-weapon items don't have range, so we shouldn't filter them out if no range filter is set
+            if (filterConfig.minRange !== undefined && !isNaN(filterConfig.minRange)) {
+                const range = Utils.getRange(item);
+                if (!range || range < filterConfig.minRange) {
+                    return false;
+                }
             }
-            if (!isNaN(filterConfig.maxRange) && (!range || range > filterConfig.maxRange)) {
-                return false;
+            if (filterConfig.maxRange !== undefined && !isNaN(filterConfig.maxRange)) {
+                const range = Utils.getRange(item);
+                if (!range || range > filterConfig.maxRange) {
+                    return false;
+                }
             }
 
             // Status filter (inventory): available / listed / equipped
             if (filterConfig.status) {
                 const status = Utils.getItemStatus(item);
+                const itemId = String(item?.id ?? '');
                 
-                // DIAGNOSTIC: Log first equipped item check to see what's happening
-                if (filterConfig.status === 'equipped' && items.indexOf(item) < 3) {
-                    console.log(`Checking item ${item.id} (${item.slot}):`, {
+                // CRITICAL DEBUG: Check EVERY equipped item to see why it's failing
+                if (filterConfig.status === 'equipped' && State.equippedItemMap && State.equippedItemMap[itemId]) {
+                    // This item IS in the equipped map, so it SHOULD have status 'equipped'
+                    // If it doesn't, something is wrong with getItemStatus
+                    if (status !== 'equipped') {
+                        console.error(`⚠️ PROBLEM: Item ${itemId} is IN equipped map but status is '${status}'`);
+                        console.error(`  Checking listed map:`, itemId in (State.listedItemMap || {}));
+                        console.error(`  Checking equipped map:`, itemId in (State.equippedItemMap || {}));
+                    }
+                }
+                
+                // Log first few items for general diagnostics
+                if (filterConfig.status === 'equipped' && items.indexOf(item) < 5) {
+                    console.log(`Checking item ${item.id} (${item.slot}, name: ${Utils.getItemName(item.base_item_id, item.slot)}):`, {
                         status,
-                        inMap: State.equippedItemMap && item.id in State.equippedItemMap,
-                        mapHasId: State.equippedItemMap && State.equippedItemMap[item.id]
+                        itemIdString: itemId,
+                        itemIdType: typeof item.id,
+                        inMapDirectly: itemId in (State.equippedItemMap || {}),
+                        mapHasId: !!(State.equippedItemMap && State.equippedItemMap[itemId]),
+                        mapKeys: Object.keys(State.equippedItemMap || {}).slice(0, 5),
+                        sampleMapKey: Object.keys(State.equippedItemMap || {})[0],
+                        sampleMapKeyType: typeof Object.keys(State.equippedItemMap || {})[0]
                     });
                 }
                 
                 if (filterConfig.status === 'available' && status !== 'available') return false;
-                if (filterConfig.status === 'listed' && status !== 'listed') return false;
-                if (filterConfig.status === 'equipped' && status !== 'equipped') return false;
+                if (filterConfig.status === 'listed' && status !== 'listed' && status !== 'equipped-listed') return false;
+                if (filterConfig.status === 'equipped' && status !== 'equipped' && status !== 'equipped-listed') return false;
             }
             
             // Price filters (if provided)
@@ -210,6 +233,9 @@ const FilterEngine = {
     
     // Extract filter values from DOM for inventory
     getInventoryFilters() {
+        const minRangeInput = document.getElementById('invFilterMinRange')?.value;
+        const maxRangeInput = document.getElementById('invFilterMaxRange')?.value;
+        
         return {
             itemName: document.getElementById('invFilterItemName')?.value || '',
             slot: document.getElementById('invFilterSlot')?.value || '',
@@ -217,9 +243,9 @@ const FilterEngine = {
             extraProp: document.getElementById('invFilterExtraProperty')?.value || '',
             twoHanded: document.getElementById('invFilterTwoHanded')?.value || '',
             minPower: parseFloat(document.getElementById('invFilterMinPower')?.value) || 0,
-            maxPower: parseFloat(document.getElementById('invFilterMaxPower')?.value) || Infinity,  // FIXED: was 999, now Infinity
-            minRange: parseFloat(document.getElementById('invFilterMinRange')?.value) || 0,
-            maxRange: parseFloat(document.getElementById('invFilterMaxRange')?.value) || Infinity,
+            maxPower: parseFloat(document.getElementById('invFilterMaxPower')?.value) || Infinity,
+            minRange: minRangeInput ? parseFloat(minRangeInput) : undefined,  // undefined if empty, not 0
+            maxRange: maxRangeInput ? parseFloat(maxRangeInput) : undefined,  // undefined if empty, not Infinity
             status: document.getElementById('invFilterStatus')?.value || ''
         };
     },

@@ -138,6 +138,7 @@ const AuthManager = {
                 }
                 if (Array.isArray(data.player_items)) {
                     State.inventoryItems = data.player_items;
+                    console.log('  📦 Loaded', data.player_items.length, 'items from udata (may be partial inventory)');
                 }
 
                 console.log('  ✓ User data loaded:', this.userData.username);

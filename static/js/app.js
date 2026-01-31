@@ -156,48 +156,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // The auth manager already loaded user data, but let's ensure all tabs have data
             
-            // Load inventory if not already loaded
-            if (!State.inventoryItems || State.inventoryItems.length === 0) {
-                console.log('  → Loading inventory...');
-                try {
-                    const invResponse = await fetch('/api/inventory', {
-                        credentials: 'include',
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ page: 1 })
-                    });
-                    if (invResponse.ok) {
-                        const invData = await invResponse.json();
-                        if (invData.player_items) {
-                            State.inventoryItems = invData.player_items;
-                            
-                            // Load all pages
-                            const totalPages = invData.total_pages || 1;
-                            if (totalPages > 1) {
-                                const remaining = [];
-                                for (let p = 2; p <= totalPages; p++) {
-                                    remaining.push(
-                                        fetch('/api/inventory', {
-                                            method: 'POST',
-                                            credentials: 'include',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ page: p })
-                                        }).then(r => r.json())
-                                    );
-                                }
-                                
-                                const results = await Promise.all(remaining);
-                                results.forEach(data => {
-                                    if (data.player_items) State.inventoryItems.push(...data.player_items);
-                                });
+            // ALWAYS load full inventory from /api/inventory endpoint
+            // The udata endpoint returns player_items but it may be incomplete
+            // We need the full paginated inventory for the Inventory tab
+            console.log('  → Loading full inventory from /api/inventory...');
+            try {
+                const invResponse = await fetch('/api/inventory', {
+                    credentials: 'include',
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ page: 1 })
+                });
+                if (invResponse.ok) {
+                    const invData = await invResponse.json();
+                    if (invData.player_items) {
+                        State.inventoryItems = invData.player_items;
+                        
+                        // Load all pages
+                        const totalPages = invData.total_pages || 1;
+                        if (totalPages > 1) {
+                            const remaining = [];
+                            for (let p = 2; p <= totalPages; p++) {
+                                remaining.push(
+                                    fetch('/api/inventory', {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ page: p })
+                                    }).then(r => r.json())
+                                );
                             }
                             
-                            console.log('  ✓ Inventory loaded:', State.inventoryItems.length, 'items');
+                            const results = await Promise.all(remaining);
+                            results.forEach(data => {
+                                if (data.player_items) State.inventoryItems.push(...data.player_items);
+                            });
+                        }
+                        
+                        console.log('  ✓ Full inventory loaded:', State.inventoryItems.length, 'items');
+                        
+                        // Rebuild equipped map now that we have full inventory
+                        if (State.characters && State.characters.length > 0) {
+                            Utils.buildEquippedItemMap(State.characters);
                         }
                     }
-                } catch (e) {
-                    console.warn('  ⚠ Could not load inventory:', e.message);
                 }
+            } catch (e) {
+                console.warn('  ⚠ Could not load inventory:', e.message);
             }
             
             // Load characters if not already loaded

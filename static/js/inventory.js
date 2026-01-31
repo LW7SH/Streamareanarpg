@@ -100,6 +100,16 @@ const Inventory = {
         // Use State.inventoryItems directly (Store is just a wrapper around State)
         const inventoryItems = State.inventoryItems || [];
         
+        console.log('🔍 INVENTORY applyFilters called');
+        console.log('  Total items in State.inventoryItems:', inventoryItems.length);
+        
+        // Show breakdown by slot
+        const bySlot = {};
+        inventoryItems.forEach(item => {
+            bySlot[item.slot] = (bySlot[item.slot] || 0) + 1;
+        });
+        console.log('  Items by slot:', bySlot);
+        
         // CRITICAL: Rebuild equipped item map if we have characters but no map
         if (State.characters && State.characters.length > 0) {
             if (!State.equippedItemMap || Object.keys(State.equippedItemMap).length === 0) {
@@ -110,42 +120,51 @@ const Inventory = {
         
         // Get filters from DOM
         const filterConfig = FilterEngine.getInventoryFilters();
+        console.log('  Filter config:', filterConfig);
         
         // Apply filters
         let filtered = FilterEngine.applyItemFilters(inventoryItems, filterConfig);
+        console.log('  After filtering:', filtered.length, 'items');
+        
+        // Show filtered breakdown by slot
+        const filteredBySlot = {};
+        filtered.forEach(item => {
+            filteredBySlot[item.slot] = (filteredBySlot[item.slot] || 0) + 1;
+        });
+        console.log('  Filtered items by slot:', filteredBySlot);
         
         // Apply sorting
         const sortBy = document.getElementById('invSortBy')?.value || document.getElementById('inventorySortBy')?.value || 'time_newest';
         filtered = FilterEngine.sortItems(filtered, sortBy);
         
-// Update counts
-const totalEl = document.getElementById('totalInventoryItems');
-if (totalEl) totalEl.textContent = inventoryItems.length;
+        // Update counts
+        const totalEl = document.getElementById('totalInventoryItems');
+        if (totalEl) totalEl.textContent = inventoryItems.length;
 
-const filteredEl = document.getElementById('filteredInventoryItems');
-if (filteredEl) filteredEl.textContent = filtered.length;
+        const filteredEl = document.getElementById('filteredInventoryItems');
+        if (filteredEl) filteredEl.textContent = filtered.length;
 
-// Unique count (by item name + slot + power type)
-const uniqueSet = new Set(filtered.map(it => `${Utils.getItemName(it.base_item_id, it.slot)}|${it.slot}|${Utils.getPowerType(it)}`));
-const uniqueEl = document.getElementById('uniqueInventoryItems');
-if (uniqueEl) uniqueEl.textContent = uniqueSet.size;
+        // Unique count (by item name + slot + power type)
+        const uniqueSet = new Set(filtered.map(it => `${Utils.getItemName(it.base_item_id, it.slot)}|${it.slot}|${Utils.getPowerType(it)}`));
+        const uniqueEl = document.getElementById('uniqueInventoryItems');
+        if (uniqueEl) uniqueEl.textContent = uniqueSet.size;
 
-// Listed / Equipped counts within current view
-let listedCount = 0;
-let equippedCount = 0;
-filtered.forEach(it => {
-    const s = Utils.getItemStatus(it);
-    if (s === 'listed') listedCount += 1;
-    if (s === 'equipped') equippedCount += 1;
-});
+        // FIXED: Count equipped items from the equippedItemMap (total in inventory, not just filtered view)
+        // This matches how Overview page calculates it
+        const totalEquippedCount = Object.keys(State.equippedItemMap || {}).length;
+        const equippedEl = document.getElementById('inventoryEquippedCount');
+        if (equippedEl) equippedEl.textContent = totalEquippedCount;
 
-const listedEl = document.getElementById('inventoryListedCount');
-if (listedEl) listedEl.textContent = listedCount;
-
-const equippedEl = document.getElementById('inventoryEquippedCount');
-if (equippedEl) equippedEl.textContent = equippedCount;
+        // Listed count within inventory (total in inventory, not just filtered view)
+        const totalListedCount = inventoryItems.filter(item => {
+            const itemId = String(item?.id ?? '');
+            return !!(State.listedItemMap && State.listedItemMap[itemId]);
+        }).length;
+        const listedEl = document.getElementById('inventoryListedCount');
+        if (listedEl) listedEl.textContent = totalListedCount;
 
         // Render items
+        console.log('  Rendering', filtered.length, 'items...');
         this.renderInventory(filtered);
     },
     

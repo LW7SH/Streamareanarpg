@@ -3,12 +3,14 @@ const Friends = {
     async loadFriends() {
         try {
             // Token is in HttpOnly cookie, backend will read it
+            // Load first page
             const response = await fetch('/api/friends', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include'  // Important: Include cookies
+                body: JSON.stringify({ page: 1 }),
+                credentials: 'include'
             });
             
             if (!response.ok) {
@@ -21,6 +23,29 @@ const Friends = {
             State.friends = data.friends || [];
             State.pendingFriendsIn = data.pending_in || [];
             State.pendingFriendsOut = data.pending_out || [];
+            
+            // Load additional pages if needed
+            const totalPages = data.total_pages || 1;
+            if (totalPages > 1) {
+                const remaining = [];
+                for (let p = 2; p <= totalPages; p++) {
+                    remaining.push(
+                        fetch('/api/friends', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ page: p })
+                        }).then(r => r.json())
+                    );
+                }
+                
+                const results = await Promise.all(remaining);
+                results.forEach(pageData => {
+                    if (pageData.friends) State.friends.push(...pageData.friends);
+                    if (pageData.pending_in) State.pendingFriendsIn.push(...pageData.pending_in);
+                    if (pageData.pending_out) State.pendingFriendsOut.push(...pageData.pending_out);
+                });
+            }
             
             console.log('✓ Friends loaded:', State.friends.length);
             return true;

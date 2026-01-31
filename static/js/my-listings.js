@@ -2,11 +2,13 @@
 const MyListings = {
     async loadMyListings() {
         try {
+            // Load first page
             const response = await fetch('/api/my-listings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ page: 1 }),
                 credentials: 'include'
             });
             
@@ -19,6 +21,28 @@ const MyListings = {
             
             if (data.listings) {
                 State.myListings = data.listings;
+                
+                // Load additional pages if needed
+                const totalPages = data.total_pages || 1;
+                if (totalPages > 1) {
+                    const remaining = [];
+                    for (let p = 2; p <= totalPages; p++) {
+                        remaining.push(
+                            fetch('/api/my-listings', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({ page: p })
+                            }).then(r => r.json())
+                        );
+                    }
+                    
+                    const results = await Promise.all(remaining);
+                    results.forEach(pageData => {
+                        if (pageData.listings) State.myListings.push(...pageData.listings);
+                    });
+                }
+                
                 // Build listed item lookup map for inventory highlighting
                 Utils.buildListedItemMap(State.myListings);
                 console.log('✓ My listings loaded:', State.myListings.length);
